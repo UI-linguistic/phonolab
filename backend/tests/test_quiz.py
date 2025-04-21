@@ -1,12 +1,12 @@
 import pytest
-from src.models.quiz import QuizItem, VowelEntry
-from src.models.phoneme import ColorMapPosition, ComparisonPair
-from tests.fixtures import VOWEL_SHORT_A, create_custom_vowel
+from src.app import app
+from .fixtures import VOWEL_SHORT_A, create_custom_vowel
+from models.phoneme import ColorMapPosition, ComparisonPair
+from models.quiz import QuizItem, VowelEntry
 
 
 class TestQuizItem:
     def test_quiz_item_creation(self):
-        # Test both with and without hint in a single test
         quiz_item = QuizItem(
             question="What is the IPA symbol for the vowel in 'cat'?",
             options=["æ", "ɪ", "e", "ɛ"],
@@ -156,3 +156,55 @@ class TestVowelEntry:
         # required fields in the serialized output
         assert "audio_url_a" in result["comparison_set"]
         assert "audio_url_b" in result["comparison_set"]
+
+
+@pytest.fixture
+def client():
+    app.config["TESTING"] = True
+    return app.test_client()
+
+
+def test_get_valid_quiz_question(client):
+    response = client.get("/quiz/1")
+    data = response.get_json()
+
+    assert response.status_code == 200
+    assert "quiz" in data
+    assert "question" in data["quiz"]
+    assert "options" in data["quiz"]
+
+
+def test_get_invalid_quiz_question(client):
+    response = client.get("/quiz/99")
+    data = response.get_json()
+
+    assert response.status_code == 404
+    assert "error" in data
+
+
+def test_post_quiz_answer_correct(client):
+    response = client.post("/quiz/1", json={"selected": "bat"})
+    data = response.get_json()
+
+    assert response.status_code == 200
+    assert data["correct"] is True
+
+
+def test_post_quiz_answer_invalid_index(client):
+    response = client.post("/quiz/99", json={"selected": "bat"})
+    data = response.get_json()
+
+    assert response.status_code == 400
+    assert "error" in data
+
+
+def test_quiz_result_summary(client):
+    # Make sure at least one question is answered first
+    client.post("/quiz/1", json={"selected": "bat"})
+
+    response = client.get("/quiz/result")
+    data = response.get_json()
+
+    assert response.status_code == 200
+    assert "score" in data
+    assert "answers" in data

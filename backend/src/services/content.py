@@ -1,4 +1,5 @@
-from models.phoneme import VowelEntry, ColorMapPosition, ComparisonPair
+from models.phoneme import ColorMapPosition, ComparisonPair
+from models.quiz import VowelEntry
 
 
 # temporary

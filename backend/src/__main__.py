@@ -1,4 +1,6 @@
-# from src import app
+#__main__.py
+from .app import app 
 
-# if __name__ == '__main__':
-#     app.run()
+
+if __name__ == "__main__":
+    app.run(debug=True)

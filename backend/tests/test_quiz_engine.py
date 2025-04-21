@@ -1,7 +1,6 @@
 import pytest
 
-from models.quiz import QuizItem
-from services.quiz_engine import QuizEngine
+from models.quiz import QuizItem, QuizEngine
 
 
 @pytest.fixture
