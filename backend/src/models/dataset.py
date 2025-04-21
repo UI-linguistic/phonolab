@@ -1,7 +1,7 @@
 import json
 from typing import Dict, List
 
-from models.quiz import VowelEntry
+from .quiz import VowelEntry
 
 
 class VowelSet:
