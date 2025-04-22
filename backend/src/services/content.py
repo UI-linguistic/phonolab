@@ -10,7 +10,7 @@ lesson_1 = VowelEntry(
     word_example="cat",
     ipa_example="/kæt/",
     color_code="#FF9999",
-    audio_url="/audio/cat_ae.mp3",
+    audio_url="/audio/cat_ae.mp3", # url list of sounds instead
     description="The vowel sound in 'cat'.",
     quiz_items=[],
     map_location=ColorMapPosition(x=0.2, y=0.7, region="front-low"),

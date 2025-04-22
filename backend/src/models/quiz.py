@@ -3,6 +3,7 @@ from typing import Dict, List, Optional
 
 from .phoneme import ColorMapPosition, ComparisonPair, Vowel
 
+# TODO: quiz has 3 correct answers instead of a single one
 
 @dataclass
 class QuizItem:
@@ -30,11 +31,13 @@ class VowelEntry(Vowel):
 class QuizEngine:
     def __init__(self, quiz_items: List[QuizItem]):
         self.quiz_data = quiz_items
-        self.user_data: Dict = {
-            "quiz_answers": [],
-            "score": 0,
-            "lesson_entries": []
-        }
+        # TODO: move the fields below to user.py model
+        
+        # self.user_data: Dict = {
+        #     "quiz_answers": [],
+        #     "score": 0,
+        #     "lesson_entries": []
+        # }
 
     def get_quiz_item(self, index: int) -> Optional[QuizItem]:
         if 1 <= index <= len(self.quiz_data):

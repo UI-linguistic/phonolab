@@ -1,29 +1,35 @@
-# src/api/learn_api.py
+# src/api/learn.py
+
 from flask import Blueprint, jsonify
-from models.phoneme import Vowel
-from datetime import datetime
+from services.learn import get_lesson_by_index, log_lesson_visit
 
 learn_bp = Blueprint("learn", __name__, url_prefix="/learn")
 
-# temporary
-sample_lesson = Vowel(
-    id="v1",
-    phoneme="æ",
-    name="Short A",
-    word_example="cat",
-    ipa_example="kæt",
-    color_code="#FF99AA",
-    audio_url="/static/audio/cat.mp3",
-    description="The vowel sound in 'cat'."
-)
 
-@learn_bp.route("/<int:lesson_id>", methods=["GET"])
-def serve_lesson(lesson_id):
-    # HW10 only supports 1 lesson
-    if lesson_id != 1:
+@learn_bp.route("/<int:index>", methods=["GET"])
+def get_lesson(index):
+    """
+    Serve lesson content for a given lesson index.
+    
+    Returns:
+        JSON containing:
+        - lesson id
+        - vowel data
+        - sample text
+        - instructions
+    """
+    lesson = get_lesson_by_index(index)
+    if not lesson:
         return jsonify({"error": "Lesson not found"}), 404
 
+    # Log the visit
+    log_lesson_visit(lesson.id)
+
     return jsonify({
-        "lesson": sample_lesson.__dict__,
-        "timestamp": datetime.utcnow().isoformat()
-    })
+        "lesson": {
+            "id": lesson.id,
+            "vowel": lesson.vowel.__dict__,
+            "sample_text": lesson.sample_text,
+            "instructions": lesson.instructions
+        }
+    }), 200
