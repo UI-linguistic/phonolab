@@ -1,7 +1,7 @@
 """
 Test fixtures for phoneme models.
 """
-from src.models.phoneme import Vowel
+from models.phoneme import Vowel
 
 # Standard vowel fixture
 VOWEL_SHORT_A = Vowel(
