@@ -40,3 +40,4 @@ def log_lesson_visit(lesson_id: int):
 def reset_lesson_log():
     """Clear user lesson visit history."""
     user_lesson_log["visited"].clear()
+    

@@ -6,14 +6,14 @@ quiz_bp = Blueprint("quiz", __name__, url_prefix="/quiz")
 
 
 # temporary
-engine = QuizEngine([
-    QuizItem(
-        question="Which word has the same vowel as 'cat'?",
-        options=["bat", "bet", "cut"],
-        answer="bat",
-        hint="Think of rhyming sounds."
-    )
-])
+# engine = QuizEngine([
+#     QuizItem(
+#         question="Which word has the same vowel as 'cat'?",
+#         options=["bat", "bet", "cut"],
+#         answer="bat",
+#         hint="Think of rhyming sounds."
+#     )
+# ])
 
 @quiz_bp.route("/<int:index>", methods=["GET"])
 def get_quiz(index):
