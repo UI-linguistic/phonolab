@@ -2,7 +2,7 @@
 
 from flask import Blueprint, request
 
-from services.lesson import (
+from ..services.lesson import (
     create_lesson,
     delete_lesson,
     get_all_lessons,
@@ -10,7 +10,7 @@ from services.lesson import (
     get_lesson_by_vowel,
     update_lesson_instructions,
 )
-from utils.format import error_response, success_response
+from ..utils.format import error_response, success_response
 
 lesson_bp = Blueprint("lesson", __name__, url_prefix="/lessons")
 

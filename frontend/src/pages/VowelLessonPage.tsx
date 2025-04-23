@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import pronounMouthArt from '../images/PNG/pronounmouthart-01.png';
@@ -125,6 +125,7 @@ const VowelLessonPage: React.FC = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams<{ lessonId: string }>();
   const currentLesson = MOCK_LESSON_1; // This would come from an API call
+  const [audio] = useState(new Audio('/temporary-mp3/1-i_close_front_unrounded_vowel.mp3'));
 
   const handlePrevious = () => {
     const prevId = Number(lessonId) - 1;
@@ -141,8 +142,10 @@ const VowelLessonPage: React.FC = () => {
   };
 
   const handlePlayAudio = () => {
-    // This would trigger audio playback from the backend
-    console.log('Playing audio...');
+    audio.currentTime = 0; // Reset audio to start
+    audio.play().catch(error => {
+      console.error('Error playing audio:', error);
+    });
   };
 
   return (
