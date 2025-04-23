@@ -6,7 +6,7 @@ from src.models.quiz import QuizItem, QuizOption
 app = create_app()
 
 with app.app_context():
-    with open("scripts/data_quiz.json", "r", encoding="utf-8") as f:
+    with open("backend/scripts/data_quiz.json", "r", encoding="utf-8") as f:
         data = json.load(f)
 
     for item in data["quiz"]:
