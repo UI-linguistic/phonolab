@@ -1,113 +1,132 @@
-# Phonolab Backend
+## Phonolab Backend
 
-The Phonolab backend provides the core functionality applicaiton logic and handling phonetic data.
+The **Phonolab backend** provides core application logic for handling phonetic data, quizzes, and language models. It uses Flask, SQLAlchemy, and Alembic for migrations.
 
+---
 
-## Installation
+### Setup Instructions
 
-Follow these steps to set up the project locally:
-
-### 1. Clone the Repository
+#### 1. Clone the Repository
 
 ```bash
 git clone <repo-url>
-cd phonolab/backend
+cd phonolab
 ```
 
-### 2. Create a Virtual Environment
+#### 2. Create and Activate Virtual Environment
 
 ```bash
 pyenv virtualenv 3.13.2 phonolab-env
-```
-```bash
 pyenv local phonolab-env
 ```
-### 3. Install Dependencies
+
+> **Note:** This project uses [pyenv](https://github.com/pyenv/pyenv) + [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv). Ensure both are installed.
+
+---
+
+#### 3. [EASY INSTALL]
+
+Use the Makefile on phonolab directory for a smooth setup:
 
 ```bash
-pip install -e .
+make setup
 ```
 
-## Sample Backend Structure
+This will:
+- Create the virtual environment (if needed)
+- Install dependencies from `backend/requirements.txt`
+- Apply database migrations
+- Seed the database with phonemes, word examples, and quiz data
+
+---
+
+### 🗂️ Project Structure
 
 ```
-backend/
-├── src/                  # Source code
-│   ├── models/           # Data models
-│   │   ├── phoneme.py    # Phoneme schema
-│   │   ├── quiz.py       
-│   │   └── dataset.py    
-│   ├── app.py            # Application entry point
-│   └── config.py         # Configuration
-├── tests/                # Test suite
-│   ├── conftest.py       # Test configuration
-│   └── test_phoneme.py   # Phoneme tests
-└── requirements.txt      # Project dependencies
+phonolab/
+├── backend/
+│   ├── migrations/           # Alembic migration files
+│   ├── scripts/              # Seed and utility scripts
+│   ├── instance/             # SQLite DB and instance configs
+│   ├── src/                  # Backend source code
+│   │   ├── api/              # Flask routes
+│   │   ├── app.py                # Application entry point
+│   │   ├── config.py         # App config
+│   │   ├── models/           # SQLAlchemy models
+│   │   ├── services/         # Business logic
+│   │   └── utils/            # Helpers and formatting
+│   ├── server.py             # Flask server entry point
+│   ├── requirements.txt      # Project dependencies
+│   ├── setup.py              # Editable install
+│   └── setup.cfg             # Linting and formatting rules
 ```
 
-## Usage
+---
 
-### Running the Application
+### Usage
+
+#### Running the Dev Server
 
 ```bash
-# TBD
+python backend/server.py
 ```
 
-### Running Tests
-Run all tests
+---
+
+### Testing
+
+Run all tests:
+
 ```bash
 pytest
 ```
-Run tests with coverage
+
+Run tests with coverage:
+
 ```bash
 pytest --cov=src tests/
 ```
-Generate HTML coverage report
+
+Generate HTML coverage report:
+
 ```bash
 pytest --cov=src --cov-report=html tests/
 ```
 
-## Development
+---
 
-### Adding New Models
+### Development Workflow
 
-1. Create a new model file in the `src/models/` directory
-2. Add test fixtures in `tests/fixtures.py`
-3. Create tests in the `tests/` directory only
+#### Adding New Models
 
-### Git Workflow
-1. Always create feature branches from `dev`
-2. Name branches with corresponding feature: `login-page`
-3. Create a PR to merge back to `dev`
-4. Request reviews
-5. Merge to `main` only feature is stable
+1. Create the model in `src/models/`
+2. Write logic in `services/` if needed
+3. Add routes under `api/`
+4. Create tests under `tests/`
 
-### Pull Requests
-Sample PR description:
+#### Git Workflow
+
+1. Branch off `dev`
+2. Use descriptive names like `feature/quiz-api`
+3. Open PRs into `dev`
+4. Tag teammates for review
+5. Merge into `main` when stable
+
+---
+
+### Pull Request Template
 
 ```
 ## What does this PR do?
 
-<!-- Brief description of changes -->
+<!-- Description -->
 
 ## How to test?
 
-<!-- Steps to test the changes (if applicable) -->
+<!-- Steps -->
 ```
 
-### Code Style
-- PEP 8 guidelines
-- Run linting before submitting PRs:
-    ```bash
-    pylint src/
-    pycodestyle src/
-    ```
 
-### CI
-- Tests run automatically on PRs to `main` and `develop`
-- PRs cannot be merged if tests fail
-
-<br>
 
 ## Contributors
 
