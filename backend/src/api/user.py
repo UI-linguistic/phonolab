@@ -1,66 +1,70 @@
-# src/api/track_api.py
-from flask import Blueprint, request, jsonify
-from sqlalchemy.orm import scoped_session
-from services import user as user_service
-from src import db 
+# src/api/user.py
 
-track_bp = Blueprint("track", __name__, url_prefix="/user")
+from flask import Blueprint, request
+from src.services.user import log_quiz_attempt
+from src.models.user import QuizAttempt
+from src.utils.format import success_response, error_response
+
+user_bp = Blueprint("user", __name__, url_prefix="/user")
 
 
-@track_bp.route("/session", methods=["POST"])
-def create_session():
+@user_bp.route("/quiz-score", methods=["POST"])
+def submit_quiz_score():
     """
-    Creates a new user session and returns a unique session ID.
-    """
-    session_id = user_service.create_session(db.session)
-    return jsonify({"session_id": session_id}), 201
-
-
-@track_bp.route("/quiz/submit", methods=["POST"])
-def submit_quiz_answer():
-    """
-    Logs a quiz answer to a session.
-
-    Request JSON:
+    Logs a quiz attempt.
+    **Expected JSON:**
     - session_id (str)
-    - question_index (int)
-    - question (str)
-    - selected (str)
-    - correct (str)
+    - quiz_id (int)
+    - score (int)
+    - total (int)
     """
     data = request.get_json()
-    required = ["session_id", "question_index", "question", "selected", "correct"]
+    session_id = data.get("session_id")
+    quiz_id = data.get("quiz_id")
+    answers = data.get("answers")
 
-    if not all(k in data for k in required):
-        return jsonify({"error": "Missing required fields"}), 400
+    if not all([session_id, quiz_id]) or not isinstance(answers, list):
+        return error_response("Missing one or more required fields", 400)
 
-    is_correct = user_service.log_quiz_answer(
-        db.session,
-        session_id=data["session_id"],
-        question_index=data["question_index"],
-        question=data["question"],
-        selected=data["selected"],
-        correct=data["correct"]
-    )
+    attempt = log_quiz_attempt(session_id, quiz_id, answers)
 
-    return jsonify({"correct": is_correct}), 200
+    percentage = round((attempt.score / attempt.total) * 100)
+
+    return success_response("Quiz attempt logged", {
+        "attempt": {
+            "session_id": attempt.session_id,
+            "quiz_id": attempt.quiz_id,
+            "score": attempt.score,
+            "total": attempt.total,
+            "percentage": percentage
+        }
+    })
 
 
-@track_bp.route("/quiz/summary/<session_id>", methods=["GET"])
-def quiz_summary(session_id):
+@user_bp.route("/quiz-score", methods=["GET"])
+def get_quiz_score():
     """
-    Returns a summary of the quiz session.
+    Gets the most recent quiz score for a session.
+    Query params:
+    - session_id (str)
+    - quiz_id (int)
     """
-    summary = user_service.get_quiz_summary(db.session, session_id)
-    return jsonify(summary), 200
+    session_id = request.args.get("session_id")
+    quiz_id = request.args.get("quiz_id")
 
+    if not session_id or not quiz_id:
+        return error_response("Missing session_id or quiz_id", 400)
 
-@track_bp.route("/vowel/performance/<session_id>", methods=["GET"])
-def vowel_performance(session_id):
-    """
-    Returns correct/incorrect counts for each vowel in a session.
-    """
-    stats = user_service.get_vowel_performance(db.session, session_id)
-    return jsonify({"performance": stats}), 200
+    attempt = QuizAttempt.query.filter_by(session_id=session_id, quiz_id=quiz_id).order_by(QuizAttempt.attempted_at.desc()).first()
 
-# reset session route
+    if not attempt:
+        return error_response("No attempt found", 404)
+
+    percentage = round((attempt.score / attempt.total) * 100)
+
+    return success_response("Quiz score retrieved", {
+        "score": attempt.score,
+        "total": attempt.total,
+        "percentage": percentage,
+        "timestamp": attempt.attempted_at.isoformat()
+    })

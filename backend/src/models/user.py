@@ -1,47 +1,63 @@
 # src/models/user.py
 
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
-from sqlalchemy.orm import relationship, declarative_base
-
-Base = declarative_base()
+from src.db import db
 
 
-class UserSession(Base):
+class UserSession(db.Model):
     __tablename__ = "user_sessions"
 
-    id = Column(Integer, primary_key=True)
-    session_id = Column(String, unique=True, nullable=False)
-    started_at = Column(DateTime, default=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.String, unique=True, nullable=False)
+    started_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
-    quiz_logs = relationship("QuizLog", back_populates="session", cascade="all, delete-orphan")
-    vowel_stats = relationship("VowelStat", back_populates="session", cascade="all, delete-orphan")
-
-
-class QuizLog(Base):
-    __tablename__ = "quiz_logs"
-
-    id = Column(Integer, primary_key=True)
-    session_id = Column(String, ForeignKey("user_sessions.session_id"))
-    question_index = Column(Integer, nullable=False)
-    question_text = Column(String)
-    selected_option = Column(String)
-    correct_option = Column(String)
-    is_correct = Column(Boolean)
-
-    # Relationships
-    session = relationship("UserSession", back_populates="quiz_logs")
+    completed_lessons = db.relationship("CompletedLesson", backref="session", cascade="all, delete-orphan")
+    quiz_attempts = db.relationship("QuizAttempt", backref="session", cascade="all, delete-orphan")
 
 
-class VowelStat(Base):
-    __tablename__ = "vowel_stats"
+class CompletedLesson(db.Model):
+    __tablename__ = "completed_lessons"
 
-    id = Column(Integer, primary_key=True)
-    session_id = Column(String, ForeignKey("user_sessions.session_id"))
-    vowel = Column(String, nullable=False)
-    correct = Column(Integer, default=0)
-    incorrect = Column(Integer, default=0)
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.String, db.ForeignKey("user_sessions.session_id"))
+    lesson_id = db.Column(db.Integer, nullable=False)
+    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
-    session = relationship("UserSession", back_populates="vowel_stats")
+
+class QuizAttempt(db.Model):
+    __tablename__ = "quiz_attempts"
+
+    id = db.Column(db.Integer, primary_key=True)
+    session_id = db.Column(db.String, db.ForeignKey("user_sessions.session_id"))
+    quiz_id = db.Column(db.Integer, nullable=False)
+    score = db.Column(db.Integer, nullable=False)
+    total = db.Column(db.Integer, nullable=False)
+    attempted_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# class QuizLog(Base):
+#     __tablename__ = "quiz_logs"
+
+#     id = Column(Integer, primary_key=True)
+#     session_id = Column(String, ForeignKey("user_sessions.session_id"))
+#     question_index = Column(Integer, nullable=False)
+#     question_text = Column(String)
+#     selected_option = Column(String)
+#     correct_option = Column(String)
+#     is_correct = Column(Boolean)
+
+#     # Relationships
+#     session = relationship("UserSession", back_populates="quiz_logs")
+
+
+# class VowelStat(Base):
+#     __tablename__ = "vowel_stats"
+
+#     id = Column(Integer, primary_key=True)
+#     session_id = Column(String, ForeignKey("user_sessions.session_id"))
+#     vowel = Column(String, nullable=False)
+#     correct = Column(Integer, default=0)
+#     incorrect = Column(Integer, default=0)
+
+#     # Relationships
+#     session = relationship("UserSession", back_populates="vowel_stats")

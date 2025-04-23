@@ -2,7 +2,7 @@ name: Backend Lint
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
     paths:
       - 'backend/**'
   pull_request:
