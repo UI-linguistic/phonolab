@@ -1,9 +1,9 @@
 # backend/src/api/blueprints.py
 
 from .audio import audio_bp
-from .lesson import lesson_bp
+from .lesson import lesson_bp, admin_lesson_bp
 from .phoneme import phoneme_bp
-from .quiz import quiz_bp
+from .quiz import quiz_bp, admin_quiz_bp
 from .user import user_bp
 
 # from .user import track_bp
@@ -13,5 +13,7 @@ all_blueprints = [
     phoneme_bp,
     quiz_bp,
     audio_bp,
-    user_bp
+    user_bp,
+    admin_lesson_bp,
+    admin_quiz_bp
 ]

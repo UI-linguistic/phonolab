@@ -12,11 +12,43 @@ from services.lesson import (
 )
 from utils.format import error_response, success_response
 
-lesson_bp = Blueprint("lesson", __name__, url_prefix="/lessons")
+lesson_bp = Blueprint("lesson", __name__, url_prefix="/lesson")
+admin_lesson_bp = Blueprint("admin_lesson", __name__, url_prefix="/admin/lesson")
 
 
-@lesson_bp.route("/", methods=["GET"])
-def list_lessons():
+@lesson_bp.route("/<int:lesson_id>", methods=["GET"])
+def get_lesson(lesson_id):
+    """
+    Public API: Returns a lesson formatted for frontend use.
+    """
+    lesson = get_lesson_by_id(lesson_id)
+    if not lesson:
+        return error_response("Lesson not found", 404)
+    
+    # format_lesson_for_frontend will be added in services.lesson
+    from services.lesson import format_lesson_for_frontend
+    return success_response("Lesson retrieved", {"lesson": format_lesson_for_frontend(lesson)})
+
+
+@lesson_bp.route("/vowel/<string:vowel_id>", methods=["GET"])
+def get_lesson_by_vowel(vowel_id):
+    """
+    Public API: Returns a lesson by vowel ID (formatted for frontend).
+    """
+    lesson = get_lesson_by_vowel(vowel_id)
+    if not lesson:
+        return error_response("Lesson not found", 404)
+
+    from services.lesson import format_lesson_for_frontend
+    return success_response("Lesson retrieved", {"lesson": format_lesson_for_frontend(lesson)})
+
+
+#
+#   Database Handlers
+#
+
+@admin_lesson_bp.route("/", methods=["GET"])
+def admin_list_lessons():
     """
     Retrieves all lessons.
     """
@@ -27,8 +59,8 @@ def list_lessons():
         return error_response(f"Error retrieving lessons: {str(e)}")
 
 
-@lesson_bp.route("/<int:lesson_id>", methods=["GET"])
-def get_lesson(lesson_id):
+@admin_lesson_bp.route("/<int:lesson_id>", methods=["GET"])
+def admin_get_lesson(lesson_id):
     """
     Gets a lesson by its ID.
     """
@@ -38,8 +70,8 @@ def get_lesson(lesson_id):
     return success_response("Lesson retrieved", {"lesson": lesson.to_dict()})
 
 
-@lesson_bp.route("/vowel/<string:vowel_id>", methods=["GET"])
-def get_lesson_by_vowel_id(vowel_id):
+@admin_lesson_bp.route("/vowel/<string:vowel_id>", methods=["GET"])
+def admin_get_lesson_by_vowel_id(vowel_id):
     """
     Gets the lesson by vowel ID.
     """
@@ -49,8 +81,8 @@ def get_lesson_by_vowel_id(vowel_id):
     return success_response("Lesson retrieved", {"lesson": lesson.to_dict()})
 
 
-@lesson_bp.route("/", methods=["POST"])
-def create_lesson_route():
+@admin_lesson_bp.route("/", methods=["POST"])
+def admin_create_lesson_route():
     """
     Creates a new lesson.
     **Body:**
@@ -73,8 +105,8 @@ def create_lesson_route():
         return error_response(f"Unexpected error: {str(e)}")
 
 
-@lesson_bp.route("/<int:lesson_id>", methods=["PUT"])
-def update_lesson(lesson_id):
+@admin_lesson_bp.route("/<int:lesson_id>", methods=["PUT"])
+def admin_update_lesson(lesson_id):
     """
     Updates lesson instructions.
     **Body:**
@@ -93,8 +125,8 @@ def update_lesson(lesson_id):
     return success_response("Lesson updated", {"lesson": updated.to_dict()})
 
 
-@lesson_bp.route("/<int:lesson_id>", methods=["DELETE"])
-def delete_lesson_route(lesson_id):
+@admin_lesson_bp.route("/<int:lesson_id>", methods=["DELETE"])
+def admin_delete_lesson_route(lesson_id):
     """
     Deletes a lesson and its instructions.
     """

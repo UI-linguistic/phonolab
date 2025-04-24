@@ -3,6 +3,57 @@ from src.models.lesson import Lesson, LessonInstruction
 from src.models.phoneme import Vowel
 
 
+def format_lesson_for_frontend(lesson):
+    """
+    Formats a Lesson object (and its associated Vowel) into a structure
+    expected by the frontend.
+
+    This allows for future flexibility with lesson formats while keeping
+    API logic minimal.
+
+    Args:
+        lesson (Lesson): Lesson object to format.
+
+    Returns:
+        dict | None: A dictionary formatted for the frontend, or None if not found.
+    """
+    if not lesson or not lesson.vowel:
+        return None
+
+    vowel = lesson.vowel
+
+    return {
+        "id": lesson.id,
+        "target": vowel.symbol,
+        "audio_url": vowel.audio_url,
+        "mouth_image_url": vowel.mouth_image_url,
+        "pronounced": vowel.pronounced,
+        "common_spellings": vowel.common_spellings or [],
+        "lips": vowel.lips,
+        "tongue": vowel.tongue,
+        "example_words": vowel.example_words or []
+    }
+
+
+def get_formatted_lesson_by_id(lesson_id):
+    """
+    Retrieves a lesson by ID and formats it for the frontend.
+
+    Args:
+        lesson_id (int): ID of the lesson.
+
+    Returns:
+        dict | None: Formatted lesson or None if not found.
+    """
+    lesson = get_lesson_by_id(lesson_id)
+    return format_lesson_for_frontend(lesson)
+
+
+
+#
+#   Database Handlers
+#
+
 def create_lesson(vowel_id, instruction_texts):
     """
     Creates a lesson linked to a vowel, with up to 5 instruction items.
