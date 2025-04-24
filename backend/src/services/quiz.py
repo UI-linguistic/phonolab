@@ -77,3 +77,70 @@ def update_quiz_options(quiz_id, new_options):
 
     db.session.commit()
     return quiz
+
+def format_quiz_for_frontend(quiz: QuizItem):
+    """
+    Formats a QuizItem object into the structure expected by the frontend.
+
+    This includes:
+    - The quiz ID and target IPA symbol.
+    - A list of sample words (currently only the prompt word).
+    - Grouped correct and incorrect options with language, word, IPA, and audio URL.
+    - Feedback messages for correct and incorrect answers.
+
+    Args:
+        quiz (QuizItem): The quiz instance to be formatted.
+
+    Returns:
+        dict | None: A dictionary matching the frontend quiz schema,
+                     or None if the quiz does not exist.
+    """
+    if not quiz:
+        return None
+
+    correct_options = [opt for opt in quiz.options if opt.is_correct]
+    wrong_options = [opt for opt in quiz.options if not opt.is_correct]
+
+    return {
+        "id": quiz.id,
+        "target": quiz.prompt_ipa,
+        "samples": [
+            {
+                "text": quiz.prompt_word,
+                "IPA": quiz.prompt_ipa,
+                "audio": quiz.prompt_audio_url
+            }
+        ],
+        "options_pool": {
+            "correct_answers": [
+                {
+                    "language": opt.language or "Unknown",
+                    "word": opt.word,
+                    "IPA": opt.ipa,
+                    "audio": opt.audio_url
+                }
+                for opt in correct_options
+            ],
+            "wrong_answers": [
+                {
+                    "language": opt.language or "Unknown",
+                    "word": opt.word,
+                    "IPA": opt.ipa,
+                    "audio": opt.audio_url
+                }
+                for opt in wrong_options
+            ]
+        },
+        "feedback": {
+            "correct": quiz.feedback_correct or "Well done!",
+            "incorrect": quiz.feedback_incorrect or "Try again."
+        }
+    }
+
+
+def get_formatted_quiz_by_id(quiz_id):
+    """
+    Retrieves a quiz type 1 by its ID.
+    """
+    quiz = get_quiz_by_id(quiz_id)
+    return format_quiz_for_frontend(quiz)

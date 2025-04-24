@@ -1,19 +1,15 @@
 # # src/api/quiz.py
 from flask import Blueprint, request
-
-from src.services.quiz import create_quiz, delete_quiz, get_all_quizzes, get_quiz_by_id, update_quiz_options
+from src.services.quiz import (
+    create_quiz,
+    delete_quiz,
+    get_all_quizzes,
+    get_formatted_quiz_by_id,
+    update_quiz_options
+)
 from src.utils.format import error_response, success_response
 
 quiz_bp = Blueprint("quiz", __name__, url_prefix="/quiz")
-
-
-@quiz_bp.route("/", methods=["GET"])
-def list_quizzes():
-    """
-    Retrieves all quizzes.
-    """
-    quizzes = get_all_quizzes()
-    return success_response("Quizzes retrieved", {"quizzes": [q.to_dict() for q in quizzes]})
 
 
 @quiz_bp.route("/<int:quiz_id>", methods=["GET"])
@@ -21,11 +17,15 @@ def get_quiz(quiz_id):
     """
     Retrieves a quiz by its ID.
     """
-    quiz = get_quiz_by_id(quiz_id)
-    if not quiz:
+    formatted = get_formatted_quiz_by_id(quiz_id)
+    if not formatted:
         return error_response("Quiz not found", 404)
-    return success_response("Quiz retrieved", {"quiz": quiz.to_dict()})
+    return success_response("Quiz retrieved", {"quiz": formatted})
 
+
+#
+#   Database Handlers
+#
 
 @quiz_bp.route("/", methods=["POST"])
 def create_quiz_route():
@@ -106,3 +106,12 @@ def delete_quiz_route(quiz_id):
         return error_response("Quiz not found", 404)
 
     return success_response("Quiz deleted")
+
+
+@quiz_bp.route("/", methods=["GET"])
+def list_quizzes():
+    """
+    Retrieves all quizzes.
+    """
+    quizzes = get_all_quizzes()
+    return success_response("Quizzes retrieved", {"quizzes": [q.to_dict() for q in quizzes]})
