@@ -1,4 +1,4 @@
-## Group Member 
+## Group Members
 tl3305 - Thamires Andrade
 sg4280 - Semih Gultekin
 al4570 - Armand Link
