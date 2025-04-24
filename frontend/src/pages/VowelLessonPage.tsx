@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import pronounMouthArt from '../images/PNG/pronounmouthart-01.png';
@@ -109,23 +109,131 @@ const PlayButton = styled.button`
   }
 `;
 
-// Mock data for lesson 1
-const MOCK_LESSON_1 = {
-  id: 1,
-  title: 'Vowel 1: Long E',
-  pronunciation: 'ee',
-  commonSpellings: 'ee, ea',
-  lipPosition: 'wide smile, unrounded',
-  tonguePosition: 'high, front',
-  exampleWords: 'see, beat, team',
-  phoneticSymbol: '/iː/'
+const ProgressBar = styled.div`
+  width: 200px;
+  height: 12px;
+  background-color: ${({ theme }) => theme.colors.background};
+  border: 2px solid ${({ theme }) => theme.colors.primary};
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 0 ${({ theme }) => theme.spacing.large};
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const Progress = styled.div<{ $progress: number }>`
+  width: ${({ $progress }) => $progress}%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    ${({ theme }) => theme.colors.primary} 0%,
+    ${({ theme }) => theme.colors.secondary} 100%
+  );
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
+    animation: shimmer 2s infinite;
+  }
+`;
+
+const ProgressText = styled.span`
+  font-size: 0.9rem;
+  color: ${({ theme }) => theme.colors.text};
+  opacity: 0.8;
+  font-weight: 500;
+  background: ${({ theme }) => theme.colors.background};
+  padding: 4px 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const ProgressContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.medium};
+`;
+
+const keyframes = {
+  shimmer: `
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+  `
 };
+
+const HomeButton = styled.button`
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: white;
+  border: none;
+  padding: ${({ theme }) => theme.spacing.medium} ${({ theme }) => theme.spacing.large};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  font-size: 1rem;
+  cursor: pointer;
+  transition: ${({ theme }) => theme.transitions.default};
+
+  &:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+`;
+
+interface VowelLesson {
+  id: number;
+  target: string;
+  audio_url: string;
+  mouth_image_url: string;
+  pronounced: string;
+  common_spellings: string[];
+  lips: string;
+  tongue: string;
+  example_words: string[];
+}
+
+interface VowelLessonsData {
+  learn: VowelLesson[];
+}
 
 const VowelLessonPage: React.FC = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams<{ lessonId: string }>();
-  const currentLesson = MOCK_LESSON_1; // This would come from an API call
-  const [audio] = useState(new Audio('/temporary-mp3/1-i_close_front_unrounded_vowel.mp3'));
+  const [currentLesson, setCurrentLesson] = useState<VowelLesson | null>(null);
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const fetchLessonData = async () => {
+      try {
+        const response = await fetch('/temporary-jsons/vowel-lesson.json');
+        const data: VowelLessonsData = await response.json();
+        const lesson = data.learn.find(l => l.id === Number(lessonId));
+        if (lesson) {
+          setCurrentLesson(lesson);
+          setAudio(new Audio(lesson.audio_url));
+        }
+      } catch (error) {
+        console.error('Error fetching lesson data:', error);
+      }
+    };
+
+    fetchLessonData();
+  }, [lessonId]);
 
   const handlePrevious = () => {
     const prevId = Number(lessonId) - 1;
@@ -136,40 +244,62 @@ const VowelLessonPage: React.FC = () => {
 
   const handleNext = () => {
     const nextId = Number(lessonId) + 1;
-    if (nextId <= 12) { // Assuming 12 lessons total
+    if (nextId <= 12) {
       navigate(`/learn/vowels-101/${nextId}`);
     }
   };
 
-  const handlePlayAudio = () => {
-    audio.currentTime = 0; // Reset audio to start
-    audio.play().catch(error => {
-      console.error('Error playing audio:', error);
-    });
+  const handleHome = () => {
+    navigate('/');
   };
+
+  const handlePlayAudio = () => {
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(error => {
+        console.error('Error playing audio:', error);
+      });
+    }
+  };
+
+  const progress = ((Number(lessonId) - 1) / 11) * 100; // 11 because we have 12 lessons (0-11)
+
+  if (!currentLesson) {
+    return <Container>Loading...</Container>;
+  }
 
   return (
     <Container>
       <NavigationHeader>
         <NavButton onClick={handlePrevious} disabled={lessonId === '1'}>←</NavButton>
-        <Title>{currentLesson.title}</Title>
-        <NavButton onClick={handleNext} disabled={lessonId === '12'}>→</NavButton>
+        <Title>Vowel {currentLesson.id}: {currentLesson.target}</Title>
+        <ProgressContainer>
+          <ProgressBar>
+            <Progress $progress={progress} />
+          </ProgressBar>
+          <ProgressText>{currentLesson.id}/12</ProgressText>
+        </ProgressContainer>
+        {lessonId === '12' ? (
+          <HomeButton onClick={handleHome}>Back to Home</HomeButton>
+        ) : (
+          <NavButton onClick={handleNext}>→</NavButton>
+        )}
       </NavigationHeader>
 
       <ContentContainer>
         <IllustrationContainer>
-          <img src={pronounMouthArt} alt="Mouth position for vowel" />
+          <img src={currentLesson.mouth_image_url} alt="Mouth position for vowel" />
         </IllustrationContainer>
 
         <InfoBox>
-          <InfoItem>Pronounced: "{currentLesson.pronunciation}"</InfoItem>
-          <InfoItem>Common Spellings: {currentLesson.commonSpellings}</InfoItem>
-          <InfoItem>Lips: {currentLesson.lipPosition}</InfoItem>
-          <InfoItem>Tongue: {currentLesson.tonguePosition}</InfoItem>
-          <InfoItem>Example Words: {currentLesson.exampleWords}</InfoItem>
+          <InfoItem>Pronounced: "{currentLesson.pronounced}"</InfoItem>
+          <InfoItem>Common Spellings: {currentLesson.common_spellings.join(', ')}</InfoItem>
+          <InfoItem>Lips: {currentLesson.lips}</InfoItem>
+          <InfoItem>Tongue: {currentLesson.tongue}</InfoItem>
+          <InfoItem>Example Words: {currentLesson.example_words.join(', ')}</InfoItem>
           <AudioContainer>
             <PlayButton onClick={handlePlayAudio}>🔊</PlayButton>
-            <PhoneticText>{currentLesson.phoneticSymbol}</PhoneticText>
+            <PhoneticText>{currentLesson.target}</PhoneticText>
           </AudioContainer>
         </InfoBox>
       </ContentContainer>
