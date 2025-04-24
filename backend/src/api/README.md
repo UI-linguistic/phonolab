@@ -26,11 +26,11 @@ This API supports audio, quizzes, lessons, and user tracking.
 
 | Operation     | Endpoint                                  | Method | Status |
 |--------------|--------------------------------------------|--------|--------|
-| List Lessons  | `/admin/lessons/`                         | `GET`  | ✅     |
-| Get Lesson    | `/admin/lessons/<int:lesson_id>`          | `GET`  | ✅     |
-| Create        | `/admin/lessons/`                         | `POST` | ✅     |
-| Update        | `/admin/lessons/<int:lesson_id>`          | `PUT`  | ✅     |
-| Delete        | `/admin/lessons/<int:lesson_id>`          | `DELETE`| ✅    |
+| List Lessons  | `/admin/lesson/`                         | `GET`  | ✅     |
+| Get Lesson    | `/admin/lesson/<int:lesson_id>`          | `GET`  | ✅     |
+| Create        | `/admin/lesson/`                         | `POST` | ✅     |
+| Update        | `/admin/lesson/<int:lesson_id>`          | `PUT`  | ✅     |
+| Delete        | `/admin/lesson/<int:lesson_id>`          | `DELETE`| ✅    |
 
 ---
 
@@ -57,10 +57,10 @@ This API supports audio, quizzes, lessons, and user tracking.
 
 | Operation            | Endpoint                                 | Method | Status |
 |---------------------|-------------------------------------------|--------|--------|
-| List Vowels         | `/vowels/`                                | `GET`  | ✅     |
-| Create Vowel        | `/vowels/`                                | `POST` | ✅     |
-| Get Word by ID      | `/vowels/word-example/<int:example_id>`   | `GET`  | ✅     |
-| Get Word by Name    | `/vowels/word-example?word=<name>`        | `GET`  | ✅     |
+| List Vowels         | `/vowel/`                                | `GET`  | ✅     |
+| Create Vowel        | `/vowel/`                                | `POST` | ✅     |
+| Get Word by ID      | `/vowel/word-example/<int:example_id>`   | `GET`  | ✅     |
+| Get Word by Name    | `/vowel/word-example?word=<name>`        | `GET`  | ✅     |
 
 ---
 
@@ -77,7 +77,7 @@ This API supports audio, quizzes, lessons, and user tracking.
 
 ```bash
 # Create a lesson (Admin)
-curl -X POST http://localhost:5000/admin/lessons/ \
+curl -X POST http://localhost:5000/admin/lesson/ \
   -H "Content-Type: application/json" \
   -d '{"vowel_id": "v1", "instructions": ["Click play", "Listen carefully", "Repeat"]}'
 
