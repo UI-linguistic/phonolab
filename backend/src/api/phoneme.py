@@ -7,7 +7,7 @@ from src.models.phoneme import Vowel
 from src.services.phoneme import get_word_example_by_id, get_word_example_by_name
 from src.utils.format import error_response, success_response
 
-phoneme_bp = Blueprint("phoneme", __name__, url_prefix="/vowels")
+phoneme_bp = Blueprint("phoneme", __name__, url_prefix="/vowel")
 
 
 # --- Vowel Routes ---
