@@ -45,7 +45,7 @@ async def async_main(args, parser):
     parser.print_help()
     return 0
 
-async def handle_seed_all():
+async def handle_seed_all() -> int:
     app = create_app()
     with app.app_context():
         quizzes = create_quiz_batch(_load_quiz_json)
@@ -56,18 +56,18 @@ async def handle_seed_all():
             print(error_response(f"Failed to seed quiz data: {e}"))
             return 1
 
-async def handle_list():
+async def handle_list() -> int:
     app = create_app()
     with app.app_context():
         quizzes = get_all_quizzes()
         if not quizzes:
             print("No quizzes found.")
-            return 0
+            return 1
 
         print(format_quiz_list(quizzes))
     return 0
 
-async def handle_get(quiz_id):
+async def handle_get(quiz_id) -> int:
     app = create_app()
     with app.app_context():
         quiz = get_quiz_by_id(quiz_id)

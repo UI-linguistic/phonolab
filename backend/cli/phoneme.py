@@ -1,93 +1,168 @@
 # cli/phoneme.py
-
 import argparse
-from src.app import create_app, db
-from src.models.phoneme import Vowel
-from src.utils.format import success_response, error_response
-from tabulate import tabulate
+import os
+import json
 from cli.cli_runner import cli_runner
-
+from src.utils.cli_format import (
+    print_success, print_error,
+    print_vowel_list, print_vowel_detail
+)
+from src.app import create_app
+from src.services.phoneme import (
+    get_all_vowels,
+    get_vowel_by_id,
+    seed_vowels_from_audio_directory,
+    seed_word_examples_from_audio_directory,
+    seed_from_json_file
+)
 
 def main():
-    parser = argparse.ArgumentParser(description="Manage vowel data")
-
-    parser.add_argument("--seed", action="store_true", help="Seed the database with default vowels")
-    parser.add_argument("--clear", action="store_true", help="Delete all vowels from the database")
-    parser.add_argument("--list", action="store_true", help="List all vowels in the database")
-
+    parser = argparse.ArgumentParser(description="Manage phoneme entries")
+    
+    # Create subparsers for different command groups
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
+    
+    # Seed subcommand
+    seed_parser = subparsers.add_parser("seed", help="Seed the database")
+    seed_group = seed_parser.add_mutually_exclusive_group(required=True)
+    seed_group.add_argument("--json", action="store_true", help="Seed from JSON file")
+    seed_group.add_argument("--audio", action="store_true", help="Seed from audio directories")
+    seed_parser.add_argument("--json-file", type=str, help="Path to JSON file (default: src/data/vowels.json)")
+    seed_parser.add_argument("--vowel-dir", type=str, help="Directory with vowel audio files (default: static/audio/vowels)")
+    seed_parser.add_argument("--examples-dir", type=str, help="Directory with word example audio files (default: static/audio/word_examples)")
+    seed_parser.add_argument("--keep-existing", action="store_true", help="Don't clear existing data before seeding")
+    
+    # List subcommand
+    list_parser = subparsers.add_parser("list", help="List phonemes")
+    list_parser.add_argument("--vowels", action="store_true", help="List all vowels")
+    
+    # Get subcommand
+    get_parser = subparsers.add_parser("get", help="Get phoneme details")
+    get_parser.add_argument("vowel_id", type=str, help="Vowel ID to get details for")
+    get_parser.add_argument("--examples", action="store_true", help="Show word examples for this vowel")
+    
     cli_runner(parser, async_main)
 
-
-async def async_main(args, parser) -> int:
-    if args.seed:
-        return await handle_seed()
-    elif args.clear:
-        return await handle_clear()
-    elif args.list:
-        return await handle_list()
-
-    parser.print_help()
+async def async_main(args, parser):
+    if not hasattr(args, "command") or args.command is None:
+        parser.print_help()
+        return 0
+        
+    if args.command == "seed":
+        if args.json:
+            return await handle_seed_from_json(args)
+        elif args.audio:
+            return await handle_seed_from_audio(args)
+    elif args.command == "list":
+        if args.vowels:
+            return await handle_list_vowels()
+    elif args.command == "get":
+        if args.examples:
+            return await handle_get_vowel_with_examples(args.vowel_id)
+        else:
+            return await handle_get_vowel(args.vowel_id)
+    
     return 0
 
-
-async def handle_seed():
-    # TODO: load audio contents dinamically
+async def handle_seed_from_json(args) -> int:
     app = create_app()
 
-    vowel_data = [
-        ("v1", "i", "i", "i", "1-i_close_front_unrounded_vowel.mp3"),
-        ("v2", "ɪ", "ɪ", "ɪ", "2-ɪ_near-close_near-front_unrounded_vowel.mp3"),
-        ("v3", "e", "e", "e", "3-e_close-mid_front_unrounded_vowel.mp3"),
-        ("v4", "ɛ", "ɛ", "ɛ", "4-ɛ_near-close_near-front_unrounded_vowel.mp3"),
-        ("v5", "æ", "æ", "æ", "5-æ_near-open_front_unrounded_vowel.mp3"),
-        ("v6", "ɑ", "ɑ", "ɑ", "6-ɑ_open_back_unrounded_vowel.mp3"),
-        ("v7", "ʌ", "ʌ", "ʌ", "7-ʌ_open-mid_back_unrounded_vowel.mp3"),
-        ("v8", "ɔ", "ɔ", "ɔ", "8-ɔ_open-mid_back_rounded_vowel.mp3"),
-        ("v9", "o", "o", "o", "9-o_close-mid_back_rounded_vowel.mp3"),
-        ("v10", "u", "u", "u", "10-u_close_back_rounded_vowel.mp3"),
-        ("v11", "ʊ", "ʊ", "ʊ", "11-ʊ_near-close_near-back_rounded_vowel.mp3"),
-        ("v12", "ə", "ə", "ə", "12-ə_mid-central_vowel.mp3"),
-    ]
-
+    json_file = args.json_file or os.path.join(os.path.dirname(__file__), "../src/data/vowels.json")
+    
+    if not os.path.exists(json_file):
+        print_error(f"JSON file not found: {json_file}")
+        return 1
+    
     with app.app_context():
-        Vowel.query.delete()
-        db.session.commit()
+        vowel_count, example_count, error = seed_from_json_file(
+            json_file,
+            clear_existing=not args.keep_existing
+        )
+        
+        if error:
+            print_error(f"Failed to seed from JSON: {error}")
+            return 1
+            
+        print_success(f"Successfully seeded {vowel_count} vowels and {example_count} word examples from JSON")
+        return 0
 
-        for vid, phoneme, name, ipa, audio_file in vowel_data:
-            vowel = Vowel(
-                id=vid,
-                phoneme=phoneme,
-                name=name,
-                ipa_example=ipa,
-                color_code="#CCCCCC",
-                audio_url=f"/audio/vowels/{audio_file}",
-                description=f"Placeholder for {phoneme} vowel"
+async def handle_seed_from_audio(args) -> int:
+    app = create_app()
+
+    vowel_dir = args.vowel_dir or os.path.join(os.path.dirname(__file__), "../static/audio/vowels")
+    examples_dir = args.examples_dir or os.path.join(os.path.dirname(__file__), "../static/audio/word_examples")
+    
+    if not os.path.exists(vowel_dir):
+        print_error(f"Vowel audio directory not found: {vowel_dir}")
+        return 1
+    
+    with app.app_context():
+        vowel_count, error = seed_vowels_from_audio_directory(
+            vowel_dir,
+            clear_existing=not args.keep_existing
+        )
+        
+        if error:
+            print_error(f"Failed to seed vowels from audio: {error}")
+            return 1
+
+        example_count = 0
+        if os.path.exists(examples_dir):
+            example_count, error = seed_word_examples_from_audio_directory(
+                examples_dir,
+                clear_existing=not args.keep_existing
             )
-            db.session.add(vowel)
+            
+            if error:
+                print_error(f"Failed to seed word examples from audio: {error}")
+                return 1
+        
+        message = f"Successfully seeded {vowel_count} vowels"
+        if example_count > 0:
+            message += f" and {example_count} word examples"
+        message += " from audio files"
+        
+        print_success(message)
+        return 0
 
-        db.session.commit()
-        print(success_response("Seeded all 12 vowels."))
-    return 0
-
-
-async def handle_clear():
+async def handle_list_vowels() -> int:
     app = create_app()
     with app.app_context():
-        Vowel.query.delete()
-        db.session.commit()
-        print(success_response("All vowels deleted."))
+        vowels = get_all_vowels()
+        print_vowel_list(vowels)
     return 0
 
-
-async def handle_list():
+async def handle_get_vowel(vowel_id) -> int:
     app = create_app()
     with app.app_context():
-        vowels = Vowel.query.all()
-        if not vowels:
-            print("No vowels in the database.")
-            return 0
-
-        table = [[v.id, v.phoneme, v.ipa_example, v.audio_url] for v in vowels]
-        headers = ["ID", "Phoneme", "IPA", "Audio Path"]
-        print(tabulate(table, headers=headers, tablefmt="grid"))
+        vowel = get_vowel_by_id(vowel_id)
+        if not vowel:
+            print_error(f"Vowel {vowel_id} not found")
+            return 1
+        
+        print_vowel_detail(vowel)
     return 0
+
+async def handle_get_vowel_with_examples(vowel_id) -> int:
+    app = create_app()
+    with app.app_context():
+        vowel = get_vowel_by_id(vowel_id)
+        return vowel
+    
+
+def _load_phoneme_json(path: str = None) -> dict:
+    """
+    Utility to load the .json file.
+    
+    Args:
+        path: Path to the JSON file. If None, uses the default path.
+        
+    Returns:
+        Dictionary containing the phoneme data
+    """
+    if path is None:
+        here = os.path.dirname(__file__)
+        path = os.path.join(here, "../data/vowel.json")
+    
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)

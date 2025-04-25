@@ -1,7 +1,17 @@
 # backend/src/utils/cli_format.py
-
-from tabulate import tabulate
 import json
+from typing import List, Any
+from colorama import init, Fore
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich import box
+from tabulate import tabulate
+
+init()
+
+
+console = Console()
 
 
 def format_quiz_for_cli(quiz):
@@ -30,3 +40,217 @@ def format_single_quiz(quiz):
     Pretty-print a single quiz item as CLI output.
     """
     return json.dumps(quiz.to_dict(), indent=2)
+
+
+def green(text: str) -> str:
+    """Green text."""
+    return f"{Fore.GREEN}{text}{Fore.RESET}"
+
+def red(text: str) -> str:
+    """Red text."""
+    return f"{Fore.RED}{text}{Fore.RESET}"
+
+def yellow(text: str) -> str:
+    """Yellow text."""
+    return f"{Fore.YELLOW}{text}{Fore.RESET}"
+
+def blue(text: str) -> str:
+    """Blue text."""
+    return f"{Fore.BLUE}{text}{Fore.RESET}"
+
+# Simple message formatting for non-rich contexts
+def format_success(message: str) -> str:
+    """Format a success message."""
+    return f"{green('✓')} {message}"
+
+def format_error(message: str) -> str:
+    """Format an error message."""
+    return f"{red('✗')} {message}"
+
+def format_warning(message: str) -> str:
+    """Format a warning message."""
+    return f"{yellow('!')} {message}"
+
+def format_info(message: str) -> str:
+    """Format an info message."""
+    return f"{blue('i')} {message}"
+
+# Rich-based formatters
+def print_success(message: str) -> None:
+    """Print a success message using Rich."""
+    console.print(f"[green]✓[/green] {message}")
+
+def print_error(message: str) -> None:
+    """Print an error message using Rich."""
+    console.print(f"[red]✗[/red] {message}")
+
+def print_warning(message: str) -> None:
+    """Print a warning message using Rich."""
+    console.print(f"[yellow]![/yellow] {message}")
+
+def print_info(message: str) -> None:
+    """Print an info message using Rich."""
+    console.print(f"[blue]i[/blue] {message}")
+
+def print_header(title: str) -> None:
+    """Print a header using Rich."""
+    console.print()
+    console.rule(f"[bold]{title}[/bold]")
+    console.print()
+
+def print_model_detail(model: Any, title: str = None, exclude_attrs: List[str] = None) -> None:
+    """
+    Print detailed information about a model using Rich.
+    
+    Args:
+        model: The model instance to format
+        title: Optional title (defaults to model class name)
+        exclude_attrs: List of attribute names to exclude
+    """
+    if model is None:
+        print_error("Model not found")
+        return
+
+    if title is None:
+        title = model.__class__.__name__
+    
+    # Create a table for the model details
+    table = Table(box=box.ROUNDED)
+    table.add_column("Attribute", style="cyan")
+    table.add_column("Value")
+
+    if hasattr(model, '__table__'):
+        # For SQLAlchemy models
+        attrs = [column.name for column in model.__table__.columns]
+    else:
+        # For other objects
+        attrs = [attr for attr in dir(model) 
+                if not attr.startswith('_') and not callable(getattr(model, attr))]
+
+    if exclude_attrs:
+        attrs = [attr for attr in attrs if attr not in exclude_attrs]
+    
+    for attr in attrs:
+        value = getattr(model, attr)
+
+        if isinstance(value, (list, tuple)):
+            formatted_value = f"{len(value)} items"
+        elif value is None:
+            formatted_value = "[italic]None[/italic]"
+        else:
+            formatted_value = str(value)
+
+            if isinstance(value, str) and ('url' in attr.lower() or 'path' in attr.lower()):
+                formatted_value = f"[blue]{formatted_value}[/blue]"
+        
+        table.add_row(attr, formatted_value)
+
+    console.print(Panel(table, title=title, border_style="blue"))
+
+def print_model_list(models: List[Any], title: str = None, columns: List[str] = None) -> None:
+    """
+    Print a list of models as a table using Rich.
+    
+    Args:
+        models: List of model instances
+        title: Optional title for the table
+        columns: List of column names to include (defaults to all columns)
+    """
+    if not models:
+        print_info("No items found.")
+        return
+
+    if title is None:
+        title = f"{models[0].__class__.__name__} List"
+    
+    # Create a table
+    table = Table(title=title, box=box.ROUNDED)
+    
+    if not columns:
+        if hasattr(models[0], '__table__'):
+            # For SQLAlchemy models
+            columns = [column.name for column in models[0].__table__.columns]
+        else:
+
+            columns = [attr for attr in dir(models[0]) 
+                    if not attr.startswith('_') and not callable(getattr(models[0], attr))]
+    
+    # Add columns to the table
+    for column in columns:
+        table.add_column(column.replace('_', ' ').title(), style="cyan")
+    
+    # Add rows for each model
+    for model in models:
+        row_values = []
+        for column in columns:
+            value = getattr(model, column, "")
+
+            if isinstance(value, (list, tuple)):
+                formatted_value = f"{len(value)}"
+            elif value is None:
+                formatted_value = ""
+            else:
+                formatted_value = str(value)
+            
+            row_values.append(formatted_value)
+        
+        table.add_row(*row_values)
+
+    console.print(table)
+
+def print_model_with_relations(model: Any, relation_name: str, 
+                              title: str = None, relation_columns: List[str] = None) -> None:
+    """
+    Print a model with its related models using Rich.
+    
+    Args:
+        model: The model instance
+        relation_name: Name of the relation attribute
+        title: Optional title (defaults to model class name)
+        relation_columns: List of column names to include for related models
+    """
+    if model is None:
+        print_error("Model not found")
+        return
+    
+    # Print the main model details
+    print_model_detail(model, title=title)
+    
+    # Get the related models
+    if hasattr(model, relation_name):
+        related_models = getattr(model, relation_name)
+        
+        if related_models:
+            # Format the relation title
+            relation_title = relation_name.replace('_', ' ').title()
+            
+            # Print the related models
+            print_model_list(
+                related_models,
+                title=f"{relation_title} ({len(related_models)})",
+                columns=relation_columns
+            )
+        else:
+            print_info(f"No {relation_name.replace('_', ' ')} found.")
+
+
+def print_vowel_list(vowels: List[Any]) -> None:
+    """Print a list of vowels using Rich."""
+    print_model_list(
+        vowels, 
+        title="Available Vowel Phonemes",
+        columns=['id', 'phoneme', 'name', 'description']
+    )
+
+def print_vowel_detail(vowel: Any) -> None:
+    """Print detailed vowel information using Rich."""
+    print_model_detail(vowel, title=f"Vowel: {vowel.phoneme} ({vowel.name})")
+
+def print_vowel_with_examples(vowel: Any) -> None:
+    """Print vowel with its word examples using Rich."""
+    print_model_with_relations(
+        vowel,
+        relation_name='word_examples',
+        title=f"Vowel: {vowel.phoneme} ({vowel.name})",
+        relation_columns=['word', 'ipa', 'audio_url', 'example_sentence']
+    )
