@@ -76,9 +76,6 @@ migrate:
 
 seed:
 	@echo "🌱 Seeding database..."
-	python backend/scripts/seed_vowels.py
-	python backend/scripts/seed_word_examples.py
-	python backend/scripts/seed_quiz.py
 
 run:
 	@echo "🚀 Running dev server..."

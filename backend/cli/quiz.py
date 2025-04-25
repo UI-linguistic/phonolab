@@ -11,7 +11,13 @@ from src.services.quiz import (
     get_quiz_by_id
 )
 from src.utils.format import success_response, error_response
-from src.utils.cli_format import format_quiz_list, format_single_quiz
+from src.utils.cli_format import (
+    format_single_quiz, 
+    print_error, 
+    print_header, 
+    print_info, print_quiz_list,
+    print_success
+)
 
 
 def main():
@@ -32,7 +38,7 @@ async def async_main(args, parser):
     if args.seed:
         return await handle_seed_all()
     elif args.list:
-        return await handle_list()
+        return await handle_list_quiz()
     elif args.get:
         return await handle_get(args.get)
     # elif args.create:
@@ -46,26 +52,34 @@ async def async_main(args, parser):
     return 0
 
 async def handle_seed_all() -> int:
-    app = create_app()
-    with app.app_context():
-        quizzes = create_quiz_batch(_load_quiz_json)
-        if not quizzes:
-            print(success_response("Quiz data seeded successfully."))
+    try:
+        app = create_app()
+        with app.app_context():
+            create_quiz_batch(_load_quiz_json)
+            print_success("Quiz data seeded successfully.")
             return 0
-        else:
-            print(error_response(f"Failed to seed quiz data: {e}"))
-            return 1
+    except Exception as e:
+        print_error(f"Failed to seed quiz data: {str(e)}")
+        return 1
 
-async def handle_list() -> int:
-    app = create_app()
-    with app.app_context():
-        quizzes = get_all_quizzes()
-        if not quizzes:
-            print("No quizzes found.")
-            return 1
 
-        print(format_quiz_list(quizzes))
-    return 0
+async def handle_list_quiz(args=None) -> int:
+    try:
+        app = create_app()
+        with app.app_context():
+            quizzes = get_all_quizzes()
+            
+            if not quizzes:
+                print_info("No quizzes found.")
+                return 0
+
+            print_header("All Quizzes")
+            print_quiz_list(quizzes)
+            
+            return 0
+    except Exception as e:
+        print_error(f"Failed to list quizzes: {str(e)}")
+        return 1
 
 async def handle_get(quiz_id) -> int:
     app = create_app()

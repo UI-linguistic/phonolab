@@ -4,16 +4,16 @@ import os
 import json
 from cli.cli_runner import cli_runner
 from src.utils.cli_format import (
-    print_success, print_error,
-    print_vowel_list, print_vowel_detail
+    print_header, print_info, print_success, print_error,
+    print_vowel_list, print_vowel_detail,
+    print_word_list
 )
 from src.app import create_app
 from src.services.phoneme import (
     get_all_vowels,
     get_vowel_by_id,
     seed_vowels_from_audio_directory,
-    seed_word_examples_from_audio_directory,
-    seed_from_json_file
+    seed_word_examples_from_audio_directory
 )
 
 def main():
@@ -46,8 +46,27 @@ def main():
     seed_parser.add_argument("--keep-existing", action="store_true", help="Don't clear existing data before seeding")
     
     # List subcommand
-    list_parser = subparsers.add_parser("list", help="List phonemes")
-    list_parser.add_argument("--vowels", action="store_true", help="List all vowels")
+    list_parser = subparsers.add_parser(
+        "list",
+        help="List phonemes or word examples",
+        description="List phonemes or word examples stored in the database"
+    )
+    list_group = list_parser.add_mutually_exclusive_group(required=True)
+    list_group.add_argument(
+        "--vowels",
+        action="store_true",
+        help="List all vowel phonemes"
+    )
+    list_group.add_argument(
+        "--words",
+        action="store_true",
+        help="List all word examples"
+    )
+    list_parser.add_argument(
+        "--vowel",
+        type=str,
+        help="Filter word examples by vowel ID (only with --words)"
+    )
     
     # Get subcommand
     get_parser = subparsers.add_parser("get", help="Get phoneme details")
@@ -69,35 +88,94 @@ async def async_main(args, parser):
     elif args.command == "list":
         if args.vowels:
             return await handle_list_vowels()
+        elif args.words:
+            return await handle_list_words(args)
     elif args.command == "get":
         if args.examples:
             return await handle_get_vowel_with_examples(args.vowel_id)
         else:
             return await handle_get_vowel(args.vowel_id)
-    
     return 0
+
+async def handle_list_words(args) -> int:
+    """List all word examples in the database."""
+    from src.services.phoneme import get_word_examples, get_word_examples_by_vowel_id
+    
+    app = create_app()
+    with app.app_context():
+        vowel_id = args.vowel if hasattr(args, 'vowel') else None
+        
+        if vowel_id:
+            examples = get_word_examples_by_vowel_id(vowel_id)
+            print_info(f"Word examples for vowel {vowel_id}:")
+        else:
+            examples = get_word_examples()
+        
+        if examples:
+            print_header("All Words")
+            print_word_list(examples)
+        else:
+            print_info("No word examples found.")
+    return 0
+
 
 async def handle_seed_from_json(args) -> int:
     app = create_app()
-
-    json_file = args.json_file or os.path.join(os.path.dirname(__file__), "../src/data/vowels.json")
+    
+    # Define possible paths for the vowel JSON file
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    default_path = os.path.join(project_root, "src/data/vowel.json")
+    
+    # Use provided file or the default
+    json_file = args.json_file or default_path
+    
+    print_info(f"Using JSON file: {json_file}")
     
     if not os.path.exists(json_file):
         print_error(f"JSON file not found: {json_file}")
         return 1
     
     with app.app_context():
-        vowel_count, example_count, error = seed_from_json_file(
-            json_file,
-            clear_existing=not args.keep_existing
-        )
-        
-        if error:
-            print_error(f"Failed to seed from JSON: {error}")
-            return 1
+        try:
+            # Print the content of the JSON file for debugging
+            with open(json_file, 'r') as f:
+                json_content = f.read()
+                print_info(f"JSON file content length: {len(json_content)} bytes")
+                
+                # Parse the JSON to see its structure
+                import json
+                vowel_data = json.loads(json_content)
+                print_info(f"JSON contains {len(vowel_data)} top-level items")
+                if isinstance(vowel_data, list):
+                    print_info(f"First item keys: {list(vowel_data[0].keys()) if vowel_data else 'None'}")
+                elif isinstance(vowel_data, dict):
+                    print_info(f"Top-level keys: {list(vowel_data.keys())}")
             
-        print_success(f"Successfully seeded {vowel_count} vowels and {example_count} word examples from JSON")
-        return 0
+            # Let's look at the seed_from_json_file function
+            import inspect
+            from src.services.phoneme import seed_from_json_file
+            print_info(f"seed_from_json_file function: {inspect.signature(seed_from_json_file)}")
+            
+            # Call the function with verbose output
+            print_info("Calling seed_from_json_file...")
+            vowel_count, example_count, error = seed_from_json_file(
+                json_file,
+                clear_existing=not args.keep_existing
+            )
+            
+            print_info(f"Function returned: vowel_count={vowel_count}, example_count={example_count}, error={error}")
+            
+            if error:
+                print_error(f"Failed to seed from JSON: {error}")
+                return 1
+            
+            print_success(f"Successfully seeded {vowel_count} vowels and {example_count} word examples from JSON")
+            return 0
+        except Exception as e:
+            print_error(f"Exception during seeding: {str(e)}")
+            import traceback
+            print_error(traceback.format_exc())
+            return 1
 
 async def handle_seed_from_audio(args) -> int:
     app = create_app()

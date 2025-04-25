@@ -9,19 +9,15 @@ from src.utils.cli_format import (
     print_warning,
     print_header
 )
-from cli.phoneme import handle_seed as handle_phoneme_seed, handle_list as handle_phoneme_list
-from cli.lesson import handle_seed as handle_lesson_seed, handle_list as handle_lesson_list
-from cli.quiz import handle_seed as handle_quiz_seed, handle_list as handle_quiz_list
-
 
 def main():
     parser = argparse.ArgumentParser(
         description="Database management operations",
         epilog="Examples:\n"
-               "  database seed                       # Seed all database tables\n"
-               "  database list                       # List entries from all tables\n"
-               "  database clean --confirm            # Remove all data from the database\n"
-               "  database reset --confirm            # Reset the entire database",
+               "  db seed                       # Seed all database tables\n"
+               "  db list                       # List entries from all tables\n"
+               "  db clean --confirm            # Remove all data from the database\n"
+               "  db reset --confirm            # Reset the entire database",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
@@ -31,7 +27,7 @@ def main():
         description="valid commands",
         help="Command to execute (use '<command> -h' for more help on a command)"
     )
-    
+
     seed_parser = subparsers.add_parser(
         "seed", 
         help="Seed the database with data",
@@ -113,32 +109,32 @@ async def async_main(args, parser):
 async def handle_seed(args):
     try:
         print_header("Seeding Database")
-        
-        # Create args-like objects for each handler
-        class Args:
-            pass
-            
-        phoneme_args = Args()
-        phoneme_args.keep_existing = args.keep_existing
-        
-        lesson_args = Args()
-        lesson_args.keep_existing = args.keep_existing
-        
-        quiz_args = Args()
-        quiz_args.keep_existing = args.keep_existing
+
+        from cli.phoneme import handle_seed_from_json
+        from cli.lesson import handle_seed
+        from cli.quiz import handle_seed_all
         
         # Seed the requested tables
         if args.target in ["all", "phonemes"]:
             print_info("Seeding phonemes...")
-            await handle_phoneme_seed(phoneme_args)
+
+            class PhonemeArgs:
+                json = True
+                audio = False
+                json_file = None
+                vowel_dir = None
+                examples_dir = None
+                keep_existing = args.keep_existing
+                
+            await handle_seed_from_json(PhonemeArgs())
             
         if args.target in ["all", "lessons"]:
             print_info("Seeding lessons...")
-            await handle_lesson_seed(lesson_args)
+            await handle_seed()
             
         if args.target in ["all", "quizzes"]:
             print_info("Seeding quizzes...")
-            await handle_quiz_seed(quiz_args)
+            await handle_seed_all()
             
         print_success("Database seeding completed")
         return 0
@@ -150,34 +146,48 @@ async def handle_list(args):
     try:
         print_header("Database Contents")
         
-        # Create args-like objects for each handler
-        class Args:
-            pass
-            
-        phoneme_args = Args()
-        lesson_args = Args()
-        quiz_args = Args()
+        # Import the necessary handlers
+        from cli.phoneme import handle_list_vowels
+        from cli.lesson import handle_list_lesson
         
-        # List the requested tables
+        # For quizzes, let's use a direct approach
+        from src.models.quiz import QuizItem
+        from src.utils.cli_format import print_quiz_list
+
+        class Args:
+            def __init__(self, **kwargs):
+                for key, value in kwargs.items():
+                    setattr(self, key, value)
+
         if args.target in ["all", "phonemes"]:
             print_info("Phonemes:")
-            await handle_phoneme_list(phoneme_args)
+            await handle_list_vowels()
             print_info("")
-            
+
         if args.target in ["all", "lessons"]:
             print_info("Lessons:")
-            await handle_lesson_list(lesson_args)
+            lesson_args = Args(stats=False, json=False)
+            await handle_list_lesson(lesson_args)
             print_info("")
-            
+
         if args.target in ["all", "quizzes"]:
             print_info("Quizzes:")
-            await handle_quiz_list(quiz_args)
+            app = create_app()
+            with app.app_context():
+                quizzes = QuizItem.query.all()
+                if quizzes:
+                    print_quiz_list(quizzes)
+                else:
+                    print_info("No quizzes found.")
             print_info("")
-            
+        
         return 0
     except Exception as e:
         print_error(f"Failed to list database entries: {str(e)}")
+        import traceback
+        print_error(traceback.format_exc())
         return 1
+
 
 async def handle_clean(args):
     if not args.confirm:
@@ -187,8 +197,7 @@ async def handle_clean(args):
     
     try:
         print_header("Cleaning Database")
-        
-        # Clean the requested tables
+
         if args.target in ["all", "quizzes"]:
             print_info("Cleaning quizzes...")
             from src.models.quiz import QuizOption, QuizItem

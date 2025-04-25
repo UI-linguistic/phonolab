@@ -15,34 +15,6 @@ init()
 console = Console()
 
 
-def format_quiz_for_cli(quiz):
-    return [
-        quiz.id,
-        quiz.prompt_word,
-        quiz.prompt_ipa,
-        quiz.prompt_audio_url
-        # quiz.feedback_correct,
-        # quiz.feedback_incorrect
-    ]
-
-
-def format_quiz_list(quizzes, show_all=False):
-    if show_all:
-        return json.dumps([q.to_dict() for q in quizzes], indent=2)
-    else:
-        # headers = ["ID", "Word", "IPA", "Audio URL", "Correct Feedback", "Incorrect Feedback"]
-        headers = ["ID", "Word", "IPA", "Audio URL"]
-        rows = [format_quiz_for_cli(q) for q in quizzes]
-        return tabulate(rows, headers=headers, tablefmt="grid")
-
-
-def format_single_quiz(quiz):
-    """
-    Pretty-print a single quiz item as CLI output.
-    """
-    return json.dumps(quiz.to_dict(), indent=2)
-
-
 def green(text: str) -> str:
     """Green text."""
     return f"{Fore.GREEN}{text}{Fore.RESET}"
@@ -388,3 +360,141 @@ def format_lesson_list(lessons, show_all=False):
 def format_single_lesson(lesson):
     """Pretty-print a single lesson item as CLI output."""
     return json.dumps(lesson.to_dict(), indent=2)
+
+# Updated function for quiz list display with Rich
+
+
+def print_quiz_list(quizzes: List[Any]) -> None:
+    """Print a list of quizzes using Rich."""
+    print_model_list(
+        quizzes,
+        title="Available Quizzes",
+        columns=['id', 'prompt_word', 'prompt_ipa', 'vowel_id']
+    )
+
+
+def print_quiz_detail(quiz: Any) -> None:
+    """Print detailed quiz information using Rich."""
+    if not quiz:
+        print_error("Quiz not found")
+        return
+
+    table = Table(box=box.ROUNDED)
+    table.add_column("Attribute", style="cyan")
+    table.add_column("Value")
+
+    table.add_row("ID", str(quiz.id))
+    table.add_row("Prompt Word", quiz.prompt_word)
+    table.add_row("Prompt IPA", quiz.prompt_ipa)
+    table.add_row("Audio URL", f"[blue]{quiz.prompt_audio_url}[/blue]")
+
+    if hasattr(quiz, 'vowel_id') and quiz.vowel_id:
+        table.add_row("Vowel ID", quiz.vowel_id)
+
+    option_count = len(quiz.options) if quiz.options else 0
+    table.add_row("Options", f"{option_count} items")
+
+    if hasattr(quiz, 'feedback_correct') and quiz.feedback_correct:
+        table.add_row("Correct Feedback", quiz.feedback_correct)
+    if hasattr(quiz, 'feedback_incorrect') and quiz.feedback_incorrect:
+        table.add_row("Incorrect Feedback", quiz.feedback_incorrect)
+
+    console.print(Panel(table, title=f"Quiz: {quiz.prompt_word}", border_style="blue"))
+
+    if quiz.options:
+        option_table = Table(title="Quiz Options", box=box.ROUNDED)
+        option_table.add_column("ID", style="dim")
+        option_table.add_column("Word", style="cyan")
+        option_table.add_column("IPA")
+        option_table.add_column("Is Correct")
+
+        for option in quiz.options:
+            is_correct = "[green]Yes[/green]" if option.is_correct else "[red]No[/red]"
+            option_table.add_row(str(option.id), option.word, option.ipa, is_correct)
+
+        console.print(option_table)
+
+
+def print_quiz_with_options(quiz: Any) -> None:
+    """Print quiz with its options using Rich."""
+    if not quiz:
+        print_error("Quiz not found")
+        return
+
+    print_quiz_detail(quiz)
+
+
+def print_quiz_option_list(options: List[Any]) -> None:
+    """Print a list of quiz options using Rich."""
+    print_model_list(
+        options,
+        title="Quiz Options",
+        columns=['id', 'quiz_item_id', 'word', 'ipa', 'is_correct']
+    )
+
+
+def print_word_list(examples) -> None:
+    """Print a list of word examples using Rich."""
+    from src.utils.cli_format import print_model_list
+
+    print_model_list(
+        examples,
+        title="Word Examples",
+        columns=['id', 'word', 'vowel_id', 'ipa', 'audio_url']
+    )
+
+
+def format_quiz_for_cli(quiz):
+    """Format a quiz for CLI display."""
+    option_count = len(quiz.options) if quiz.options else 0
+    correct_option = next((opt.word for opt in quiz.options if opt.is_correct), "N/A") if quiz.options else "N/A"
+
+    return [
+        quiz.id,
+        quiz.prompt_word,
+        quiz.prompt_ipa,
+        quiz.prompt_audio_url,
+        correct_option,
+        option_count
+    ]
+
+
+def format_quiz_list(quizzes, show_all=False):
+    """Format a list of quizzes for CLI display."""
+    if show_all:
+        return json.dumps([quiz.to_dict() for quiz in quizzes], indent=2)
+    else:
+        headers = ["ID", "Word", "IPA", "Audio URL", "Correct Option", "Options Count"]
+        rows = [format_quiz_for_cli(quiz) for quiz in quizzes]
+        return tabulate(rows, headers=headers, tablefmt="grid")
+
+
+def format_quiz_for_cli(quiz):
+    """Format a quiz for CLI display."""
+    option_count = len(quiz.options) if quiz.options else 0
+    correct_option = next((opt.word for opt in quiz.options if opt.is_correct), "N/A") if quiz.options else "N/A"
+
+    return [
+        quiz.id,
+        quiz.prompt_word,
+        quiz.prompt_ipa,
+        quiz.prompt_audio_url,
+        correct_option,
+        option_count
+    ]
+
+
+def format_quiz_list(quizzes, show_all=False):
+    """Format a list of quizzes for CLI display."""
+    if show_all:
+        return json.dumps([quiz.to_dict() for quiz in quizzes], indent=2)
+    else:
+        headers = ["ID", "Word", "IPA", "Audio URL", "Correct Vowel", "Options"]
+        rows = [format_quiz_for_cli(quiz) for quiz in quizzes]
+        return tabulate(rows, headers=headers, tablefmt="grid")
+
+
+def format_single_quiz(quiz):
+    """Pretty-print a single quiz item as CLI output."""
+    quiz_dict = quiz.to_dict()
+    return json.dumps(quiz_dict, indent=2)

@@ -170,7 +170,7 @@ async def async_main(args, parser):
         if args.command == "seed":
             return await handle_seed(args)
         elif args.command == "list":
-            return await handle_list(args)
+            return await handle_list_lesson(args)
         elif args.command == "get":
             return await handle_get(args)
         elif args.command == "get-vowel":
@@ -206,7 +206,7 @@ async def handle_seed(args):
         print_error(f"Failed to seed lessons: {str(e)}")
         return 1
 
-async def handle_list(args):
+async def handle_list_lesson(args):
     try:
         if args.stats:
             stats = get_lesson_stats()
@@ -223,13 +223,13 @@ async def handle_list(args):
         if not lessons:
             print_info("No lessons found.")
             return 0
-            
+        
         if args.json:
-            print(json.dumps([l.to_dict() for l in lessons], indent=2))
+            print(json.dumps([lesson.to_dict() for lesson in lessons], indent=2))
         else:
             print_header("All Lessons")
             print_lesson_list(lessons)
-            
+        
         return 0
     except Exception as e:
         print_error(f"Failed to list lessons: {str(e)}")
