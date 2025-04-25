@@ -121,12 +121,10 @@ async def handle_list_words(args) -> int:
 
 async def handle_seed_from_json(args) -> int:
     app = create_app()
-    
-    # Define possible paths for the vowel JSON file
+
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     default_path = os.path.join(project_root, "src/data/vowel.json")
-    
-    # Use provided file or the default
+
     json_file = args.json_file or default_path
     
     print_info(f"Using JSON file: {json_file}")
@@ -137,12 +135,10 @@ async def handle_seed_from_json(args) -> int:
     
     with app.app_context():
         try:
-            # Print the content of the JSON file for debugging
             with open(json_file, 'r') as f:
                 json_content = f.read()
                 print_info(f"JSON file content length: {len(json_content)} bytes")
-                
-                # Parse the JSON to see its structure
+
                 import json
                 vowel_data = json.loads(json_content)
                 print_info(f"JSON contains {len(vowel_data)} top-level items")
@@ -150,13 +146,11 @@ async def handle_seed_from_json(args) -> int:
                     print_info(f"First item keys: {list(vowel_data[0].keys()) if vowel_data else 'None'}")
                 elif isinstance(vowel_data, dict):
                     print_info(f"Top-level keys: {list(vowel_data.keys())}")
-            
-            # Let's look at the seed_from_json_file function
+
             import inspect
             from src.services.phoneme import seed_from_json_file
             print_info(f"seed_from_json_file function: {inspect.signature(seed_from_json_file)}")
-            
-            # Call the function with verbose output
+
             print_info("Calling seed_from_json_file...")
             vowel_count, example_count, error = seed_from_json_file(
                 json_file,
