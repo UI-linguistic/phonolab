@@ -39,6 +39,7 @@ def admin_get_quiz(quiz_id):
         return error_response("Quiz not found", 404)
     return success_response("Quiz retrieved", {"quiz": quiz})
 
+
 @admin_quiz_bp.route("/", methods=["POST"])
 def admin_create_quiz():
     """

@@ -78,6 +78,7 @@ def update_quiz_options(quiz_id, new_options):
     db.session.commit()
     return quiz
 
+
 def format_quiz_for_frontend(quiz: QuizItem):
     """
     Formats a QuizItem object into the structure expected by the frontend.

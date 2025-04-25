@@ -1,7 +1,7 @@
 # # src/api/lesson.py
 
 from flask import Blueprint, request
-
+from utils.format import error_response, success_response
 from services.lesson import (
     create_lesson,
     delete_lesson,
@@ -9,8 +9,9 @@ from services.lesson import (
     get_lesson_by_id,
     get_lesson_by_vowel,
     update_lesson_instructions,
+    format_lesson_for_frontend
 )
-from utils.format import error_response, success_response
+
 
 lesson_bp = Blueprint("lesson", __name__, url_prefix="/lesson")
 admin_lesson_bp = Blueprint("admin_lesson", __name__, url_prefix="/admin/lesson")
@@ -24,23 +25,21 @@ def get_lesson(lesson_id):
     lesson = get_lesson_by_id(lesson_id)
     if not lesson:
         return error_response("Lesson not found", 404)
-    
+
     # format_lesson_for_frontend will be added in services.lesson
-    from services.lesson import format_lesson_for_frontend
+
     return success_response("Lesson retrieved", {"lesson": format_lesson_for_frontend(lesson)})
 
 
-@lesson_bp.route("/vowel/<string:vowel_id>", methods=["GET"])
-def get_lesson_by_vowel(vowel_id):
-    """
-    Public API: Returns a lesson by vowel ID (formatted for frontend).
-    """
-    lesson = get_lesson_by_vowel(vowel_id)
-    if not lesson:
-        return error_response("Lesson not found", 404)
-
-    from services.lesson import format_lesson_for_frontend
-    return success_response("Lesson retrieved", {"lesson": format_lesson_for_frontend(lesson)})
+# @lesson_bp.route("/vowel/<string:vowel_id>", methods=["GET"])
+# def get_lesson_by_vowel(vowel_id):
+#     """
+#     Public API: Returns a lesson by vowel ID (formatted for frontend).
+#     """
+#     lesson = get_lesson_by_vowel(vowel_id)
+#     if not lesson:
+#         return error_response("Lesson not found", 404)
+#     return success_response("Lesson retrieved", {"lesson": format_lesson_for_frontend(lesson)})
 
 
 #

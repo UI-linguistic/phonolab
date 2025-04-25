@@ -59,13 +59,12 @@ help:
 
 venv:
 	@echo "🌀 Creating virtual environment..."
-	pyenv virtualenv $(PYTHON_VERSION) $(PYENV_NAME) || true
-	pyenv local $(PYENV_NAME)
+	cd backend && pyenv virtualenv $(PYTHON_VERSION) $(PYENV_NAME) || true
+	cd backend && pyenv local $(PYENV_NAME)
 
 install:
 	@echo "📦 Installing requirements..."
-	pip install --upgrade pip
-	pip install -e backend.[dev]
+	cd backend && pip install --upgrade pip && pip install -e .[dev]
 
 db-init:
 	@echo "📁 Ensuring migrations folder exists..."

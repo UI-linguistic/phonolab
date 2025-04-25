@@ -55,7 +55,8 @@ def get_quiz_score():
     if not session_id or not quiz_id:
         return error_response("Missing session_id or quiz_id", 400)
 
-    attempt = QuizAttempt.query.filter_by(session_id=session_id, quiz_id=quiz_id).order_by(QuizAttempt.attempted_at.desc()).first()
+    attempt = QuizAttempt.query.filter_by(session_id=session_id,
+                                          quiz_id=quiz_id).order_by(QuizAttempt.attempted_at.desc()).first()
 
     if not attempt:
         return error_response("No attempt found", 404)

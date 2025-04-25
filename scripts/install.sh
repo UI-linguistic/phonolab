@@ -29,4 +29,4 @@ flask db upgrade
 
 # Step 4: Seed the database
 echo "🌱 Seeding database..."
-phoneme --seed-all
+database --seed-all

@@ -49,7 +49,6 @@ def get_formatted_lesson_by_id(lesson_id):
     return format_lesson_for_frontend(lesson)
 
 
-
 #
 #   Database Handlers
 #
