@@ -1,11 +1,10 @@
 # # src/api/quiz.py
-from flask import Blueprint, request
-from services.quiz import create_quiz_from_json_id
-from src.services.quiz import get_quiz_by_id, get_formatted_quiz_by_id
+from flask import Blueprint
+from src.services.quiz import get_formatted_quiz_by_id
 from src.utils.format import error_response, success_response
 
 quiz_bp = Blueprint("quiz", __name__, url_prefix="/quiz")
-admin_quiz_bp = Blueprint("admin_quiz", __name__, url_prefix="/admin/quiz")
+# admin_quiz_bp = Blueprint("admin_quiz", __name__, url_prefix="/admin/quiz")
 
 
 @quiz_bp.route("/<int:quiz_id>", methods=["GET"])
@@ -19,69 +18,64 @@ def get_quiz(quiz_id):
     return success_response("Quiz retrieved", {"quiz": formatted})
 
 
-#
-#   Database Handlers
-#
-
-@admin_quiz_bp.route("/<int:quiz_id>", methods=["GET"])
-def admin_get_quiz(quiz_id):
-    """
-    Retrieves a quiz by its ID.
-    """
-    quiz = get_quiz_by_id(quiz_id)
-    if not quiz:
-        return error_response("Quiz not found", 404)
-    return success_response("Quiz retrieved", {"quiz": quiz})
+# @admin_quiz_bp.route("/<int:quiz_id>", methods=["GET"])
+# def admin_get_quiz(quiz_id):
+#     """
+#     Retrieves a quiz by its ID.
+#     """
+#     quiz = get_quiz_by_id(quiz_id)
+#     if not quiz:
+#         return error_response("Quiz not found", 404)
+#     return success_response("Quiz retrieved", {"quiz": quiz})
 
 
-@admin_quiz_bp.route("/", methods=["POST"])
-def admin_create_quiz():
-    """
-    Admin API: Creates a new quiz.
-    Expects:
-    - prompt_word: str
-    - prompt_ipa: str
-    - prompt_audio_url: str
-    - question_audio_url: str
-    - correct_options: list of audio URLs
-    - wrong_option: str
-    - vowel_id: str (optional)
-    """
-    try:
-        data = request.get_json()
-        prompt_word = data["prompt_word"]
-        prompt_ipa = data["prompt_ipa"]
-        prompt_audio_url = data["prompt_audio_url"]
-        correct_options = data["correct_options"]
-        wrong_option = data["wrong_option"]
-        vowel_id = data.get("vowel_id")
+# @admin_quiz_bp.route("/", methods=["POST"])
+# def admin_create_quiz():
+#     """
+#     Admin API: Creates a new quiz.
+#     Expects:
+#     - prompt_word: str
+#     - prompt_ipa: str
+#     - prompt_audio_url: str
+#     - question_audio_url: str
+#     - correct_options: list of audio URLs
+#     - wrong_option: str
+#     - vowel_id: str (optional)
+#     """
+#     try:
+#         data = request.get_json()
+#         prompt_word = data["prompt_word"]
+#         prompt_ipa = data["prompt_ipa"]
+#         prompt_audio_url = data["prompt_audio_url"]
+#         correct_options = data["correct_options"]
+#         wrong_option = data["wrong_option"]
+#         vowel_id = data.get("vowel_id")
 
-        # Create answer options list
-        options = [{"word": prompt_word, "ipa": prompt_ipa, "audio_url": url, "is_correct": True}
-                   for url in correct_options]
+#         # Create answer options list
+#         options = [{"word": prompt_word, "ipa": prompt_ipa, "audio_url": url, "is_correct": True}
+#                    for url in correct_options]
 
-        options.append({
-            "word": prompt_word,
-            "ipa": prompt_ipa,
-            "audio_url": wrong_option,
-            "is_correct": False
-        })
+#         options.append({
+#             "word": prompt_word,
+#             "ipa": prompt_ipa,
+#             "audio_url": wrong_option,
+#             "is_correct": False
+#         })
 
-        quiz = create_quiz_from_json_id(
-            prompt_word=prompt_word,
-            prompt_ipa=prompt_ipa,
-            prompt_audio_url=prompt_audio_url,
-            options=options,
-            vowel_id=vowel_id
-        )
+#         quiz = create_quiz_from_json_id(
+#             prompt_word=prompt_word,
+#             prompt_ipa=prompt_ipa,
+#             prompt_audio_url=prompt_audio_url,
+#             options=options,
+#             vowel_id=vowel_id
+#         )
 
-        return success_response("Quiz created", {"quiz": quiz.to_dict()}, 201)
+#         return success_response("Quiz created", {"quiz": quiz.to_dict()}, 201)
 
-    except KeyError as e:
-        return error_response(f"Missing field: {str(e)}", 400)
-    except Exception as e:  # fallback for unexpected issues
-        return error_response(f"Error creating quiz: {str(e)}", 500)
-
+#     except KeyError as e:
+#         return error_response(f"Missing field: {str(e)}", 400)
+#     except Exception as e:  # fallback for unexpected issues
+#         return error_response(f"Error creating quiz: {str(e)}", 500)
 
 # @admin_quiz_bp.route("/<int:quiz_id>", methods=["DELETE"])
 # def admin_delete_quiz_route(quiz_id):

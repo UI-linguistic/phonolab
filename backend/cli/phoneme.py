@@ -17,10 +17,23 @@ from src.services.phoneme import (
 )
 
 def main():
-    parser = argparse.ArgumentParser(description="Manage phoneme entries")
-    
-    # Create subparsers for different command groups
-    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
+    parser = argparse.ArgumentParser(
+        description="Manage phoneme entries in the database",
+        epilog="Examples:\n"
+               "  phoneme list --vowels                # List all vowels\n"
+               "  phoneme get #                       # Get details for vowel 'index'\n"
+               "  phoneme get # --examples            # Get vowel 'index' with word examples\n"
+               "  phoneme seed --json                  # Seed database from default JSON file\n"
+               "  phoneme seed --audio                 # Seed database from audio directories\n",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
+    subparsers = parser.add_subparsers(
+        dest="command", 
+        title="commands",
+        description="valid commands",
+        help="Command to execute (use '<command> -h' for more help on a command)"
+    )
     
     # Seed subcommand
     seed_parser = subparsers.add_parser("seed", help="Seed the database")
