@@ -6,13 +6,11 @@ import os
 from flask import json
 from cli.cli_runner import cli_runner
 import db
-from models.quiz import QuizItem, QuizOption
 from src.app import create_app
 from src.services.quiz import (
     get_quiz_by_id,
     get_all_quizzes,
     create_quiz,
-    update_quiz,
     delete_quiz
 )
 from src.utils.format import success_response, error_response
@@ -35,7 +33,7 @@ def main():
 
 async def async_main(args, parser):
     if args.seed:
-        return await handle_seed()
+        return #await handle_seed()
     elif args.list:
         return await handle_list()
     elif args.get:
@@ -51,68 +49,68 @@ async def async_main(args, parser):
     return 0
 
 
-async def handle_seed():
-    app = create_app()
-    data_path = os.path.join(os.path.dirname(__file__), "../src/data/quiz.json")
+# async def handle_seed():
+#     app = create_app()
+#     data_path = os.path.join(os.path.dirname(__file__), "../src/data/quiz.json")
 
-    with app.app_context():
-        try:
-            with open(data_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
+#     with app.app_context():
+#         try:
+#             with open(data_path, "r", encoding="utf-8") as f:
+#                 data = json.load(f)
 
-            # Clear old quiz data
-            QuizOption.query.delete()
-            QuizItem.query.delete()
-            db.session.commit()
+#             # Clear old quiz data
+#             QuizOption.query.delete()
+#             QuizItem.query.delete()
+#             db.session.commit()
 
-            for item in data["quiz"]:
-                sample = item["samples"][0]
+#             for item in data["quiz"]:
+#                 sample = item["samples"][0]
 
-                quiz = QuizItem(
-                    prompt_word=sample["text"],
-                    prompt_ipa=sample["IPA"],
-                    prompt_audio_url=sample["audio"],
-                    feedback_correct=item["feedback"]["correct"],
-                    feedback_incorrect=item["feedback"]["incorrect"]
-                )
+#                 quiz = QuizItem(
+#                     prompt_word=sample["text"],
+#                     prompt_ipa=sample["IPA"],
+#                     prompt_audio_url=sample["audio"],
+#                     feedback_correct=item["feedback"]["correct"],
+#                     feedback_incorrect=item["feedback"]["incorrect"]
+#                 )
 
-                for opt in item["options_pool"]["correct_answers"]:
-                    quiz.options.append(QuizOption(
-                        word=opt["word"],
-                        ipa=opt["IPA"],
-                        audio_url=opt["audio"],
-                        is_correct=True,
-                        language=opt["language"]
-                    ))
+#                 for opt in item["options_pool"]["correct_answers"]:
+#                     quiz.options.append(QuizOption(
+#                         word=opt["word"],
+#                         ipa=opt["IPA"],
+#                         audio_url=opt["audio"],
+#                         is_correct=True,
+#                         language=opt["language"]
+#                     ))
 
-                wrong = item["options_pool"]["wrong_answers"][0]
-                quiz.options.append(QuizOption(
-                    word=wrong["word"],
-                    ipa=wrong["IPA"],
-                    audio_url=wrong["audio"],
-                    is_correct=False,
-                    language=wrong["language"]
-                ))
+#                 wrong = item["options_pool"]["wrong_answers"][0]
+#                 quiz.options.append(QuizOption(
+#                     word=wrong["word"],
+#                     ipa=wrong["IPA"],
+#                     audio_url=wrong["audio"],
+#                     is_correct=False,
+#                     language=wrong["language"]
+#                 ))
 
-                db.session.add(quiz)
+#                 db.session.add(quiz)
 
-            db.session.commit()
-            print(success_response("Quiz data seeded successfully."))
-            return 0
-        except Exception as e:
-            print(error_response(f"Failed to seed quiz data: {str(e)}"))
-            return 1
+#             db.session.commit()
+#             print(success_response("Quiz data seeded successfully."))
+#             return 0
+#         except Exception as e:
+#             print(error_response(f"Failed to seed quiz data: {str(e)}"))
+#             return 1
 
 async def handle_list():
     app = create_app()
     with app.app_context():
         quizzes = get_all_quizzes()
         if not quizzes:
-            print("No quizzes found.")
-            return 0
+                print("No quizzes found.")
+                return 0
 
-        rows = [[q.id, q.title] for q in quizzes]
-        headers = ["Quiz ID", "Title"]
+        rows = [[q.id, q.prompt_word, q.prompt_ipa] for q in quizzes]
+        headers = ["ID", "Prompt Word", "IPA"]
         print(tabulate(rows, headers=headers, tablefmt="grid"))
     return 0
 
@@ -127,9 +125,13 @@ async def handle_get(quiz_id):
 
         print(success_response("Quiz found", {
             "id": quiz.id,
-            "title": quiz.title,
-            "description": quiz.description
+            "word": quiz.prompt_word,
+            "ipa": quiz.prompt_ipa,
+            "audio_url": quiz.prompt_audio_url,
+            "feedback_correct": quiz.feedback_correct,
+            "feedback_incorrect": quiz.feedback_incorrect
         }))
+
     return 0
 
 
@@ -142,17 +144,17 @@ async def handle_create(args):
     return 0
 
 
-async def handle_update(args):
-    quiz_id, title, description = args
-    quiz_id = int(quiz_id)
-    app = create_app()
-    with app.app_context():
-        updated = update_quiz(quiz_id, title, description)
-        if updated:
-            print(success_response("Quiz updated"))
-        else:
-            print(error_response(f"Quiz {quiz_id} not found"))
-    return 0
+# async def handle_update(args):
+#     quiz_id, title, description = args
+#     quiz_id = int(quiz_id)
+#     app = create_app()
+#     with app.app_context():
+#         updated = update_quiz(quiz_id, title, description)
+#         if updated:
+#             print(success_response("Quiz updated"))
+#         else:
+#             print(error_response(f"Quiz {quiz_id} not found"))
+#     return 0
 
 
 async def handle_delete(quiz_id):
