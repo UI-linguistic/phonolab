@@ -1,9 +1,9 @@
-# Phonolab Backend Development Guide
+## Backend Dev Guide
 
-The **Phonolab backend** provides core application logic for handling phonetic data, quizzes, and language models. It uses Flask, SQLAlchemy, and Alembic for migrations.
+Core application logic for handling phonetic data, quizzes, and language models. It uses Flask, SQLAlchemy, and Alembic for migrations.
 
-## Quick Start
-
+### Quick Start
+---
 For a complete automated setup:
 
 ```bash
@@ -22,8 +22,8 @@ After bootstrap completes, if needed, run:
 phonolab backsync
 ```
 
-## Manual Setup
-
+### Manual Setup
+---
 If you prefer step-by-step setup:
 
 ```bash
@@ -32,8 +32,9 @@ make setup
 
 This performs the same steps as bootstrap but with more visibility into each step.
 
-## Available Commands
 
+### Available Commands
+---
 <details>
 <summary><b>Environment Setup</b></summary>
 
@@ -68,8 +69,8 @@ This performs the same steps as bootstrap but with more visibility into each ste
 | `make help` | Show available commands |
 </details>
 
-## CLI Tool
-
+<!-- ### CLI Tool
+---
 The `phonolab` CLI tool is installed during setup and provides commands for managing the application:
 
 ```bash
@@ -87,10 +88,10 @@ phonolab quiz list
 
 # List lessons
 phonolab lesson list
-```
+``` -->
 
-## Project Structure
-
+### Project Structure
+---
 <details>
 <summary><b>Directory Structure</b></summary>
 
@@ -114,14 +115,14 @@ phonolab/
 ```
 </details>
 
-## Environment Requirements
-
+### Environment Requirements
+---
 - Python 3.13.2
 - pyenv with pyenv-virtualenv
 - pip
 
-## Troubleshooting
-
+### Troubleshooting
+---
 <details>
 <summary><b>Common Issues and Solutions</b></summary>
 
@@ -139,8 +140,8 @@ make bootstrap
 ```
 </details>
 
-## Development Workflow
-
+### Development Workflow
+---
 <details>
 <summary><b>Adding New Models</b></summary>
 
@@ -172,9 +173,10 @@ make bootstrap
 ```
 </details>
 
-## API Documentation
-
+### API Documentation
+---
 See [API_DOCS.md](backend/API_DOCS.md) for detailed API documentation.
 
-## Contributors
+### Contributors
+---
 - Phonolab Team
