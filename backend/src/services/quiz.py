@@ -1,48 +1,93 @@
 # src/services/quiz.py
+from flask import json
 from src.db import db
 from src.models.quiz import QuizItem, QuizOption
+from src.utils.format import format_quiz_http
 
 
-def create_quiz(prompt_word, prompt_ipa, prompt_audio_url, options, vowel_id=None):
+def _load_quiz_json(path: str = None) -> dict:
+    """Utility to load the quiz.json file."""
+    if path is None:
+        here = os.path.dirname(__file__)
+        path = os.path.join(here, "../data/quiz.json")
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def create_quiz_from_json_id(quiz_id: int, data: dict | None = None) -> QuizItem:
     """
-    Creates a new quiz item with its answer options.
+    Create and return a QuizItem for the entry whose 'id' matches quiz_id.
     """
+    if data is None:
+        data = _load_quiz_json()
+    # find the JSON object
+    entry = next((q for q in data["quiz"] if q["id"] == quiz_id), None)
+    if not entry:
+        raise ValueError(f"Quiz id {quiz_id} not found in JSON")
+
     quiz = QuizItem(
-        prompt_word=prompt_word,
-        prompt_ipa=prompt_ipa,
-        prompt_audio_url=prompt_audio_url,
-        vowel_id=vowel_id
+        prompt_word=entry["samples"][0]["text"],
+        prompt_ipa=entry["samples"][0]["IPA"],
+        prompt_audio_url=entry["samples"][0]["audio"],
+        feedback_correct=entry["feedback"]["correct"],
+        feedback_incorrect=entry["feedback"]["incorrect"],
+        vowel_id=None  # or entry.get("vowel_id")
     )
 
-    for option in options:
-        quiz_option = QuizOption(
-            word=option["word"],
-            ipa=option["ipa"],
-            audio_url=option["audio_url"],
-            is_correct=option.get("is_correct", False)
-        )
-        quiz.options.append(quiz_option)
+    # correct options
+    for opt in entry["options_pool"]["correct_answers"]:
+        quiz.options.append(QuizOption(
+            word=opt["word"],
+            ipa=opt["IPA"],
+            audio_url=opt["audio"],
+            is_correct=True,
+            language=opt.get("language")
+        ))
+    # wrong options
+    for opt in entry["options_pool"]["wrong_answers"]:
+        quiz.options.append(QuizOption(
+            word=opt["word"],
+            ipa=opt["IPA"],
+            audio_url=opt["audio"],
+            is_correct=False,
+            language=opt.get("language")
+        ))
 
     db.session.add(quiz)
     db.session.commit()
     return quiz
 
 
-def get_all_quizzes():
+def create_quiz_batch(data: dict):
+    """
+    Seeds the quiz database from quiz.json format.
+    """
+    if data is None:
+        data = _load_quiz_json()
+
+    QuizOption.query.delete()
+    QuizItem.query.delete()
+    db.session.commit()
+
+    for entry in data["quiz"]:
+        create_quiz_from_json_id(entry["id"], data)
+
+
+def get_all_quizzes() -> QuizItem:
     """
     Retrieves all quiz items from the database.
     """
     return QuizItem.query.all()
 
 
-def get_quiz_by_id(quiz_id):
+def get_quiz_by_id(quiz_id) -> QuizItem:
     """
     Retrieves a quiz item by its ID.
     """
     return QuizItem.query.get(quiz_id)
 
 
-def delete_quiz(quiz_id):
+def delete_quiz(quiz_id) -> bool:
     """
     Deletes a quiz item and its options.
     """
@@ -79,69 +124,9 @@ def update_quiz_options(quiz_id, new_options):
     return quiz
 
 
-def format_quiz_for_frontend(quiz: QuizItem):
-    """
-    Formats a QuizItem object into the structure expected by the frontend.
-
-    This includes:
-    - The quiz ID and target IPA symbol.
-    - A list of sample words (currently only the prompt word).
-    - Grouped correct and incorrect options with language, word, IPA, and audio URL.
-    - Feedback messages for correct and incorrect answers.
-
-    Args:
-        quiz (QuizItem): The quiz instance to be formatted.
-
-    Returns:
-        dict | None: A dictionary matching the frontend quiz schema,
-                     or None if the quiz does not exist.
-    """
-    if not quiz:
-        return None
-
-    correct_options = [opt for opt in quiz.options if opt.is_correct]
-    wrong_options = [opt for opt in quiz.options if not opt.is_correct]
-
-    return {
-        "id": quiz.id,
-        "target": quiz.prompt_ipa,
-        "samples": [
-            {
-                "text": quiz.prompt_word,
-                "IPA": quiz.prompt_ipa,
-                "audio": quiz.prompt_audio_url
-            }
-        ],
-        "options_pool": {
-            "correct_answers": [
-                {
-                    "language": opt.language or "Unknown",
-                    "word": opt.word,
-                    "IPA": opt.ipa,
-                    "audio": opt.audio_url
-                }
-                for opt in correct_options
-            ],
-            "wrong_answers": [
-                {
-                    "language": opt.language or "Unknown",
-                    "word": opt.word,
-                    "IPA": opt.ipa,
-                    "audio": opt.audio_url
-                }
-                for opt in wrong_options
-            ]
-        },
-        "feedback": {
-            "correct": quiz.feedback_correct or "Well done!",
-            "incorrect": quiz.feedback_incorrect or "Try again."
-        }
-    }
-
-
-def get_formatted_quiz_by_id(quiz_id):
+def get_formatted_quiz_by_id(quiz_id) -> QuizItem | None:
     """
     Retrieves a quiz type 1 by its ID.
     """
     quiz = get_quiz_by_id(quiz_id)
-    return format_quiz_for_frontend(quiz)
+    return format_quiz_http(quiz)

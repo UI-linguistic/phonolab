@@ -1,13 +1,7 @@
 # # src/api/quiz.py
 from flask import Blueprint, request
-from src.services.quiz import (
-    create_quiz,
-    delete_quiz,
-    get_all_quizzes,
-    get_formatted_quiz_by_id,
-    get_quiz_by_id,
-    update_quiz_options
-)
+from services.quiz import create_quiz_from_json_id
+from src.services.quiz import get_quiz_by_id, get_formatted_quiz_by_id
 from src.utils.format import error_response, success_response
 
 quiz_bp = Blueprint("quiz", __name__, url_prefix="/quiz")
@@ -73,7 +67,7 @@ def admin_create_quiz():
             "is_correct": False
         })
 
-        quiz = create_quiz(
+        quiz = create_quiz_from_json_id(
             prompt_word=prompt_word,
             prompt_ipa=prompt_ipa,
             prompt_audio_url=prompt_audio_url,
@@ -89,42 +83,22 @@ def admin_create_quiz():
         return error_response(f"Error creating quiz: {str(e)}", 500)
 
 
-@admin_quiz_bp.route("/<int:quiz_id>", methods=["PUT"])
-def admin_update_quiz(quiz_id):
-    """
-    Admin API: Updates quiz options.
+# @admin_quiz_bp.route("/<int:quiz_id>", methods=["DELETE"])
+# def admin_delete_quiz_route(quiz_id):
+#     """
+#     Admin API: Deletes a quiz and its options.
+#     """
+#     success = delete_quiz(quiz_id)
+#     if not success:
+#         return error_response("Quiz not found", 404)
 
-    **Expected JSON Body:**
-    - options: list of new answer options
-    """
-    data = request.get_json()
-    new_options = data.get("options")
-    if not new_options:
-        return error_response("Missing options", 400)
-
-    updated_quiz = update_quiz_options(quiz_id, new_options)
-    if not updated_quiz:
-        return error_response("Quiz not found", 404)
-
-    return success_response("Quiz updated", {"quiz": updated_quiz.to_dict()})
+#     return success_response("Quiz deleted")
 
 
-@admin_quiz_bp.route("/<int:quiz_id>", methods=["DELETE"])
-def admin_delete_quiz_route(quiz_id):
-    """
-    Admin API: Deletes a quiz and its options.
-    """
-    success = delete_quiz(quiz_id)
-    if not success:
-        return error_response("Quiz not found", 404)
-
-    return success_response("Quiz deleted")
-
-
-@admin_quiz_bp.route("/", methods=["GET"])
-def admin_list_quizzes():
-    """
-    Admin API: Retrieves all quizzes.
-    """
-    quizzes = get_all_quizzes()
-    return success_response("Quizzes retrieved", {"quizzes": [q.to_dict() for q in quizzes]})
+# @admin_quiz_bp.route("/", methods=["GET"])
+# def admin_list_quizzes():
+#     """
+#     Admin API: Retrieves all quizzes.
+#     """
+#     quizzes = get_all_quizzes()
+#     return success_response("Quizzes retrieved", {"quizzes": [q.to_dict() for q in quizzes]})
