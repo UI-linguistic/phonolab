@@ -1,6 +1,6 @@
 # src/services/user.py
 from src.db import db
-from src.models.user import UserSession, CompletedLesson, QuizAttempt
+from src.models.user import CompletedLesson, QuizAttempt, UserSession
 
 
 def get_or_create_session(session_id):
@@ -13,7 +13,7 @@ def get_or_create_session(session_id):
 
 
 def mark_lesson_complete(session_id, lesson_id):
-    session = get_or_create_session(session_id)
+    # session = get_or_create_session(session_id)
     existing = CompletedLesson.query.filter_by(session_id=session_id, lesson_id=lesson_id).first()
     if not existing:
         db.session.add(CompletedLesson(session_id=session_id, lesson_id=lesson_id))

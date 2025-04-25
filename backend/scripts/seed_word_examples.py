@@ -83,33 +83,3 @@ with app.app_context():
     print(f"\n Skipped {len(skipped)} entries:")
     for f, reason in skipped:
         print(f"  - {f}: {reason}")
-
-# with app.app_context():
-#     added = 0
-#     for fname in os.listdir(AUDIO_DIR):
-#         if not fname.endswith(".mp3"):
-#             continue
-
-#         parsed = parse_filename(fname)
-#         if not parsed:
-#             print(f"⚠ Skipping malformed filename: {fname}")
-#             continue
-
-#         ipa, word, vowel_id = parsed
-#         if not vowel_id:
-#             print(f"⚠ Unknown IPA '{ipa}' in file {fname}")
-#             continue
-
-#         audio_url = f"/audio/word_examples/{fname}"
-#         example = WordExample(
-#             word=word,
-#             ipa=ipa,
-#             audio_url=audio_url,
-#             example_sentence=f"Example using the word '{word}'.",
-#             vowel_id=vowel_id
-#         )
-#         db.session.add(example)
-#         added += 1
-
-#     db.session.commit()
-#     print(f" -> Seeded {added} word examples.")

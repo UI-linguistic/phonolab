@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from .api.blueprints import all_blueprints
 from .config import Config
 from .db import db
+
 # from src.models import lesson, phoneme
 
 migrate = Migrate()

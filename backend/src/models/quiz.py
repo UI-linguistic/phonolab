@@ -1,8 +1,8 @@
 # src/models/quiz.py
 from src.db import db
 
-
 # src/models/quiz.py
+
 
 class QuizItem(db.Model):
     __tablename__ = "quiz_items"
@@ -32,7 +32,6 @@ class QuizItem(db.Model):
             "options": [opt.to_dict() for opt in self.options],
         }
 
-
     def __repr__(self):
         return f"<QuizItem {self.prompt_word} ({self.prompt_ipa})>"
 
@@ -61,4 +60,3 @@ class QuizOption(db.Model):
 
     def __repr__(self):
         return f"<QuizOption word='{self.word}' ipa='{self.ipa}' lang='{self.language}' correct={self.is_correct}>"
-

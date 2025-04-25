@@ -7,7 +7,7 @@ def read_requirements(file):
 
 
 requirements = read_requirements('requirements.txt')
-# dev_requirements = read_requirements('requirements-dev.txt')
+dev_requirements = read_requirements('requirements-dev.txt')
 
 setup(
     name='phonolab-backend',
@@ -15,15 +15,18 @@ setup(
     author='Phonolab Team',
     author_email='',
     description='Backend system for the Hooked on Phonetics project',
-    package_dir={"": "src"},
-    packages=find_packages(where="src", exclude=["tests", "tests.*"]),
+    packages=find_packages(include=["cli", "cli.*", "src", "src.*"], exclude=["tests", "tests.*"]),
     install_requires=requirements,
     extras_require={
-        # 'dev': dev_requirements
+        'dev': dev_requirements
     },
     entry_points={
         'console_scripts': [
-            # later
+            'db=cli.database:main',
+            'lesson=cli.lesson:main',
+            'phoneme=cli.phoneme:main',
+            'quiz=cli.quiz:main'
+            # add more
         ],
     },
     classifiers=[
@@ -31,5 +34,5 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
     ],
-    python_requires='>=3.8',
+    python_requires='>=3.9',
 )
