@@ -22,7 +22,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'database=cli.database:main',
+            'db=cli.database:main',
             'lesson=cli.lesson:main',
             'phoneme=cli.phoneme:main',
             'quiz=cli.quiz:main'

@@ -1,10 +1,11 @@
 # src/services/phoneme.py
 import os
 import re
+from typing import List, Optional, Tuple
 
 from flask import json
+
 from src.db import db
-from typing import List, Optional, Tuple
 from src.models.phoneme import Vowel, WordExample
 
 

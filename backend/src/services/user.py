@@ -1,6 +1,6 @@
 # src/services/user.py
 from src.db import db
-from src.models.user import UserSession, CompletedLesson, QuizAttempt
+from src.models.user import CompletedLesson, QuizAttempt, UserSession
 
 
 def get_or_create_session(session_id):

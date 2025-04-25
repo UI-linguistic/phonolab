@@ -1,5 +1,6 @@
 # # src/api/quiz.py
 from flask import Blueprint
+
 from src.services.quiz import get_formatted_quiz_by_id
 from src.utils.format import error_response, success_response
 

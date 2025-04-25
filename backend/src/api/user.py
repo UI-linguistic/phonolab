@@ -1,9 +1,10 @@
 # src/api/user.py
 
 from flask import Blueprint, request
-from src.services.user import log_quiz_attempt
+
 from src.models.user import QuizAttempt
-from src.utils.format import success_response, error_response
+from src.services.user import log_quiz_attempt
+from src.utils.format import error_response, success_response
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 

@@ -1,8 +1,8 @@
 # src/models/quiz.py
 from src.db import db
 
-
 # src/models/quiz.py
+
 
 class QuizItem(db.Model):
     __tablename__ = "quiz_items"

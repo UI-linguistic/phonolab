@@ -1,11 +1,12 @@
 # backend/src/utils/cli_format.py
 import json
-from typing import List, Any
-from colorama import init, Fore
-from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
+from typing import Any, List
+
+from colorama import Fore, init
 from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
 from tabulate import tabulate
 
 init()
@@ -273,6 +274,7 @@ def print_vowel_with_examples(vowel: Any) -> None:
         relation_columns=['word', 'ipa', 'audio_url', 'example_sentence']
     )
 
+
 def print_lesson_list(lessons: List[Any]) -> None:
     """Print a list of lessons using Rich."""
     print_model_list(
@@ -281,17 +283,18 @@ def print_lesson_list(lessons: List[Any]) -> None:
         columns=['id', 'vowel_id']
     )
 
+
 def print_lesson_detail(lesson: Any) -> None:
     """Print detailed lesson information using Rich."""
     if not lesson:
         print_error("Lesson not found")
         return
-    
+
     # Create a table for the lesson details
     table = Table(box=box.ROUNDED)
     table.add_column("Attribute", style="cyan")
     table.add_column("Value")
-    
+
     # Add basic lesson info
     table.add_row("ID", str(lesson.id))
     table.add_row("Vowel ID", lesson.vowel_id)
@@ -302,18 +305,19 @@ def print_lesson_detail(lesson: Any) -> None:
 
     instruction_count = len(lesson.instructions) if lesson.instructions else 0
     table.add_row("Instructions", f"{instruction_count} items")
-    
+
     console.print(Panel(table, title=f"Lesson for {lesson.vowel_id}", border_style="blue"))
 
     if lesson.instructions:
         instruction_table = Table(title="Instructions", box=box.ROUNDED)
         instruction_table.add_column("ID", style="dim")
         instruction_table.add_column("Text")
-        
+
         for instruction in lesson.instructions:
             instruction_table.add_row(str(instruction.id), instruction.text)
-        
+
         console.print(instruction_table)
+
 
 def print_lesson_with_vowel(lesson: Any) -> None:
     """Print lesson with its vowel details using Rich."""
@@ -322,12 +326,12 @@ def print_lesson_with_vowel(lesson: Any) -> None:
         return
 
     print_lesson_detail(lesson)
-    
+
     if lesson.vowel:
         vowel_table = Table(title=f"Vowel: {lesson.vowel.phoneme}", box=box.ROUNDED)
         vowel_table.add_column("Attribute", style="cyan")
         vowel_table.add_column("Value")
-        
+
         vowel_attrs = ['id', 'phoneme', 'name', 'description', 'ipa_example', 'color_code', 'audio_url']
         for attr in vowel_attrs:
             value = getattr(lesson.vowel, attr, None)
@@ -336,8 +340,9 @@ def print_lesson_with_vowel(lesson: Any) -> None:
                 if attr in ['audio_url']:
                     formatted_value = f"[blue]{formatted_value}[/blue]"
                 vowel_table.add_row(attr.replace('_', ' ').title(), formatted_value)
-        
+
         console.print(vowel_table)
+
 
 def print_instruction_list(instructions: List[Any]) -> None:
     """Print a list of lesson instructions using Rich."""
@@ -347,19 +352,21 @@ def print_instruction_list(instructions: List[Any]) -> None:
         columns=['id', 'lesson_id', 'text']
     )
 
+
 def print_instruction_detail(instruction: Any) -> None:
     """Print detailed instruction information using Rich."""
     print_model_detail(
-        instruction, 
+        instruction,
         title=f"Instruction #{instruction.id}",
         exclude_attrs=['lesson']
     )
+
 
 def format_lesson_for_cli(lesson):
     """Format a lesson for CLI display."""
     vowel_info = f"{lesson.vowel.phoneme} ({lesson.vowel.name})" if lesson.vowel else "N/A"
     instruction_count = len(lesson.instructions) if lesson.instructions else 0
-    
+
     return [
         lesson.id,
         lesson.vowel_id,
@@ -367,14 +374,16 @@ def format_lesson_for_cli(lesson):
         instruction_count
     ]
 
+
 def format_lesson_list(lessons, show_all=False):
     """Format a list of lessons for CLI display."""
     if show_all:
-        return json.dumps([l.to_dict() for l in lessons], indent=2)
+        return json.dumps([lesson.to_dict() for lesson in lessons], indent=2)
     else:
         headers = ["ID", "Vowel ID", "Vowel", "Instructions"]
-        rows = [format_lesson_for_cli(l) for l in lessons]
+        rows = [format_lesson_for_cli(lesson) for lesson in lessons]
         return tabulate(rows, headers=headers, tablefmt="grid")
+
 
 def format_single_lesson(lesson):
     """Pretty-print a single lesson item as CLI output."""

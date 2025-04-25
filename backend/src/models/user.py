@@ -1,6 +1,7 @@
 # src/models/user.py
 
 from datetime import datetime
+
 from src.db import db
 
 
