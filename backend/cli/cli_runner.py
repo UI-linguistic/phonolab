@@ -22,4 +22,3 @@ def cli_runner(parser: ArgumentParser, async_main: Callable[[any, ArgumentParser
         asyncio.get_event_loop().run_until_complete(asyncio.gather(*pending, return_exceptions=True))
 
     sys.exit(ret)
-    

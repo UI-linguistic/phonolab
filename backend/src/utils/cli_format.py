@@ -275,20 +275,35 @@ def print_lesson_detail(lesson: Any) -> None:
         vowel_info = f"{lesson.vowel.phoneme} ({lesson.vowel.name})"
         table.add_row("Vowel", vowel_info)
 
-    instruction_count = len(lesson.instructions) if lesson.instructions else 0
-    table.add_row("Instructions", f"{instruction_count} items")
-
     console.print(Panel(table, title=f"Lesson for {lesson.vowel_id}", border_style="blue"))
 
-    if lesson.instructions:
-        instruction_table = Table(title="Instructions", box=box.ROUNDED)
-        instruction_table.add_column("ID", style="dim")
-        instruction_table.add_column("Text")
+    # Display lesson card if available
+    if lesson.vowel and hasattr(lesson.vowel, 'pronounced') and lesson.vowel.pronounced:
+        card_table = Table(title="Lesson Card", box=box.ROUNDED)
+        card_table.add_column("Attribute", style="cyan")
+        card_table.add_column("Value")
 
-        for instruction in lesson.instructions:
-            instruction_table.add_row(str(instruction.id), instruction.text)
+        if lesson.vowel.pronounced:
+            card_table.add_row("Pronounced", lesson.vowel.pronounced)
 
-        console.print(instruction_table)
+        if lesson.vowel.common_spellings:
+            spellings = ", ".join(lesson.vowel.common_spellings)
+            card_table.add_row("Common Spellings", spellings)
+
+        if lesson.vowel.lips:
+            card_table.add_row("Lips", lesson.vowel.lips)
+
+        if lesson.vowel.tongue:
+            card_table.add_row("Tongue", lesson.vowel.tongue)
+
+        if lesson.vowel.example_words:
+            examples = ", ".join(lesson.vowel.example_words)
+            card_table.add_row("Example Words", examples)
+
+        if lesson.vowel.mouth_image_url:
+            card_table.add_row("Mouth Image", f"[blue]{lesson.vowel.mouth_image_url}[/blue]")
+
+        console.print(card_table)
 
 
 def print_lesson_with_vowel(lesson: Any) -> None:
@@ -305,6 +320,7 @@ def print_lesson_with_vowel(lesson: Any) -> None:
         vowel_table.add_column("Value")
 
         vowel_attrs = ['id', 'phoneme', 'name', 'description', 'ipa_example', 'color_code', 'audio_url']
+
         for attr in vowel_attrs:
             value = getattr(lesson.vowel, attr, None)
             if value is not None:
@@ -316,35 +332,29 @@ def print_lesson_with_vowel(lesson: Any) -> None:
         console.print(vowel_table)
 
 
-def print_instruction_list(instructions: List[Any]) -> None:
-    """Print a list of lesson instructions using Rich."""
-    print_model_list(
-        instructions,
-        title="Lesson Instructions",
-        columns=['id', 'lesson_id', 'text']
-    )
-
-
-def print_instruction_detail(instruction: Any) -> None:
-    """Print detailed instruction information using Rich."""
-    print_model_detail(
-        instruction,
-        title=f"Instruction #{instruction.id}",
-        exclude_attrs=['lesson']
-    )
-
-
 def format_lesson_for_cli(lesson):
     """Format a lesson for CLI display."""
     vowel_info = f"{lesson.vowel.phoneme} ({lesson.vowel.name})" if lesson.vowel else "N/A"
-    instruction_count = len(lesson.instructions) if lesson.instructions else 0
+
+    has_lesson_card = lesson.vowel and hasattr(lesson.vowel, 'pronounced') and lesson.vowel.pronounced is not None
+    lesson_card_info = "Available" if has_lesson_card else "Not available"
 
     return [
         lesson.id,
         lesson.vowel_id,
         vowel_info,
-        instruction_count
+        lesson_card_info
     ]
+
+
+def format_lesson_list(lessons, show_all=False):
+    """Format a list of lessons for CLI display."""
+    if show_all:
+        return json.dumps([lesson.to_dict() for lesson in lessons], indent=2)
+    else:
+        headers = ["ID", "Vowel ID", "Vowel", "Lesson Card"]
+        rows = [format_lesson_for_cli(lesson) for lesson in lessons]
+        return tabulate(rows, headers=headers, tablefmt="grid")
 
 
 def format_lesson_list(lessons, show_all=False):

@@ -1,10 +1,17 @@
 # src/services/phoneme.py
+import json
+import logging
 import os
 import re
+import traceback
+from json import JSONDecodeError
 from typing import List, Optional, Tuple
-from flask import json
+
+from sqlalchemy.exc import SQLAlchemyError
+
 from src.db import db
 from src.models.phoneme import Vowel, WordExample
+from src.utils.error_handling import handle_db_operation
 
 
 def get_all_vowels() -> List[Vowel]:
@@ -198,9 +205,16 @@ def create_phoneme_batch(data_loader) -> Optional[str]:
                 )
 
         return None
+    except (KeyError, ValueError, TypeError) as e:
+        db.session.rollback()
+        return f"Data error: {str(e)}"
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return f"Database error: {str(e)}"
     except Exception as e:
         db.session.rollback()
-        return str(e)
+        logging.exception("Unexpected error in create_phoneme_batch")
+        return f"Unexpected error: {str(e)}"
 
 
 def update_vowel(vowel_id: str, **kwargs) -> Optional[Vowel]:
@@ -332,7 +346,7 @@ def seed_vowels_from_audio_directory(
     Returns:
         Tuple of (count of vowels added, error message if any)
     """
-    try:
+    def _seed_vowels():
         # Clear existing vowels if requested
         if clear_existing:
             Vowel.query.delete()
@@ -375,82 +389,9 @@ def seed_vowels_from_audio_directory(
                 continue
 
         db.session.commit()
-        return count, None
+        return count
 
-    except Exception as e:
-        db.session.rollback()
-        return 0, str(e)
-
-
-def seed_word_examples_from_audio_directory(
-        examples_dir_path: str,
-        clear_existing: bool = True,
-        base_url: str = "/audio/word_examples/") -> Tuple[int, Optional[str]]:
-    """
-    Seed word examples by scanning a directory for audio files.
-
-    Expected filename format: word_PHONEME.mp3
-
-    Args:
-        examples_dir_path: Path to the directory containing word example audio files
-        clear_existing: Whether to clear existing word examples before seeding
-        base_url: Base URL path for accessing the audio files
-
-    Returns:
-        Tuple of (count of examples added, error message if any)
-    """
-    try:
-        if clear_existing:
-            WordExample.query.delete()
-            db.session.commit()
-
-        count = 0
-
-        vowels = {vowel.phoneme: vowel for vowel in Vowel.query.all()}
-
-        audio_files = [f for f in os.listdir(examples_dir_path) if f.endswith('.mp3')]
-
-        for audio_file in audio_files:
-            parts = audio_file[:-4].split('_')
-
-            if len(parts) < 2:
-                print(f"Warning: Skipping file {audio_file} - doesn't match expected format word_PHONEME.mp3")
-                continue
-
-            word = parts[0]
-            phoneme = parts[1]
-
-            if phoneme not in vowels:
-                print(f"Warning: Skipping file {audio_file} - phoneme {phoneme} not found in vowels")
-                continue
-
-            vowel = vowels[phoneme]
-
-            existing_example = WordExample.query.filter_by(
-                word=word,
-                vowel_id=vowel.id
-            ).first()
-
-            if existing_example:
-                existing_example.audio_url = f"{base_url}{audio_file}"
-            else:
-                example = WordExample(
-                    word=word,
-                    audio_url=f"{base_url}{audio_file}",
-                    vowel_id=vowel.id,
-                    ipa=None,
-                    example_sentence=None
-                )
-                db.session.add(example)
-
-            count += 1
-
-        db.session.commit()
-        return count, None
-
-    except Exception as e:
-        db.session.rollback()
-        return 0, str(e)
+    return handle_db_operation(_seed_vowels, 0)
 
 
 def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tuple[int, int, Optional[str]]:
@@ -495,9 +436,16 @@ def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tup
                 existing_vowel.description = description
                 existing_vowel.ipa_example = vowel_data.get('target', '')
                 existing_vowel.audio_url = vowel_data.get('audio_url', '')
+
+                existing_vowel.pronounced = vowel_data.get('pronounced', '')
+                existing_vowel.common_spellings = vowel_data.get('common_spellings', [])
+                existing_vowel.lips = vowel_data.get('lips', '')
+                existing_vowel.tongue = vowel_data.get('tongue', '')
+                existing_vowel.example_words = vowel_data.get('example_words', [])
+                existing_vowel.mouth_image_url = vowel_data.get('mouth_image_url', '')
+
                 vowel = existing_vowel
             else:
-
                 vowel = Vowel(
                     id=vowel_id,
                     phoneme=phoneme,
@@ -505,7 +453,14 @@ def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tup
                     description=description,
                     ipa_example=vowel_data.get('target', ''),
                     color_code="#CCCCCC",
-                    audio_url=vowel_data.get('audio_url', '')
+                    audio_url=vowel_data.get('audio_url', ''),
+
+                    pronounced=vowel_data.get('pronounced', ''),
+                    common_spellings=vowel_data.get('common_spellings', []),
+                    lips=vowel_data.get('lips', ''),
+                    tongue=vowel_data.get('tongue', ''),
+                    example_words=vowel_data.get('example_words', []),
+                    mouth_image_url=vowel_data.get('mouth_image_url', '')
                 )
                 db.session.add(vowel)
 
@@ -523,7 +478,6 @@ def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tup
                 if existing_example:
                     existing_example.audio_url = audio_url
                 else:
-                    # Create new example
                     example = WordExample(
                         word=word,
                         audio_url=audio_url,
@@ -537,120 +491,26 @@ def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tup
 
         db.session.commit()
         return vowel_count, example_count, None
+    except JSONDecodeError as e:
+        db.session.rollback()
+        return 0, 0, f"Invalid JSON format: {str(e)}"
+    except (IOError, ValueError, TypeError) as e:
+        db.session.rollback()
+        return 0, 0, f"Data error: {str(e)}"
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return 0, 0, f"Database error: {str(e)}"
     except Exception as e:
         db.session.rollback()
-        import traceback
-        return 0, 0, f"{str(e)}\n{traceback.format_exc()}"
+        logging.exception("Unexpected error in seed_from_json_file")
+        return 0, 0, f"Unexpected error: {str(e)}\n{traceback.format_exc()}"
 
 
-def get_word_examples():
+def get_word_examples() -> List[WordExample]:
     """
     Get all word examples from the database.
 
     Returns:
         List of WordExample objects
     """
-    from src.models.phoneme import WordExample
     return WordExample.query.all()
-
-
-def get_word_examples_by_vowel_id(vowel_id):
-    """
-    Get word examples for a specific vowel.
-
-    Args:
-        vowel_id: ID of the vowel
-
-    Returns:
-        List of WordExample objects for the specified vowel
-    """
-    from src.models.phoneme import WordExample
-    return WordExample.query.filter_by(vowel_id=vowel_id).all()
-
-
-# def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tuple[int, int, Optional[str]]:
-#     """
-#     Seed vowels and word examples from a JSON file.
-
-#     Args:
-#         json_file_path: Path to the JSON file containing vowel and example data
-#         clear_existing: Whether to clear existing data before seeding
-
-#     Returns:
-#         Tuple of (vowel count, example count, error message if any)
-#     """
-#     try:
-#         # Load the JSON data
-#         with open(json_file_path, 'r', encoding='utf-8') as f:
-#             data = json.load(f)
-
-#         # Clear existing data if requested
-#         if clear_existing:
-#             WordExample.query.delete()
-#             Vowel.query.delete()
-#             db.session.commit()
-
-#         vowel_count = 0
-#         example_count = 0
-
-#         # Process vowels
-#         for vowel_data in data.get('vowels', []):
-#             existing_vowel = Vowel.query.get(vowel_data['id'])
-
-#             if existing_vowel:
-#                 for key, value in vowel_data.items():
-#                     if key != 'word_examples' and hasattr(existing_vowel, key):
-#                         setattr(existing_vowel, key, value)
-#                 vowel = existing_vowel
-#             else:
-#                 # Create new vowel
-#                 vowel = Vowel(
-#                     id=vowel_data['id'],
-#                     phoneme=vowel_data['phoneme'],
-#                     name=vowel_data['name'],
-#                     ipa_example=vowel_data['ipa_example'],
-#                     color_code=vowel_data.get('color_code', '#CCCCCC'),
-#                     audio_url=vowel_data['audio_url'],
-#                     description=vowel_data['description']
-#                 )
-#                 db.session.add(vowel)
-
-#             vowel_count += 1
-
-#             for example_data in vowel_data.get('word_examples', []):
-#                 existing_example = WordExample.query.filter_by(
-#                     word=example_data['word'],
-#                     vowel_id=vowel_data['id']
-#                 ).first()
-
-#                 if existing_example:
-#                     # Update existing example
-#                     for key, value in example_data.items():
-#                         if hasattr(existing_example, key):
-#                             setattr(existing_example, key, value)
-#                 else:
-#                     # Create new example
-#                     example = WordExample(
-#                         word=example_data['word'],
-#                         audio_url=example_data['audio_url'],
-#                         vowel_id=vowel_data['id'],
-#                         ipa=example_data.get('ipa'),
-#                         example_sentence=example_data.get('example_sentence')
-#                     )
-#                     db.session.add(example)
-
-#                 example_count += 1
-
-#         db.session.commit()
-#         return vowel_count, example_count, None
-
-#     except Exception as e:
-#         db.session.rollback()
-#         return 0, 0, str(e)
-
-# phase 2
-# def get_vowel_by_phoneme(phoneme):
-#     return Vowel.query.filter_by(phoneme=phoneme).first()
-
-# def search_vowels_by_region(region):
-#     return Vowel.query.join(ColorMapPosition).filter(ColorMapPosition.region == region).all()

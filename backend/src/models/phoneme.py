@@ -13,6 +13,14 @@ class Vowel(db.Model):
     audio_url = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
 
+    # New fields from vowel.json
+    pronounced = db.Column(db.String, nullable=True)
+    common_spellings = db.Column(db.JSON, nullable=True)
+    lips = db.Column(db.String, nullable=True)
+    tongue = db.Column(db.String, nullable=True)
+    example_words = db.Column(db.JSON, nullable=True)
+    mouth_image_url = db.Column(db.String, nullable=True)
+
     word_examples = db.relationship(
         "WordExample",
         backref="vowel",
@@ -29,7 +37,25 @@ class Vowel(db.Model):
             "color_code": self.color_code,
             "audio_url": self.audio_url,
             "description": self.description,
+            "pronounced": self.pronounced,
+            "common_spellings": self.common_spellings,
+            "lips": self.lips,
+            "tongue": self.tongue,
+            "example_words": self.example_words,
+            "mouth_image_url": self.mouth_image_url,
             "word_examples": [we.to_dict() for we in self.word_examples]
+        }
+
+    def get_lesson_card(self):
+        """
+        Return a dictionary with the lesson card information.
+        """
+        return {
+            "pronounced": self.pronounced,
+            "common_spellings": self.common_spellings,
+            "lips": self.lips,
+            "tongue": self.tongue,
+            "example_words": self.example_words
         }
 
     def __repr__(self):
