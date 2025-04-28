@@ -102,7 +102,13 @@ def create_vowel(
     ipa_example: str,
     color_code: str,
     audio_url: str,
-    description: str
+    description: str,
+    pronounced: str = None,
+    common_spellings: List[str] = None,
+    lips: str = None,
+    tongue: str = None,
+    example_words: List[str] = None,
+    mouth_image_url: str = None
 ) -> Vowel:
     """
     Create a new vowel phoneme.
@@ -115,6 +121,12 @@ def create_vowel(
         color_code: Color code for visualization
         audio_url: URL to audio pronunciation
         description: Description of the vowel sound
+        pronounced: How the vowel is pronounced (e.g., "ee")
+        common_spellings: List of common spellings (e.g., ["ee", "ea"])
+        lips: Description of lip position (e.g., "wide smile, unrounded")
+        tongue: Description of tongue position (e.g., "high, front")
+        example_words: List of example words (e.g., ["see", "beat", "team"])
+        mouth_image_url: URL to mouth position image
 
     Returns:
         The created Vowel object
@@ -126,7 +138,13 @@ def create_vowel(
         ipa_example=ipa_example,
         color_code=color_code,
         audio_url=audio_url,
-        description=description
+        description=description,
+        pronounced=pronounced,
+        common_spellings=common_spellings,
+        lips=lips,
+        tongue=tongue,
+        example_words=example_words,
+        mouth_image_url=mouth_image_url
     )
     db.session.add(vowel)
     db.session.commit()
@@ -484,7 +502,7 @@ def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tup
 
         for vowel_data in vowels_data:
             vowel_id = f"v{vowel_data['id']}"
-            phoneme = vowel_data['target'].strip('/').replace('ː', '')
+            phoneme = vowel_data.get('target', '').strip('/').replace('ː', '')
             name = phoneme
             description = f"Placeholder for {phoneme} vowel"
 
@@ -495,9 +513,16 @@ def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tup
                 existing_vowel.description = description
                 existing_vowel.ipa_example = vowel_data.get('target', '')
                 existing_vowel.audio_url = vowel_data.get('audio_url', '')
+
+                existing_vowel.pronounced = vowel_data.get('pronounced', '')
+                existing_vowel.common_spellings = vowel_data.get('common_spellings', [])
+                existing_vowel.lips = vowel_data.get('lips', '')
+                existing_vowel.tongue = vowel_data.get('tongue', '')
+                existing_vowel.example_words = vowel_data.get('example_words', [])
+                existing_vowel.mouth_image_url = vowel_data.get('mouth_image_url', '')
+                
                 vowel = existing_vowel
             else:
-
                 vowel = Vowel(
                     id=vowel_id,
                     phoneme=phoneme,
@@ -505,12 +530,21 @@ def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tup
                     description=description,
                     ipa_example=vowel_data.get('target', ''),
                     color_code="#CCCCCC",
-                    audio_url=vowel_data.get('audio_url', '')
+                    audio_url=vowel_data.get('audio_url', ''),
+                    
+                    # new fields
+                    pronounced=vowel_data.get('pronounced', ''),
+                    common_spellings=vowel_data.get('common_spellings', []),
+                    lips=vowel_data.get('lips', ''),
+                    tongue=vowel_data.get('tongue', ''),
+                    example_words=vowel_data.get('example_words', []),
+                    mouth_image_url=vowel_data.get('mouth_image_url', '')
                 )
                 db.session.add(vowel)
 
             vowel_count += 1
 
+            # example words
             example_words = vowel_data.get('example_words', [])
             for word in example_words:
                 audio_url = f"/static/audio/word_examples/{vowel_count:02d}_{phoneme}_ref_{word}.mp3"
@@ -523,7 +557,7 @@ def seed_from_json_file(json_file_path: str, clear_existing: bool = True) -> Tup
                 if existing_example:
                     existing_example.audio_url = audio_url
                 else:
-                    # Create new example
+                    # new example
                     example = WordExample(
                         word=word,
                         audio_url=audio_url,

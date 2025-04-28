@@ -39,12 +39,30 @@ GET /audio/word_examples/example1.mp3
 
 Retrieves all lessons from the database.
 
-**Query Parameters:**
-- `format` (optional): Set to "frontend" to get data formatted for the frontend
-
 **Returns:** 
-- When `format=frontend`: JSON formatted for the frontend
-- Otherwise: A success response with an array of lesson objects
+- An array of lesson objects with the following structure:
+```json
+[
+  {
+    "id": 1,
+    "vowel_id": "v1",
+    "phoneme": "iː",
+    "name": "Close Front Unrounded Vowel",
+    "description": "A high front unrounded vowel",
+    "audio_url": "/audio/vowels/01-i_close_front_unrounded_vowel.mp3",
+    "mouth_image_url": "/img/svg/01_i_long_e_mouth.svg",
+    "lesson_card": {
+      "pronounced": "ee",
+      "common_spellings": ["ee", "ea"],
+      "lips": "wide smile, unrounded",
+      "tongue": "high, front",
+      "example_words": ["see", "beat", "team"]
+    }
+  },
+  // Additional lessons...
+]
+```
+- Error response if retrieval fails
 
 ### `GET /lesson/<int:lesson_id>`
 
@@ -53,13 +71,10 @@ Retrieves a specific lesson by its ID.
 **Parameters:**
 - `lesson_id`: The ID of the lesson to retrieve
 
-**Query Parameters:**
-- `format` (optional): Set to "frontend" to get data formatted for the frontend
-
 **Returns:**
-- When `format=frontend`: JSON formatted for the frontend
-- Otherwise: A success response with the lesson object
+- JSON object with the formatted lesson data including vowel information and lesson card
 - 404 error if the lesson is not found
+- 500 error if formatting fails
 
 ### `GET /lesson/vowel/<string:vowel_id>`
 
@@ -68,14 +83,96 @@ Retrieves a lesson associated with a specific vowel.
 **Parameters:**
 - `vowel_id`: The ID of the vowel (e.g., "v1", "v2")
 
-**Query Parameters:**
-- `details` (optional): Set to "true" to include detailed information
-- `format` (optional): Set to "frontend" to get data formatted for the frontend
+**Returns:**
+- A lesson object with the same structure as the `GET /lesson/<int:lesson_id>` endpoint
+- 404 error if the lesson is not found
+- 500 error if formatting fails
+
+### `POST /lesson/`
+
+Creates a new lesson for a vowel.
+
+**Expected JSON:**
+```json
+{
+  "vowel_id": "v1"
+}
+```
 
 **Returns:**
-- When `format=frontend`: JSON formatted for the frontend
-- Otherwise: A success response with the lesson object
+- JSON object with the created lesson data if successful
+- 400 error if vowel_id is missing or invalid
+
+### `PUT /lesson/<int:lesson_id>`
+
+Updates an existing lesson.
+
+**Parameters:**
+- `lesson_id`: The ID of the lesson to update
+
+**Expected JSON:**
+```json
+{
+  "vowel_id": "v2"
+}
+```
+
+**Returns:**
+- A lesson object with the same structure as the `GET /lesson/<int:lesson_id>` endpoint
 - 404 error if the lesson is not found
+- 400 error if vowel_id is missing or invalid
+
+### `DELETE /lesson/<int:lesson_id>`
+
+Deletes a lesson.
+
+**Parameters:**
+- `lesson_id`: The ID of the lesson to delete
+
+**Returns:**
+- Success response with the following structure:
+```json
+{
+  "status": "success",
+  "message": "Created X new lessons",
+  "data": {
+    "count": X
+  }
+}
+```
+- 404 error if the lesson is not found
+
+### `POST /lesson/create-all`
+
+Creates lessons for all vowels that don't have lessons yet.
+
+**Returns:**
+- Success response with the count of created lessons
+- Error response if creation fails
+
+### Lesson Card Structure
+
+The lesson card contains pedagogical information about the vowel sound:
+
+- `pronounced`: A simple pronunciation guide (e.g., "ee", "ah")
+- `common_spellings`: Array of common spelling patterns for this vowel sound
+- `lips`: Description of lip position when pronouncing the vowel
+- `tongue`: Description of tongue position when pronouncing the vowel
+- `example_words`: Array of example words containing this vowel sound
+
+### Error Responses
+
+All error responses follow this structure:
+```json
+{
+  "status": "error",
+  "message": "Error message describing what went wrong",
+  "error": {
+    "code": 404,
+    "details": "Additional error details if available"
+  }
+}
+```
 </details>
 
 ## Phoneme
@@ -234,10 +331,6 @@ Deletes a word example.
 <details>
 <summary>Quiz endpoints manage quiz content and user interactions.</summary>
 
-### User Quiz Endpoints
-
-<details>
-<summary>Endpoints for user quiz interactions</summary>
 
 ### `GET /quiz/<int:quiz_id>`
 
@@ -249,51 +342,8 @@ Retrieves a quiz by its ID.
 **Returns:**
 - The formatted quiz object if found
 - 404 error if the quiz is not found
-</details>
 
-### Admin Quiz Endpoints
 
-<details>
-<summary>Endpoints for administrative operations on quizzes</summary>
-
-### `GET /admin/quiz/`
-
-Lists all quizzes (admin only).
-
-**Returns:** A list of all quizzes in the database
-
-### `POST /admin/quiz/`
-
-Creates a new quiz (admin only).
-
-**Expected JSON:** Quiz data including questions and options
-
-**Returns:**
-- Success response with the created quiz
-- Error response if creation fails
-
-### `GET /admin/quiz/<int:quiz_id>`
-
-Retrieves a quiz by its ID (admin only).
-
-**Parameters:**
-- `quiz_id`: The ID of the quiz to retrieve
-
-**Returns:**
-- The quiz object if found
-- 404 error if the quiz is not found
-
-### `DELETE /admin/quiz/<int:quiz_id>`
-
-Deletes a quiz (admin only).
-
-**Parameters:**
-- `quiz_id`: The ID of the quiz to delete
-
-**Returns:**
-- Success response if deletion is successful
-- 404 error if the quiz is not found
-</details>
 </details>
 
 ## User
