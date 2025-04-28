@@ -346,43 +346,44 @@ def seed_lessons_from_json_file(file_path: str, clear_existing: bool = False) ->
         return 0, f"Error reading JSON file: {str(e)}"
 
 
-# def get_lesson_stats():
-#     """
-#     Get statistics about lessons in the database.
+def get_lesson_stats():
+    """
+    Get statistics about lessons in the database.
 
-#     Returns:
-#         dict: A dictionary containing various statistics about lessons.
-#     """
-#     try:
-#         total_lessons = Lesson.query.count()
-#         total_instructions = LessonInstruction.query.count()
+    Returns:
+        dict: A dictionary containing various statistics about lessons.
+    """
+    return;
+    # try:
+    #     total_lessons = Lesson.query.count()
+    #     total_instructions = LessonInstruction.query.count()
 
-#         # Get vowels with lessons
-#         vowels_with_lessons = db.session.query(Vowel).join(Lesson).all()
-#         vowels_with_lessons_count = len(vowels_with_lessons)
+    #     # Get vowels with lessons
+    #     vowels_with_lessons = db.session.query(Vowel).join(Lesson).all()
+    #     vowels_with_lessons_count = len(vowels_with_lessons)
 
-#         # Get vowels without lessons - fix E711 comparison to None
-#         vowels_without_lessons = db.session.query(Vowel).outerjoin(Lesson).filter(Lesson.id is None).all()
-#         vowels_without_lessons_count = len(vowels_without_lessons)
+    #     # Get vowels without lessons - fix E711 comparison to None
+    #     vowels_without_lessons = db.session.query(Vowel).outerjoin(Lesson).filter(Lesson.id is None).all()
+    #     vowels_without_lessons_count = len(vowels_without_lessons)
 
-#         # Get average instructions per lesson
-#         avg_instructions = total_instructions / total_lessons if total_lessons > 0 else 0
+    #     # Get average instructions per lesson
+    #     avg_instructions = total_instructions / total_lessons if total_lessons > 0 else 0
 
-#         return {
-#             "total_lessons": total_lessons,
-#             "total_instructions": total_instructions,
-#             "vowels_with_lessons": vowels_with_lessons_count,
-#             "vowels_without_lessons": vowels_without_lessons_count,
-#             "vowels_without_lessons_ids": [v.id for v in vowels_without_lessons],
-#             "avg_instructions_per_lesson": avg_instructions
-#         }
-#     except Exception as e:
-#         print(f"Error getting lesson stats: {str(e)}")
-#         return {
-#             "total_lessons": 0,
-#             "total_instructions": 0,
-#             "vowels_with_lessons": 0,
-#             "vowels_without_lessons": 0,
-#             "vowels_without_lessons_ids": [],
-#             "avg_instructions_per_lesson": 0
-#         }
+    #     return {
+    #         "total_lessons": total_lessons,
+    #         "total_instructions": total_instructions,
+    #         "vowels_with_lessons": vowels_with_lessons_count,
+    #         "vowels_without_lessons": vowels_without_lessons_count,
+    #         "vowels_without_lessons_ids": [v.id for v in vowels_without_lessons],
+    #         "avg_instructions_per_lesson": avg_instructions
+    #     }
+    # except Exception as e:
+    #     print(f"Error getting lesson stats: {str(e)}")
+    #     return {
+    #         "total_lessons": 0,
+    #         "total_instructions": 0,
+    #         "vowels_with_lessons": 0,
+    #         "vowels_without_lessons": 0,
+    #         "vowels_without_lessons_ids": [],
+    #         "avg_instructions_per_lesson": 0
+    #     }

@@ -145,12 +145,9 @@ async def handle_seed(args):
 async def handle_list(args):
     try:
         print_header("Database Contents")
-        
-        # Import the necessary handlers
+
         from cli.phoneme import handle_list_vowels
         from cli.lesson import handle_list_lesson
-        
-        # For quizzes, let's use a direct approach
         from src.models.quiz import QuizItem
         from src.utils.cli_format import print_quiz_list
 
