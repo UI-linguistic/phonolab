@@ -44,3 +44,11 @@ jobs:
           echo "No test files found. Skipping tests."
           exit 0
         fi
+
+  backend-tests:
+    name: Backend Tests
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Tests passed
+        run: echo "All tests passed!"
