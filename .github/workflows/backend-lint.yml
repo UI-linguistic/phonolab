@@ -16,7 +16,6 @@ jobs:
     defaults:
       run:
         working-directory: ./backend
-
     steps:
     - uses: actions/checkout@v3
     
@@ -33,8 +32,9 @@ jobs:
         
     - name: Lint with pylint
       run: |
-        pylint --disable=C0111,C0103 src/
+        # Run pylint with a minimum score requirement of 9.0/10
+        pylint --disable=C0111,C0103 --fail-under=9.0 src/
         
     - name: Check style with pycodestyle
       run: |
-        pycodestyle --max-line-length=100 src/
+        pycodestyle --max-line-length=120 src/

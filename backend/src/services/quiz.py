@@ -1,4 +1,6 @@
 # src/services/quiz.py
+import os
+
 from flask import json
 
 from src.db import db

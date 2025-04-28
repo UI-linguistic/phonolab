@@ -78,17 +78,17 @@ def format_quiz_http(quiz) -> dict | None:
 def format_lesson_http(lesson) -> dict | None:
     """
     Formats a Lesson object into the structure expected by the HTTP client.
-    
+
     Args:
         lesson (Lesson): The lesson instance to be formatted.
-        
+
     Returns:
         dict | None: A dictionary matching the HTTP client lesson schema,
                      or None if the lesson does not exist.
     """
     if not lesson:
         return None
-        
+
     vowel = lesson.vowel
     if not vowel:
         return None
@@ -106,7 +106,6 @@ def format_lesson_http(lesson) -> dict | None:
         "lesson_card": lesson_card
         # word_examples removed as they're not needed for lessons
     }
-
 
 
 def format_lessons_http(lessons) -> list:

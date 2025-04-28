@@ -1,9 +1,12 @@
-from typing import Any, Dict, List, Optional, Tuple, Union
+import json
+from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy.exc import SQLAlchemyError
-from models.lesson import Lesson
+
 from src.db import db
+from src.models.lesson import Lesson
 from src.models.phoneme import Vowel
+from src.utils.error_handling import handle_db_operation
 
 
 # --- Lesson CRUD Operations ---
@@ -138,33 +141,8 @@ def delete_lesson(lesson_id: int) -> Tuple[bool, Optional[str]]:
         db.session.rollback()
         return False, f"Error deleting lesson: {str(e)}"
 
-def delete_lesson(lesson_id: int) -> Tuple[bool, Optional[str]]:
-    """
-    Delete a lesson by its ID.
-
-    Args:
-        lesson_id (int): ID of the lesson to delete
-
-    Returns:
-        Tuple[bool, Optional[str]]: (Success status, Error message)
-    """
-    try:
-        lesson = Lesson.query.get(lesson_id)
-        if not lesson:
-            return False, f"Lesson with ID {lesson_id} not found"
-
-        db.session.delete(lesson)
-        db.session.commit()
-        return True, None
-
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        return False, f"Database error: {str(e)}"
-    except Exception as e:
-        db.session.rollback()
-        return False, f"Error deleting lesson: {str(e)}"
-
 # --- Lesson Card CRUD Operations ---
+
 
 def get_lesson_by_vowel_id_with_details(vowel_id: str) -> Optional[Dict[str, Any]]:
     """
@@ -181,7 +159,7 @@ def get_lesson_by_vowel_id_with_details(vowel_id: str) -> Optional[Dict[str, Any
         return None
 
     vowel = lesson.vowel
-    
+
     # Get lesson card data from vowel
     lesson_card = {}
     if vowel:
@@ -215,7 +193,7 @@ def get_lesson_with_vowel_details(lesson_id: int) -> Optional[Dict[str, Any]]:
         return None
 
     vowel = lesson.vowel
-    
+
     # Get lesson card data from vowel
     lesson_card = {}
     if vowel:
@@ -241,13 +219,13 @@ def create_lessons_for_all_vowels() -> Tuple[int, Optional[str]]:
     Returns:
         Tuple[int, Optional[str]]: (Number of lessons created, Error message)
     """
-    try:
+    def _create_lessons():
         # Get all vowels
         vowels = Vowel.query.all()
-        
+
         # Count created lessons
         created_count = 0
-        
+
         for vowel in vowels:
             # Check if lesson exists
             existing_lesson = Lesson.query.filter_by(vowel_id=vowel.id).first()
@@ -256,16 +234,11 @@ def create_lessons_for_all_vowels() -> Tuple[int, Optional[str]]:
                 lesson = Lesson(vowel_id=vowel.id)
                 db.session.add(lesson)
                 created_count += 1
-        
+
         db.session.commit()
-        return created_count, None
-        
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        return 0, f"Database error: {str(e)}"
-    except Exception as e:
-        db.session.rollback()
-        return 0, f"Error creating lessons: {str(e)}"
+        return created_count
+
+    return handle_db_operation(_create_lessons, 0)
 
 
 def seed_lessons_from_data(vowel_ids: List[str], clear_existing: bool = False) -> Tuple[int, Optional[str]]:
@@ -325,10 +298,8 @@ def seed_lessons_from_json_file(file_path: str, clear_existing: bool = False) ->
         Tuple[int, Optional[str]]: (Number of lessons created, Error message)
     """
     try:
-        import json
-
         # Read the JSON file
-        with open(file_path, 'r') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             lessons_data = json.load(f)
 
         # Validate the data structure
@@ -353,7 +324,7 @@ def get_lesson_stats():
     Returns:
         dict: A dictionary containing various statistics about lessons.
     """
-    return;
+    return
     # try:
     #     total_lessons = Lesson.query.count()
     #     total_instructions = LessonInstruction.query.count()

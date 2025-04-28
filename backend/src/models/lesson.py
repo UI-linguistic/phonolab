@@ -21,7 +21,7 @@ class Lesson(db.Model):
                 "tongue": self.vowel.tongue,
                 "example_words": self.vowel.example_words
             }
-        
+
         # filtered vowel
         vowel_dict = None
         if self.vowel:
@@ -36,13 +36,12 @@ class Lesson(db.Model):
                 "mouth_image_url": self.vowel.mouth_image_url,
                 # "word_examples": [we.to_dict() for we in self.vowel.word_examples]
             }
-        
+
         return {
             "id": self.id,
             "vowel": vowel_dict,
             "lesson_card": lesson_card
         }
-
 
     def __repr__(self):
         return f"<Lesson id={self.id} vowel_id={self.vowel_id}>"

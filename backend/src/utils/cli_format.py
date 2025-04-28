@@ -282,27 +282,27 @@ def print_lesson_detail(lesson: Any) -> None:
         card_table = Table(title="Lesson Card", box=box.ROUNDED)
         card_table.add_column("Attribute", style="cyan")
         card_table.add_column("Value")
-        
+
         if lesson.vowel.pronounced:
             card_table.add_row("Pronounced", lesson.vowel.pronounced)
-        
+
         if lesson.vowel.common_spellings:
             spellings = ", ".join(lesson.vowel.common_spellings)
             card_table.add_row("Common Spellings", spellings)
-        
+
         if lesson.vowel.lips:
             card_table.add_row("Lips", lesson.vowel.lips)
-        
+
         if lesson.vowel.tongue:
             card_table.add_row("Tongue", lesson.vowel.tongue)
-        
+
         if lesson.vowel.example_words:
             examples = ", ".join(lesson.vowel.example_words)
             card_table.add_row("Example Words", examples)
-            
+
         if lesson.vowel.mouth_image_url:
             card_table.add_row("Mouth Image", f"[blue]{lesson.vowel.mouth_image_url}[/blue]")
-        
+
         console.print(card_table)
 
 
@@ -320,7 +320,7 @@ def print_lesson_with_vowel(lesson: Any) -> None:
         vowel_table.add_column("Value")
 
         vowel_attrs = ['id', 'phoneme', 'name', 'description', 'ipa_example', 'color_code', 'audio_url']
-        
+
         for attr in vowel_attrs:
             value = getattr(lesson.vowel, attr, None)
             if value is not None:
@@ -335,17 +335,16 @@ def print_lesson_with_vowel(lesson: Any) -> None:
 def format_lesson_for_cli(lesson):
     """Format a lesson for CLI display."""
     vowel_info = f"{lesson.vowel.phoneme} ({lesson.vowel.name})" if lesson.vowel else "N/A"
-    
+
     has_lesson_card = lesson.vowel and hasattr(lesson.vowel, 'pronounced') and lesson.vowel.pronounced is not None
     lesson_card_info = "Available" if has_lesson_card else "Not available"
-    
+
     return [
         lesson.id,
         lesson.vowel_id,
         vowel_info,
         lesson_card_info
     ]
-
 
 
 def format_lesson_list(lessons, show_all=False):
@@ -356,7 +355,6 @@ def format_lesson_list(lessons, show_all=False):
         headers = ["ID", "Vowel ID", "Vowel", "Lesson Card"]
         rows = [format_lesson_for_cli(lesson) for lesson in lessons]
         return tabulate(rows, headers=headers, tablefmt="grid")
-
 
 
 def format_lesson_list(lessons, show_all=False):

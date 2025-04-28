@@ -29,12 +29,12 @@ def main():
     )
 
     subparsers = parser.add_subparsers(
-        dest="command", 
+        dest="command",
         title="commands",
         description="valid commands",
         help="Command to execute (use '<command> -h' for more help on a command)"
     )
-    
+
     # Seed subcommand
     seed_parser = subparsers.add_parser("seed", help="Seed the database")
     seed_group = seed_parser.add_mutually_exclusive_group(required=True)
@@ -44,7 +44,7 @@ def main():
     seed_parser.add_argument("--vowel-dir", type=str, help="Directory with vowel audio files (default: static/audio/vowels)")
     seed_parser.add_argument("--examples-dir", type=str, help="Directory with word example audio files (default: static/audio/word_examples)")
     seed_parser.add_argument("--keep-existing", action="store_true", help="Don't clear existing data before seeding")
-    
+
     # List subcommand
     list_parser = subparsers.add_parser(
         "list",
@@ -67,19 +67,19 @@ def main():
         type=str,
         help="Filter word examples by vowel ID (only with --words)"
     )
-    
+
     # Get subcommand
     get_parser = subparsers.add_parser("get", help="Get phoneme details")
     get_parser.add_argument("vowel_id", type=str, help="Vowel ID to get details for")
     get_parser.add_argument("--examples", action="store_true", help="Show word examples for this vowel")
-    
+
     cli_runner(parser, async_main)
 
 async def async_main(args, parser):
     if not hasattr(args, "command") or args.command is None:
         parser.print_help()
         return 0
-        
+
     if args.command == "seed":
         if args.json:
             return await handle_seed_from_json(args)
@@ -100,17 +100,17 @@ async def async_main(args, parser):
 async def handle_list_words(args) -> int:
     """List all word examples in the database."""
     from src.services.phoneme import get_word_examples, get_word_examples_by_vowel_id
-    
+
     app = create_app()
     with app.app_context():
         vowel_id = args.vowel if hasattr(args, 'vowel') else None
-        
+
         if vowel_id:
             examples = get_word_examples_by_vowel_id(vowel_id)
             print_info(f"Word examples for vowel {vowel_id}:")
         else:
             examples = get_word_examples()
-        
+
         if examples:
             print_header("All Words")
             print_word_list(examples)
@@ -126,13 +126,13 @@ async def handle_seed_from_json(args) -> int:
     default_path = os.path.join(project_root, "src/data/vowel.json")
 
     json_file = args.json_file or default_path
-    
+
     print_info(f"Using JSON file: {json_file}")
-    
+
     if not os.path.exists(json_file):
         print_error(f"JSON file not found: {json_file}")
         return 1
-    
+
     with app.app_context():
         try:
             with open(json_file, 'r') as f:
@@ -156,13 +156,13 @@ async def handle_seed_from_json(args) -> int:
                 json_file,
                 clear_existing=not args.keep_existing
             )
-            
+
             print_info(f"Function returned: vowel_count={vowel_count}, example_count={example_count}, error={error}")
-            
+
             if error:
                 print_error(f"Failed to seed from JSON: {error}")
                 return 1
-            
+
             print_success(f"Successfully seeded {vowel_count} vowels and {example_count} word examples from JSON")
             return 0
         except Exception as e:
@@ -176,17 +176,17 @@ async def handle_seed_from_audio(args) -> int:
 
     vowel_dir = args.vowel_dir or os.path.join(os.path.dirname(__file__), "../static/audio/vowels")
     examples_dir = args.examples_dir or os.path.join(os.path.dirname(__file__), "../static/audio/word_examples")
-    
+
     if not os.path.exists(vowel_dir):
         print_error(f"Vowel audio directory not found: {vowel_dir}")
         return 1
-    
+
     with app.app_context():
         vowel_count, error = seed_vowels_from_audio_directory(
             vowel_dir,
             clear_existing=not args.keep_existing
         )
-        
+
         if error:
             print_error(f"Failed to seed vowels from audio: {error}")
             return 1
@@ -197,16 +197,16 @@ async def handle_seed_from_audio(args) -> int:
                 examples_dir,
                 clear_existing=not args.keep_existing
             )
-            
+
             if error:
                 print_error(f"Failed to seed word examples from audio: {error}")
                 return 1
-        
+
         message = f"Successfully seeded {vowel_count} vowels"
         if example_count > 0:
             message += f" and {example_count} word examples"
         message += " from audio files"
-        
+
         print_success(message)
         return 0
 
@@ -224,7 +224,7 @@ async def handle_get_vowel(vowel_id) -> int:
         if not vowel:
             print_error(f"Vowel {vowel_id} not found")
             return 1
-        
+
         print_vowel_detail(vowel)
     return 0
 
@@ -233,21 +233,21 @@ async def handle_get_vowel_with_examples(vowel_id) -> int:
     with app.app_context():
         vowel = get_vowel_by_id(vowel_id)
         return vowel
-    
+
 
 def _load_phoneme_json(path: str = None) -> dict:
     """
     Utility to load the .json file.
-    
+
     Args:
         path: Path to the JSON file. If None, uses the default path.
-        
+
     Returns:
         Dictionary containing the phoneme data
     """
     if path is None:
         here = os.path.dirname(__file__)
         path = os.path.join(here, "../data/vowel.json")
-    
+
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)

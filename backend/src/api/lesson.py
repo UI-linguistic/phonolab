@@ -1,21 +1,18 @@
 # src/api/lesson.py
+import logging
+
 from flask import Blueprint, jsonify, request
 
 from src.services.lesson import (
+    create_lesson,
+    create_lessons_for_all_vowels,
+    delete_lesson,
     get_all_lessons,
     get_lesson_by_id,
     get_lesson_by_vowel_id,
-    create_lesson,
     update_lesson,
-    delete_lesson,
-    create_lessons_for_all_vowels
 )
-from src.utils.format import (
-    error_response, 
-    format_lesson_http, 
-    format_lessons_http, 
-    success_response
-)
+from src.utils.format import error_response, format_lesson_http, format_lessons_http, success_response
 
 lesson_bp = Blueprint("lesson", __name__, url_prefix="/lesson")
 
@@ -27,8 +24,11 @@ def fetch_all_lessons():
         lessons = get_all_lessons()
         formatted_lessons = format_lessons_http(lessons)
         return jsonify(formatted_lessons)
+    except (ValueError, TypeError) as e:
+        return error_response(f"Error formatting lessons: {str(e)}")
     except Exception as e:
-        return error_response(f"Error retrieving lessons: {str(e)}")
+        logging.exception("Unexpected error in fetch_all_lessons")
+        return error_response(f"Unexpected error: {str(e)}")
 
 
 @lesson_bp.route("/<int:lesson_id>", methods=["GET"])
@@ -38,12 +38,14 @@ def fetch_lesson_by_id(lesson_id):
         lesson = get_lesson_by_id(lesson_id)
         if not lesson:
             return error_response(f"Lesson with ID {lesson_id} not found", 404)
-            
+
         formatted_lesson = format_lesson_http(lesson)
         if not formatted_lesson:
             return error_response("Could not format lesson response", 500)
-            
+
         return jsonify(formatted_lesson)
+    except (ValueError, TypeError) as e:
+        return error_response(f"Error formatting lesson: {str(e)}")
     except Exception as e:
         return error_response(f"Error retrieving lesson: {str(e)}")
 
@@ -59,8 +61,10 @@ def fetch_lesson_by_vowel_id(vowel_id):
         formatted_lesson = format_lesson_http(lesson)
         if not formatted_lesson:
             return error_response("Could not format lesson response", 500)
-            
+
         return jsonify(formatted_lesson)
+    except (ValueError, TypeError) as e:
+        return error_response(f"Error formatting lesson: {str(e)}")
     except Exception as e:
         return error_response(f"Error retrieving lesson: {str(e)}")
 
@@ -81,6 +85,8 @@ def create_new_lesson():
 
         formatted_lesson = format_lesson_http(lesson)
         return jsonify(formatted_lesson), 201
+    except (ValueError, TypeError) as e:
+        return error_response(f"Error formatting lesson: {str(e)}")
     except Exception as e:
         return error_response(f"Error creating lesson: {str(e)}")
 
@@ -101,6 +107,8 @@ def update_existing_lesson(lesson_id):
 
         formatted_lesson = format_lesson_http(lesson)
         return jsonify(formatted_lesson)
+    except (ValueError, TypeError) as e:
+        return error_response(f"Error formatting lesson: {str(e)}")
     except Exception as e:
         return error_response(f"Error updating lesson: {str(e)}")
 
@@ -109,7 +117,7 @@ def update_existing_lesson(lesson_id):
 def delete_existing_lesson(lesson_id):
     """Delete a lesson."""
     try:
-        success, error = delete_lesson(lesson_id)
+        error = delete_lesson(lesson_id)
 
         if error:
             return error_response(error, 400)

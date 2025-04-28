@@ -12,7 +12,7 @@ class Vowel(db.Model):
     color_code = db.Column(db.String, nullable=False)
     audio_url = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
-    
+
     # New fields from vowel.json
     pronounced = db.Column(db.String, nullable=True)
     common_spellings = db.Column(db.JSON, nullable=True)
@@ -45,7 +45,7 @@ class Vowel(db.Model):
             "mouth_image_url": self.mouth_image_url,
             "word_examples": [we.to_dict() for we in self.word_examples]
         }
-        
+
     def get_lesson_card(self):
         """
         Return a dictionary with the lesson card information.
@@ -60,7 +60,6 @@ class Vowel(db.Model):
 
     def __repr__(self):
         return f"<Vowel id={self.id} phoneme='{self.phoneme}' name='{self.name}'>"
-
 
 
 class WordExample(db.Model):
