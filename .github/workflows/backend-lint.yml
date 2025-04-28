@@ -32,9 +32,10 @@ jobs:
         
     - name: Lint with pylint
       run: |
-        # Run pylint with a minimum score requirement of 9.0/10
-        pylint --disable=C0111,C0103 --fail-under=9.0 src/
+        # Run pylint using setup.cfg configuration
+        pylint --fail-under=9.0 src/
         
     - name: Check style with pycodestyle
       run: |
-        pycodestyle --max-line-length=120 src/
+        # Use pycodestyle with setup.cfg configuration
+        pycodestyle src/
