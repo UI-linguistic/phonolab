@@ -262,10 +262,12 @@ def print_lesson_detail(lesson: Any) -> None:
         print_error("Lesson not found")
         return
 
+    # Create a table for the lesson details
     table = Table(box=box.ROUNDED)
     table.add_column("Attribute", style="cyan")
     table.add_column("Value")
 
+    # Add basic lesson info
     table.add_row("ID", str(lesson.id))
     table.add_row("Vowel ID", lesson.vowel_id)
 
@@ -275,32 +277,33 @@ def print_lesson_detail(lesson: Any) -> None:
 
     console.print(Panel(table, title=f"Lesson for {lesson.vowel_id}", border_style="blue"))
 
-    if lesson.vowel and hasattr(lesson.vowel, 'pronounced'):
-        lesson_card_table = Table(title="Lesson Card", box=box.ROUNDED)
-        lesson_card_table.add_column("Attribute", style="cyan")
-        lesson_card_table.add_column("Value")
+    # Display lesson card if available
+    if lesson.vowel and hasattr(lesson.vowel, 'pronounced') and lesson.vowel.pronounced:
+        card_table = Table(title="Lesson Card", box=box.ROUNDED)
+        card_table.add_column("Attribute", style="cyan")
+        card_table.add_column("Value")
         
         if lesson.vowel.pronounced:
-            lesson_card_table.add_row("Pronounced", lesson.vowel.pronounced)
+            card_table.add_row("Pronounced", lesson.vowel.pronounced)
         
         if lesson.vowel.common_spellings:
             spellings = ", ".join(lesson.vowel.common_spellings)
-            lesson_card_table.add_row("Common Spellings", spellings)
+            card_table.add_row("Common Spellings", spellings)
         
         if lesson.vowel.lips:
-            lesson_card_table.add_row("Lips", lesson.vowel.lips)
+            card_table.add_row("Lips", lesson.vowel.lips)
         
         if lesson.vowel.tongue:
-            lesson_card_table.add_row("Tongue", lesson.vowel.tongue)
+            card_table.add_row("Tongue", lesson.vowel.tongue)
         
         if lesson.vowel.example_words:
             examples = ", ".join(lesson.vowel.example_words)
-            lesson_card_table.add_row("Example Words", examples)
+            card_table.add_row("Example Words", examples)
             
         if lesson.vowel.mouth_image_url:
-            lesson_card_table.add_row("Mouth Image URL", f"[blue]{lesson.vowel.mouth_image_url}[/blue]")
-            
-        console.print(lesson_card_table)
+            card_table.add_row("Mouth Image", f"[blue]{lesson.vowel.mouth_image_url}[/blue]")
+        
+        console.print(card_table)
 
 
 def print_lesson_with_vowel(lesson: Any) -> None:
@@ -342,6 +345,7 @@ def format_lesson_for_cli(lesson):
         vowel_info,
         lesson_card_info
     ]
+
 
 
 def format_lesson_list(lessons, show_all=False):
