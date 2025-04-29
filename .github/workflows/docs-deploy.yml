@@ -42,24 +42,17 @@ jobs:
           pip install -e .
           cd ..
       
-      - name: Check API docs file
-        run: |
-          echo "Content of docs/backend/api.md:"
-          cat docs/backend/api.md
-      
-      - name: Check import paths
+      - name: Check Python path
         run: |
           python -c "import sys; print('Python path:', sys.path)"
 
           python -c "import pkgutil; print('Available modules:', [p[1] for p in pkgutil.iter_modules()])"
-
-          python -c "try: from src.api import lesson; print('Successfully imported src.api.lesson'); except ImportError as e: print(f'Error importing: {e}')"
       
-      - name: Create symbolic link for documentation
+      - name: Create symbolic link for src
         run: |
           ln -s $(pwd)/backend/src $(pwd)/src
 
-          python -c "try: from src.api import lesson; print('Successfully imported src.api.lesson after symlink'); except ImportError as e: print(f'Error after symlink: {e}')"
+          python -c "import sys; print(sys.path); try: import src; print('Successfully imported src'); except ImportError as e: print(f'Error importing src: {e}')"
       
       - name: Configure Git user
         run: |
