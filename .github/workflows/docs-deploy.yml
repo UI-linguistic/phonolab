@@ -3,7 +3,7 @@ name: Deploy MkDocs
 on:
   push:
     branches:
-      - gh-pages
+      - 'gh-pages'
 
 permissions:
   contents: write
@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: '3.x'
       
-      - name: Install dependencies
+      - name: Install MkDocs and plugins
         run: |
           python -m pip install --upgrade pip
           # Install MkDocs and plugins
@@ -35,21 +35,31 @@ jobs:
           pip install mkdocs-minify-plugin==0.8.0
           pip install mkdocstrings==0.29.1
           pip install mkdocstrings-python==1.16.10
-
+      
       - name: Install backend package
         run: |
           cd backend
           pip install -e .
-          
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-          
           cd ..
-          
-          python -c "import sys; print(sys.path)"
-          python -c "import pkgutil; print([p[1] for p in pkgutil.iter_modules()])"
-          python -c "try: import src; print('src module found'); except ImportError as e: print(f'Error importing src: {e}')"
+      
+      - name: Check API docs file
+        run: |
+          echo "Content of docs/backend/api.md:"
+          cat docs/backend/api.md
+      
+      - name: Check import paths
+        run: |
+          python -c "import sys; print('Python path:', sys.path)"
+
+          python -c "import pkgutil; print('Available modules:', [p[1] for p in pkgutil.iter_modules()])"
+
+          python -c "try: from src.api import lesson; print('Successfully imported src.api.lesson'); except ImportError as e: print(f'Error importing: {e}')"
+      
+      - name: Create symbolic link for documentation
+        run: |
+          ln -s $(pwd)/backend/src $(pwd)/src
+
+          python -c "try: from src.api import lesson; print('Successfully imported src.api.lesson after symlink'); except ImportError as e: print(f'Error after symlink: {e}')"
       
       - name: Configure Git user
         run: |
