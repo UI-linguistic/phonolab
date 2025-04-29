@@ -5,10 +5,14 @@ on:
     branches: [ main, dev ]
     paths:
       - 'backend/**'
+      - 'docs/**'
+      - 'mkdocs.yml'
   pull_request:
     branches: [ main, dev ]
     paths:
       - 'backend/**'
+      - 'docs/**'
+      - 'mkdocs.yml'
 
 jobs:
   test:
