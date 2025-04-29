@@ -222,11 +222,11 @@ def update_vowel(vowel_id: str, **kwargs) -> Optional[Vowel]:
     Update a vowel phoneme.
 
     Args:
-        vowel_id: ID of the vowel to update
+        vowel_id (str): ID of the vowel to update
         **kwargs: Fields to update (phoneme, name, ipa_example, etc.)
 
     Returns:
-        Updated Vowel object if found, None otherwise
+        Optional[Vowel]: Updated Vowel object if found, None otherwise
     """
     vowel = get_vowel_by_id(vowel_id)
     if not vowel:

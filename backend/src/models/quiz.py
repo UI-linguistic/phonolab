@@ -5,6 +5,22 @@ from src.db import db
 
 
 class QuizItem(db.Model):
+    """
+    Database model representing a quiz question in the PhonoLab system.
+    
+    Attributes:
+        id (int): Unique identifier for the quiz item.
+        prompt_word (str): The word presented as the quiz question.
+        prompt_audio_url (str): URL to the audio file of the prompt word.
+        prompt_ipa (str): IPA transcription of the prompt word.
+        feedback_correct (str): Feedback for correct answers.
+        feedback_incorrect (str): Feedback for incorrect answers.
+        vowel_id (str): Foreign key to the associated vowel.
+    
+    Relationships:
+        vowel: Many-to-one relationship with the Vowel model.
+        options: One-to-many relationship with QuizOption model.
+    """
     __tablename__ = "quiz_items"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -37,6 +53,21 @@ class QuizItem(db.Model):
 
 
 class QuizOption(db.Model):
+    """
+    Database model representing an answer option for a quiz question.
+    
+    Attributes:
+        id (int): Unique identifier for the quiz option.
+        word (str): The word presented as an answer option.
+        ipa (str): IPA transcription of the option word.
+        audio_url (str): URL to the audio file of the option word.
+        is_correct (bool): Whether this option is the correct answer.
+        language (str): Language identifier for the word.
+        quiz_item_id (int): Foreign key to the associated quiz item.
+    
+    Relationships:
+        quiz_item: Many-to-one relationship with the QuizItem model.
+    """
     __tablename__ = "quiz_options"
 
     id = db.Column(db.Integer, primary_key=True)

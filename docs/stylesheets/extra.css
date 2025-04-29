@@ -1,107 +1,49 @@
-/* .md-sidebar.md-sidebar--secondary .md-nav__link .md-ellipsis code,
-.md-nav--secondary .md-nav__link .md-ellipsis code {
-    display: inline-block !important;
-    padding: 0.2em 0.5em !important;
-    margin: 0.1em 0 !important;
-    font-family: var(--md-code-font-family) !important;
-    font-size: 0.85em !important;
-    line-height: 1.2 !important;
-    background-color: var(--md-code-bg-color) !important;
-    color: var(--md-code-fg-color) !important;
-    border: 1px solid var(--md-code-bg-color--light) !important;
-    border-radius: 0.3em !important;
-    transition: background-color 0.2s, border-color 0.2s;
+/* ===== LAYOUT SETTINGS ===== */
+/* Content layout */
+.md-content {
+    margin-left: 0;
 }
 
-.md-sidebar.md-sidebar--secondary .md-nav__link:hover .md-ellipsis code,
-.md-nav--secondary .md-nav__link:hover .md-ellipsis code {
-    background-color: var(--md-code-bg-color--light) !important;
-    border-color: var(--md-code-bg-color--lighter) !important;
-} */
-/* Style the code pills in the right-hand API nav tree */
-/* .md-sidebar--secondary .md-nav__link .md-ellipsis code {
-    display: inline-block;
-    padding: 0.15em 0.5em;
-    margin: 0.1em 0;
-    font-family: var(--md-code-font-family);
-    font-size: 0.85em;
-    line-height: 1.2;
-    background-color: var(--md-code-bg-color);
-    color: var(--md-code-fg-color);
-    border: 1px solid var(--md-code-bg-color--light);
-    border-radius: 0.3em;
-    transition: background-color 0.2s, border-color 0.2s;
+.md-content__inner {
+    margin: 0 .8rem;
+    padding-top: 1.2rem;
 }
 
-.md-sidebar--secondary .md-nav__link:hover .md-ellipsis code {
-    background-color: var(--md-code-bg-color--light);
-    border-color: var(--md-code-bg-color--lighter);
-} */
+/* Sidebar settings */
+@media screen and (min-width: 76.25em) {
+    .md-sidebar--primary {
+        width: 10rem;
+        /* Reduced from default 12.1rem */
+    }
 
+    .md-content {
+        margin-left: 0;
+    }
+}
+
+/* Sidebar navigation indentation */
+.md-sidebar--secondary .md-nav__link[data-nav-level="1"] {
+    padding-left: 0;
+}
+
+.md-sidebar--secondary .md-nav__link[data-nav-level="2"] {
+    padding-left: 1rem;
+}
+
+.md-sidebar--secondary .md-nav__link[data-nav-level="3"] {
+    padding-left: 2rem;
+}
+
+/* ===== DOCUMENTATION CONTENT STYLING ===== */
 /* Indentation for better readability */
 div.doc-contents:not(.first) {
     padding-left: 25px;
     border-left: .05rem solid var(--md-typeset-table-color);
 }
 
-/* Improve parameter styling */
-.doc-symbol-parameter {
-    font-weight: 500;
-}
-
-/* Enhance TOC styling for symbols */
-.md-nav__link .doc-symbol {
-    margin-right: 0.3em;
-}
-
-/* Style for function signatures in TOC */
-.doc-signature .highlight {
-    background-color: transparent;
-    padding: 0;
-}
-
-/* Reduce size of all documentation headings */
-.doc-heading {
-    font-size: 1.1rem !important;
-    margin-top: 1.5em !important;
-    margin-bottom: 0.8em !important;
-}
-
-/* Make module headings (like src.api.lesson) smaller */
-h2.doc-heading {
-    font-size: 1.3rem !important;
-}
-
-/* Make module attribute headings smaller */
-.doc-module-attribute h3,
-.doc-attribute h3 {
-    font-size: 0.7rem !important;
-}
-
-/* Make function/method headings appropriately sized */
-.doc-function h3,
-.doc-method h3 {
-    font-size: 1.1rem !important;
-}
-
-/* Make class headings stand out a bit more */
-.doc-class h3 {
-    font-size: 1.2rem !important;
-    font-weight: bold;
-}
-
-/* Make symbol type indicators in headings smaller */
-.doc-symbol-heading {
-    font-size: 0.7em !important;
-    vertical-align: middle !important;
-}
-
-/* Adjust spacing for parameter headings */
-.doc-function h4,
-.doc-method h4 {
-    font-size: 0.95rem !important;
-    margin-top: 1em !important;
-    margin-bottom: 0.6em !important;
+/* Ensure code blocks in documentation are properly sized */
+.doc-contents pre {
+    font-size: 0.85rem !important;
 }
 
 /* Keep docstring section titles at a reasonable size */
@@ -112,9 +54,110 @@ h2.doc-heading {
     margin-bottom: 0.5em !important;
 }
 
-/* Ensure code blocks in documentation are properly sized */
-.doc-contents pre {
-    font-size: 0.85rem !important;
+/* ===== HEADING STYLES ===== */
+/* Base heading styles */
+.doc-heading {
+    font-size: 1.1rem !important;
+    margin-top: 1.5em !important;
+    margin-bottom: 0.8em !important;
+    display: flex;
+    align-items: center;
+    padding: 0.3em 0;
+    border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+/* Heading size hierarchy */
+h2.doc-heading {
+    font-size: 1.3rem !important;
+}
+
+h3.doc-heading {
+    font-size: 1.1rem !important;
+}
+
+h4.doc-heading {
+    font-size: 1rem !important;
+}
+
+/* Specific heading types */
+.doc-module-attribute h3,
+.doc-attribute h3 {
+    font-size: 0.7rem !important;
+}
+
+.doc-function h3,
+.doc-method h3 {
+    font-size: 1.1rem !important;
+}
+
+.doc-class h3 {
+    font-size: 1.2rem !important;
+    font-weight: bold;
+}
+
+/* Parameter headings */
+.doc-function h4,
+.doc-method h4 {
+    font-size: 0.95rem !important;
+    margin-top: 1em !important;
+    margin-bottom: 0.6em !important;
+}
+
+/* ===== SYMBOL STYLING ===== */
+/* Base symbol styling */
+.doc-symbol-heading {
+    display: inline-block;
+    font-size: 0.7em !important;
+    padding: 0.2em 0.5em;
+    margin-right: 0.5em;
+    border-radius: 0.3em;
+    vertical-align: middle !important;
+    font-weight: bold;
+    text-transform: lowercase;
+}
+
+/* TOC symbol styling */
+.md-nav__link .doc-symbol {
+    margin-right: 0.3em;
+}
+
+/* Symbol type colors */
+.doc-symbol-module {
+    background-color: var(--doc-symbol-module-bg-color, #ff00601a);
+    color: var(--doc-symbol-module-fg-color, #ff0060);
+}
+
+.doc-symbol-function {
+    background-color: var(--doc-symbol-function-bg-color, #00dfa21a);
+    color: var(--doc-symbol-function-fg-color, #00dfa2);
+}
+
+.doc-symbol-method {
+    background-color: var(--doc-symbol-method-bg-color, #00dfa21a);
+    color: var(--doc-symbol-method-fg-color, #00dfa2);
+}
+
+.doc-symbol-class {
+    background-color: var(--doc-symbol-class-bg-color, #d1b6191a);
+    color: var(--doc-symbol-class-fg-color, #d1b619);
+}
+
+.doc-symbol-attribute {
+    background-color: var(--doc-symbol-attribute-bg-color, #0079ff1a);
+    color: var(--doc-symbol-attribute-fg-color, #0079ff);
+}
+
+.doc-symbol-parameter {
+    background-color: var(--doc-symbol-parameter-bg-color, #df50af1a);
+    color: var(--doc-symbol-parameter-fg-color, #df50af);
+    font-weight: 500;
+}
+
+/* ===== CODE SYNTAX HIGHLIGHTING ===== */
+/* Style for function signatures in TOC */
+.doc-signature .highlight {
+    background-color: transparent;
+    padding: 0;
 }
 
 /* Fancier color for operators such as * and | */
@@ -127,113 +170,22 @@ h2.doc-heading {
     color: var(--md-code-hl-constant-color);
 }
 
-/* docs/styles/extra.css */
-
-/* Level-1 entries (H2) stay flush */
-.md-sidebar--secondary .md-nav__link[data-nav-level="1"] {
-    padding-left: 0;
+.toc-only {
+    display: none;
 }
 
-/* Level-2 entries (H3) — indent under their parent */
-.md-sidebar--secondary .md-nav__link[data-nav-level="2"] {
-    padding-left: 1rem;
+.toc-only+* {
+    margin-top: 2rem;
 }
 
-/* Level-3 entries (H4) — a bit deeper */
-.md-sidebar--secondary .md-nav__link[data-nav-level="3"] {
-    padding-left: 2rem;
+/* Center tables */
+.md-typeset__table {
+    justify-content: center;
 }
 
-/* And so on… just bump the padding for deeper levels */
-
-
-.md-content {
-    margin-left: 0;
-}
-
-.md-content__inner {
-    margin: 0 .8rem;
-    padding-top: 1.2rem;
-}
-
-/* Reduce sidebar width only */
-@media screen and (min-width: 76.25em) {
-    .md-sidebar--primary {
-        width: 10rem;
-        /* Reduced from default 12.1rem */
-    }
-
-    /* Ensure content has proper starting point */
-    .md-content {
-        margin-left: 0;
-    }
-}
-
-/* Restore and improve styling for symbol types in headings */
-.doc-symbol-heading {
-    display: inline-block;
-    font-size: 0.7em;
-    padding: 0.2em 0.5em;
-    margin-right: 0.5em;
-    border-radius: 0.3em;
-    vertical-align: middle;
-    font-weight: bold;
-    text-transform: lowercase;
-}
-
-/* Style for module symbols */
-.doc-symbol-module {
-    background-color: var(--doc-symbol-module-bg-color, #ff00601a);
-    color: var(--doc-symbol-module-fg-color, #ff0060);
-}
-
-/* Style for function symbols */
-.doc-symbol-function {
-    background-color: var(--doc-symbol-function-bg-color, #00dfa21a);
-    color: var(--doc-symbol-function-fg-color, #00dfa2);
-}
-
-/* Style for method symbols */
-.doc-symbol-method {
-    background-color: var(--doc-symbol-method-bg-color, #00dfa21a);
-    color: var(--doc-symbol-method-fg-color, #00dfa2);
-}
-
-/* Style for class symbols */
-.doc-symbol-class {
-    background-color: var(--doc-symbol-class-bg-color, #d1b6191a);
-    color: var(--doc-symbol-class-fg-color, #d1b619);
-}
-
-/* Style for attribute symbols */
-.doc-symbol-attribute {
-    background-color: var(--doc-symbol-attribute-bg-color, #0079ff1a);
-    color: var(--doc-symbol-attribute-fg-color, #0079ff);
-}
-
-/* Style for parameter symbols */
-.doc-symbol-parameter {
-    background-color: var(--doc-symbol-parameter-bg-color, #df50af1a);
-    color: var(--doc-symbol-parameter-fg-color, #df50af);
-}
-
-/* Make headings more visually appealing */
-.doc-heading {
-    display: flex;
-    align-items: center;
-    padding: 0.3em 0;
-    border-bottom: 1px solid var(--md-default-fg-color--lightest);
-}
-
-/* Adjust heading font sizes */
-h2.doc-heading {
-    font-size: 1.3rem;
-}
-
-h3.doc-heading {
-    font-size: 1.1rem;
-}
-
-h4.doc-heading {
-    font-size: 1rem;
+/* Center specific tables with a custom class */
+.center-table {
+    margin-left: auto;
+    margin-right: auto;
+    width: fit-content;
 }

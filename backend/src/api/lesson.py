@@ -19,7 +19,15 @@ lesson_bp = Blueprint("lesson", __name__, url_prefix="/lesson")
 
 @lesson_bp.route("/", methods=["GET"])
 def fetch_all_lessons():
-    """Get all lessons."""
+    """
+    Get all lessons.
+    
+    Returns:
+        JSON: A list of formatted lesson objects.
+    Errors:
+        400: Error formatting lessons
+        500: Unexpected server error
+    """
     try:
         lessons = get_all_lessons()
         formatted_lessons = format_lessons_http(lessons)

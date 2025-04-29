@@ -3,6 +3,16 @@ from src.db import db
 
 
 class Lesson(db.Model):
+    """
+    Database model representing a lesson on a specific vowel phoneme.
+    
+    Attributes:
+        id (int): Unique identifier for the lesson.
+        vowel_id (str): Foreign key to the associated vowel.
+    
+    Relationships:
+        vowel: One-to-one relationship with the Vowel model.
+    """
     __tablename__ = "lessons"
 
     id = db.Column(db.Integer, primary_key=True)

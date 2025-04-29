@@ -3,6 +3,18 @@ from src.db import db
 
 
 class Vowel(db.Model):
+    """
+    Database model representing a vowel phoneme in the PhonoLab system.
+    
+    Attributes:
+        id (str): Unique identifier for the vowel.
+        phoneme (str): The IPA symbol for the vowel.
+        name (str): Human-readable name for the vowel.
+        audio_url (str): URL to the audio file demonstrating the vowel sound.
+    Relationships:
+        word_examples: One-to-many relationship with WordExample model.
+        lesson: One-to-one relationship with Lesson model (via backref).
+    """
     __tablename__ = "vowels"
 
     id = db.Column(db.String, primary_key=True)
@@ -63,6 +75,20 @@ class Vowel(db.Model):
 
 
 class WordExample(db.Model):
+    """
+    Database model representing example words that contain specific vowel sounds.
+    
+    Attributes:
+        id (int): Unique identifier for the word example.
+        word (str): The example word containing the target vowel.
+        audio_url (str): URL to the audio file of the word.
+        ipa (str): IPA transcription of the word.
+        example_sentence (str): Example sentence using the word.
+        vowel_id (str): Foreign key to the associated vowel.
+    
+    Relationships:
+        vowel: Many-to-one relationship with the Vowel model.
+    """
     __tablename__ = "word_examples"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -82,36 +108,3 @@ class WordExample(db.Model):
 
     def __repr__(self):
         return f"<WordExample word='{self.word}' vowel_id='{self.vowel_id}'>"
-
-
-# # Phase 2
-# # class ColorMapPosition(db.Model):
-# #     __tablename__ = "color_map_positions"
-# #
-# #     id = db.Column(db.Integer, primary_key=True)
-# #     x = db.Column(db.Float, nullable=False)
-# #     y = db.Column(db.Float, nullable=False)
-# #     region = db.Column(db.String, nullable=False)
-# #     vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"))
-# #
-# #     def __repr__(self):
-# #         return f"<ColorMapPosition x={self.x}, y={self.y}, region='{self.region}'>"
-
-
-# # class ComparisonPair(db.Model):
-# #     __tablename__ = "comparison_pairs"
-# #
-# #     id = db.Column(db.Integer, primary_key=True)
-# #     contrast_with = db.Column(db.String, nullable=False)
-# #     word_a = db.Column(db.String, nullable=False)
-# #     word_b = db.Column(db.String, nullable=False)
-# #     audio_url_a = db.Column(db.String, nullable=False)
-# #     audio_url_b = db.Column(db.String, nullable=False)
-# #     note = db.Column(db.String, nullable=True)
-# #     vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"))
-# #
-# #     def __repr__(self):
-# #         return (
-# #             f"<ComparisonPair contrast_with='{self.contrast_with}', "
-# #             f"word_a='{self.word_a}', word_b='{self.word_b}'>"
-# #         )
