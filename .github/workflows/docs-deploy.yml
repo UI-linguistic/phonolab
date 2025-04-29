@@ -35,6 +35,21 @@ jobs:
           pip install mkdocs-minify-plugin==0.8.0
           pip install mkdocstrings==0.29.1
           pip install mkdocstrings-python==1.16.10
+
+      - name: Install backend package
+        run: |
+          cd backend
+          pip install -e .
+          
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+          
+          cd ..
+          
+          python -c "import sys; print(sys.path)"
+          python -c "import pkgutil; print([p[1] for p in pkgutil.iter_modules()])"
+          python -c "try: import src; print('src module found'); except ImportError as e: print(f'Error importing src: {e}')"
       
       - name: Configure Git user
         run: |
