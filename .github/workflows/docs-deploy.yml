@@ -24,7 +24,6 @@ jobs:
       - name: Install MkDocs and plugins
         run: |
           python -m pip install --upgrade pip
-          # Install MkDocs and plugins
           pip install mkdocs==1.6.1
           pip install mkdocs-autorefs==1.4.1
           pip install mkdocs-awesome-nav==3.1.1
@@ -42,22 +41,45 @@ jobs:
           pip install -e .
           cd ..
       
-      - name: Check Python path
+      - name: Debug environment
         run: |
+          pwd
+          ls -la
+
           python -c "import sys; print('Python path:', sys.path)"
 
-          python -c "import pkgutil; print('Available modules:', [p[1] for p in pkgutil.iter_modules()])"
+          python -c "import pkgutil; print('Available top-level modules:', [p[1] for p in pkgutil.iter_modules()])"
+
+          python -c "import os; print('Is backend/src a package?', os.path.isfile('backend/src/__init__.py'))"
+
+          python -c "import importlib.util; print('Can import phonolab_backend?', importlib.util.find_spec('phonolab_backend') is not None)"
       
       - name: Create symbolic link for src
         run: |
           ln -s $(pwd)/backend/src $(pwd)/src
-
-          python -c "import sys; print(sys.path); try: import src; print('Successfully imported src'); except ImportError as e: print(f'Error importing src: {e}')"
+          
+          ls -la src
+          python -c "import sys; print('Python path after symlink:', sys.path); import src; print('Successfully imported src')"
+      
+      - name: Modify mkdocs.yml if needed
+        run: |
+          if ! grep -q "watch:" mkdocs.yml; then
+            echo "Adding watch section to mkdocs.yml"
+            echo "watch:" >> mkdocs.yml
+            echo "  - src" >> mkdocs.yml
+          fi
+          
+          echo "Current mkdocs.yml:"
+          cat mkdocs.yml
       
       - name: Configure Git user
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
       
-      - name: Deploy documentation
-        run: mkdocs gh-deploy --force
+      - name: Deploy documentation with debug
+        run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          echo "PYTHONPATH: $PYTHONPATH"
+
+          mkdocs gh-deploy --force --verbose
