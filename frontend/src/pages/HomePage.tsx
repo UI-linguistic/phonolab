@@ -4,86 +4,85 @@ import styled from 'styled-components';
 import VowelIllustration from '../images/home_brain-mouth.png';
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  height: calc(100vh - 64px); /* Exact header height */
-  padding: ${({ theme }) => theme.spacing.medium};
+  min-height: calc(100vh - 72px); /* Account for header height */
+  background-color: #E8D0C9; /* Darker pale peach background */
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
+  align-items: center;
 `;
 
 const ContentWrapper = styled.div`
-  text-align: center;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem;
   display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.small};
+  align-items: center;
+  gap: 4rem;
+  width: 100%;
+`;
+
+const TextContent = styled.div`
+  flex: 1;
+  min-width: 0; /* Prevent flex item from overflowing */
 `;
 
 const Title = styled.h1`
-  font-size: min(2.5rem, 5vh);
-  color: ${({ theme }) => theme.colors.text};
-  line-height: 1.2;
-  margin-bottom: 0.5vh;
+  font-size: 3.5rem;
+  color: #1A1A1A;
+  margin: 0;
+  margin-bottom: 1rem;
+  line-height: 1.1;
 `;
 
 const Subtitle = styled.h2`
-  font-size: min(1.8rem, 4vh);
-  color: ${({ theme }) => theme.colors.primary};
-  margin-bottom: 1vh;
-`;
-
-const Description = styled.p`
-  font-size: min(1.1rem, 2.5vh);
-  color: ${({ theme }) => theme.colors.text};
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.4;
-`;
-
-const IllustrationContainer = styled.div`
-  margin: 2vh 0;
-  height: 40vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
-  img {
-    max-height: 100%;
-    width: auto;
-    object-fit: contain;
-  }
+  font-size: 1.8rem;
+  color: #4A4A4A;
+  margin: 0;
+  margin-bottom: 3rem;
+  font-weight: normal;
+  line-height: 1.3;
 `;
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.large};
-  justify-content: center;
-  margin-top: 3vh;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 300px; /* Limit button width */
 `;
 
-const Button = styled.button`
-  background-color: ${({ theme }) => theme.colors.secondary};
+const PrimaryButton = styled.button`
+  background-color: #FF5722; /* Bright orange */
   color: white;
-  padding: ${({ theme }) => theme.spacing.medium} ${({ theme }) => theme.spacing.xlarge};
-  border-radius: ${({ theme }) => theme.borderRadius};
-  font-size: min(1.3rem, 3vh);
+  padding: 1rem 2rem;
+  border-radius: 15px; /* Less rounded corners */
+  font-size: 1.2rem;
   font-weight: 600;
-  transition: ${({ theme }) => theme.transitions.default};
-  white-space: nowrap;
-  min-width: 220px;
+  border: 3px solid #1A1A1A; /* Thicker border */
+  transition: transform 0.2s;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Subtle shadow */
 
   &:hover {
     transform: translateY(-2px);
-    opacity: 0.9;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
+`;
 
-  &:active {
-    transform: translateY(1px);
+const SecondaryButton = styled(PrimaryButton)`
+  background-color: transparent;
+  color: #1A1A1A;
+  border: 3px solid #FF5722;
+  box-shadow: none; /* Remove shadow for secondary button */
+`;
+
+const IllustrationContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0; /* Prevent flex item from overflowing */
+  
+  img {
+    max-width: 100%;
+    height: auto;
   }
 `;
 
@@ -93,18 +92,21 @@ const HomePage: React.FC = () => {
   return (
     <Container>
       <ContentWrapper>
-        <Title>Your Brain Knows English. Let's Get Your Mouth On Board.</Title>
-        <Subtitle>Vowel Edition</Subtitle>
-        <Description>
-          Explore sounds visually, compare them across languages, and finally get those 'ee's and 'ih's sorted.
-        </Description>
+        <TextContent>
+          <Title>Start Your Vowel Journey</Title>
+          <Subtitle>Your Brain Knows English. Let's Get Your Mouth On Board.</Subtitle>
+          <ButtonContainer>
+            <PrimaryButton onClick={() => navigate('/learn')}>
+              Decode Vowel Sounds
+            </PrimaryButton>
+            <SecondaryButton onClick={() => navigate('/quiz')}>
+              Challenge Yourself
+            </SecondaryButton>
+          </ButtonContainer>
+        </TextContent>
         <IllustrationContainer>
           <img src={VowelIllustration} alt="Brain and mouth shaking hands" />
         </IllustrationContainer>
-        <ButtonContainer>
-          <Button onClick={() => navigate('/learn')}>Decode Vowel Sounds</Button>
-          <Button onClick={() => navigate('/quiz')}>Put It All Together</Button>
-        </ButtonContainer>
       </ContentWrapper>
     </Container>
   );
