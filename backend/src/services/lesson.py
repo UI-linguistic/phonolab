@@ -4,10 +4,11 @@ from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.exc import SQLAlchemyError
 
 from src.db import db
-from src.models.lesson import Lesson
 from src.models.phoneme import Vowel
 from src.utils.error_handling import handle_db_operation
 from src.models.user import CompletedLesson
+from src.models.lesson import Lesson, LessonInteraction, LessonType
+
 
 
 # --- Lesson CRUD Operations ---
@@ -367,44 +368,172 @@ def get_latest_completed_lesson(session_id):
     }
 
 
-def get_lesson_stats():
+def build_vowel_tongue_position_matrix() -> List[Vowel]:
     """
-    Get statistics about lessons in the database.
-
+    Build a 3x3 matrix of vowels for the tongue position interaction.
+    
+    The matrix follows this structure:
+    [ i I, null, ʊ u]
+    [ e ɛ, ʌ ə, o ɔ]
+    [æ, null, ɑ]
+    
+    Each vowel in the matrix contains only essential fields:
+    id, phoneme, name, audio_url, lips, tongue, mouth_image_url
+    
     Returns:
-        dict: A dictionary containing various statistics about lessons.
+        list: A 3x3 matrix with vowel objects or null values
     """
-    return
-    # try:
-    #     total_lessons = Lesson.query.count()
-    #     total_instructions = LessonInstruction.query.count()
+    matrix_structure = [
+        [["i", "ɪ"], None, ["ʊ", "u"]],
+        [["e", "ɛ"], ["ʌ", "ə"], ["o", "ɔ"]],
+        [["æ"], None, ["ɑ"]]
+    ]
 
-    #     # Get vowels with lessons
-    #     vowels_with_lessons = db.session.query(Vowel).join(Lesson).all()
-    #     vowels_with_lessons_count = len(vowels_with_lessons)
+    all_vowels = Vowel.query.all()
+    vowel_dict = {vowel.phoneme: vowel for vowel in all_vowels}
 
-    #     # Get vowels without lessons - fix E711 comparison to None
-    #     vowels_without_lessons = db.session.query(Vowel).outerjoin(Lesson).filter(Lesson.id is None).all()
-    #     vowels_without_lessons_count = len(vowels_without_lessons)
+    result_matrix = []
+    
+    for row in matrix_structure:
+        result_row = []
+        
+        for cell in row:
+            if cell is None:
+                result_row.append(None)
+            else:
+                # Cell can be a list of vowel IDs or a single vowel ID
+                if isinstance(cell, list):
+                    cell_vowels = []
+                    for vowel_id in cell:
+                        vowel = vowel_dict.get(vowel_id)
+                        if vowel:
+                            cell_vowels.append({
+                                "id": vowel.id,
+                                "phoneme": vowel.phoneme,
+                                "name": vowel.name,
+                                "audio_url": vowel.audio_url,
+                                "lips": vowel.lips,
+                                "tongue": vowel.tongue,
+                                "mouth_image_url": vowel.mouth_image_url
+                            })
+                    result_row.append(cell_vowels if cell_vowels else None)
+                else:
+                    vowel = vowel_dict.get(cell)
+                    if vowel:
+                        result_row.append({
+                            "id": vowel.id,
+                            "phoneme": vowel.phoneme,
+                            "name": vowel.name,
+                            "audio_url": vowel.audio_url,
+                            "lips": vowel.lips,
+                            "tongue": vowel.tongue,
+                            "mouth_image_url": vowel.mouth_image_url
+                        })
+                    else:
+                        result_row.append(None)
+        
+        result_matrix.append(result_row)
+    
+    return result_matrix
 
-    #     # Get average instructions per lesson
-    #     avg_instructions = total_instructions / total_lessons if total_lessons > 0 else 0
+def build_vowel_lip_shape_config() -> dict:
+    """
+    Build the lip shape configuration for the Vowels 101 lesson.
+    
+    This includes:
+    1. Two lip shape images (rounded and unrounded)
+    2. A 4x3 table of individual vowels
+    
+    Returns:
+        dict: Configuration for the lip shape interaction
+    """
+    all_vowels = Vowel.query.all()
+    vowel_dict = {vowel.phoneme: vowel for vowel in all_vowels}
+    
+    # 4x3 table structure with vowel IDs
+    table_structure = [
+        ["i", "ɪ", "e", "ɛ"],
+        ["æ", "ɑ", "ʌ", "ɔ"],
+        ["u", "ʊ", "oʊ", "ə"]
+    ]
 
-    #     return {
-    #         "total_lessons": total_lessons,
-    #         "total_instructions": total_instructions,
-    #         "vowels_with_lessons": vowels_with_lessons_count,
-    #         "vowels_without_lessons": vowels_without_lessons_count,
-    #         "vowels_without_lessons_ids": [v.id for v in vowels_without_lessons],
-    #         "avg_instructions_per_lesson": avg_instructions
-    #     }
-    # except Exception as e:
-    #     print(f"Error getting lesson stats: {str(e)}")
-    #     return {
-    #         "total_lessons": 0,
-    #         "total_instructions": 0,
-    #         "vowels_with_lessons": 0,
-    #         "vowels_without_lessons": 0,
-    #         "vowels_without_lessons_ids": [],
-    #         "avg_instructions_per_lesson": 0
-    #     }
+    vowel_table = []
+    
+    for row in table_structure:
+        table_row = []
+        for vowel_id in row:
+            vowel = vowel_dict.get(vowel_id)
+            if vowel:
+                table_row.append({
+                    "id": vowel.id,
+                    "phoneme": vowel.phoneme,
+                    "name": vowel.name,
+                    "audio_url": vowel.audio_url,
+                    "lips": vowel.lips,
+                    "tongue": vowel.tongue,
+                    "mouth_image_url": vowel.mouth_image_url
+                })
+            else:
+                table_row.append(None)
+        vowel_table.append(table_row)
+    
+    # lip shape option
+    lip_shape_config = {
+        "lip_shapes": [
+            {
+                "id": "unrounded",
+                "name": "Unrounded Lips",
+                "description": "Lips are spread or in a neutral position.",
+                "image_url": "/images/lips/unrounded.png"
+            },
+            {
+                "id": "rounded",
+                "name": "Rounded Lips",
+                "description": "Lips are rounded and pushed forward.",
+                "image_url": "/images/lips/rounded.png"
+            }
+        ],
+        "vowel_table": vowel_table
+    }
+    
+    return lip_shape_config
+
+def create_vowels_101_lesson(title=None, description=None) -> Lesson:
+    """
+    Create a Vowels 101 lesson with the appropriate tongue position matrix and lip shapes.
+    
+    Returns:
+        Lesson: A new Vowels 101 lesson
+    """
+    # Create the base lesson
+    lesson = Lesson(
+        title=title or "Vowels 101",
+        description=description or "Learn the basics of vowel sounds and how they're produced.",
+        lesson_type=LessonType.VOWELS_101.value,
+        content={
+            "introduction": "Vowels are sounds produced with an open vocal tract. They are classified based on tongue position and lip shape."
+        }
+    )
+
+    tongue_position_config = {
+        "matrix": build_vowel_tongue_position_matrix(),
+        "labels": {
+            "rows": ["High", "Mid", "Low"],
+            "columns": ["Front", "Central", "Back"]
+        }
+    }
+    
+    tongue_position = LessonInteraction(
+        interaction_type="tongue_position",
+        config=tongue_position_config
+    )
+
+    lip_shape = LessonInteraction(
+        interaction_type="lip_shape",
+        config=build_vowel_lip_shape_config()
+    )
+
+    lesson.interactions.append(tongue_position)
+    lesson.interactions.append(lip_shape)
+
+    return lesson
