@@ -1,0 +1,60 @@
+{
+    "tricky_pairs": [
+        {
+            "vowels": [
+                "i",
+                "ɪ"
+            ],
+            "category": "High Front Vowels",
+            "description": "Confused by speakers of Spanish, Japanese, Korean, Portuguese"
+        },
+        {
+            "vowels": [
+                "eɪ",
+                "ɛ"
+            ],
+            "category": "Mid Front Vowels",
+            "description": "Confused by speakers of Italian, Arabic, Russian"
+        },
+        {
+            "vowels": [
+                "æ",
+                "ɑ"
+            ],
+            "category": "Low Front Vowels",
+            "description": "Confused by most non-native speakers, especially Chinese, Japanese, and French"
+        },
+        {
+            "vowels": [
+                "u",
+                "ʊ"
+            ],
+            "category": "Back Vowels (Close)",
+            "description": "Confused by Spanish, Turkish, and some South Asian language speakers"
+        },
+        {
+            "vowels": [
+                "ɔ",
+                "ɑ"
+            ],
+            "category": "Back Vowels (Open)",
+            "description": "Confused by speakers from regions with vowel mergers"
+        },
+        {
+            "vowels": [
+                "ɔ",
+                "ʌ"
+            ],
+            "category": "Back Vowels (Open)",
+            "description": "Confused by speakers from regions with vowel mergers"
+        },
+        {
+            "vowels": [
+                "ʌ",
+                "ə"
+            ],
+            "category": "Central Vowels",
+            "description": "Confused by learners who don't have a schwa or stressed /ʌ/ contrast"
+        }
+    ]
+}

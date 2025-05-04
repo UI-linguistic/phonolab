@@ -5,11 +5,10 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from src.cache import cache
 from src.db import db
-from src.models.phoneme import Vowel
+from src.models.phoneme import Vowel, tricky_vowel_pairs
 from src.utils.error_handling import handle_db_operation
 from src.models.user import CompletedLesson
 from src.models.lesson import Lesson, LessonInteraction, LessonType
-
 
 
 # --- Lesson CRUD Operations ---
@@ -545,4 +544,135 @@ def create_vowels_101_lesson(title=None, description=None) -> Lesson:
     lesson.interactions.append(tongue_position)
     lesson.interactions.append(lip_shape)
 
+    return lesson
+
+
+# TRICKY PAIRS
+
+def find_minimal_pairs(vowel1, vowel2):
+    """
+    Find or create a minimal pair for two vowels.
+    
+    Args:
+        vowel1: First vowel object
+        vowel2: Second vowel object
+        
+    Returns:
+        dict: Minimal pair data with word template and options
+    """
+    # Get examples for each vowel
+    examples1 = vowel1.get_word_examples(limit=5)
+    examples2 = vowel2.get_word_examples(limit=5)
+
+    if examples1 and examples2:
+        example1 = examples1[0]
+        example2 = examples2[0]
+
+        word = example1.word
+        template = word.replace(vowel1.phoneme, "_")
+        
+        return {
+            "word_template": template,
+            "options": [
+                {
+                    "vowel_id": vowel1.id,
+                    "phoneme": vowel1.phoneme,
+                    "audio_url": vowel1.audio_url,
+                    "word": example1.word,
+                    "word_audio": example1.audio_url,
+                    "ipa": example1.ipa
+                },
+                {
+                    "vowel_id": vowel2.id,
+                    "phoneme": vowel2.phoneme,
+                    "audio_url": vowel2.audio_url,
+                    "word": example2.word,
+                    "word_audio": example2.audio_url,
+                    "ipa": example2.ipa
+                }
+            ]
+        }
+    
+    # no examples found
+    return None
+
+
+def get_tricky_pairs_data():
+    """
+    Retrieve all tricky vowel pairs from the database and organize them as minimal pairs.
+    
+    Returns:
+        list: List of minimal pairs with their categories
+    """
+    pairs_query = db.session.query(
+        tricky_vowel_pairs.c.vowel1_id,
+        tricky_vowel_pairs.c.vowel2_id,
+        tricky_vowel_pairs.c.category
+    ).all()
+
+    pairs = []
+    for vowel1_id, vowel2_id, category in pairs_query:
+        vowel1 = db.session.get(Vowel, vowel1_id)
+        vowel2 = db.session.get(Vowel, vowel2_id)
+        
+        if vowel1 and vowel2:
+            minimal_pair = find_minimal_pairs(vowel1, vowel2)
+            
+            if minimal_pair:
+                pairs.append({
+                    "category": category,
+                    "minimal_pair": minimal_pair
+                })
+    
+    return pairs
+
+
+def build_tricky_pairs_lesson_card(title, description, pairs):
+    """
+    Build the lesson card content for tricky vowel pairs with minimal pairs.
+    
+    Args:
+        title (str): The lesson title
+        description (str): The lesson description
+        pairs (list): List of minimal pairs with their categories
+        
+    Returns:
+        dict: The structured lesson card content
+    """
+    return {
+        "pairs": pairs
+    }
+
+
+def create_tricky_pairs_lesson(title=None, description=None):
+    """
+    Create a lesson focused on tricky vowel pairs using minimal pairs.
+    
+    Args:
+        title (str, optional): Custom title for the lesson
+        description (str, optional): Custom description for the lesson
+        
+    Returns:
+        Lesson: The created lesson object
+    """
+    
+    if not title:
+        title = "Tricky Vowel Pairs"
+    
+    if not description:
+        description = "Learn to distinguish between commonly confused vowel pairs in English."
+
+    pairs = get_tricky_pairs_data()
+    lesson_card = build_tricky_pairs_lesson_card(title, description, pairs)
+
+    lesson = Lesson(
+        title=title,
+        description=description,
+        lesson_type="tricky_pairs",
+        content=lesson_card
+    )
+    
+    db.session.add(lesson)
+    db.session.commit()
+    
     return lesson

@@ -2,6 +2,15 @@
 from src.db import db
 
 
+tricky_vowel_pairs = db.Table(
+    'tricky_vowel_pairs',
+    db.Column('vowel1_id', db.String, db.ForeignKey('vowels.id'), primary_key=True),
+    db.Column('vowel2_id', db.String, db.ForeignKey('vowels.id'), primary_key=True),
+    db.Column('category', db.String, nullable=False),  # e.g., "High Front Vowels"
+    db.Column('difficulty', db.Integer, default=1),  # 1-5 scale of difficulty
+    db.Column('description', db.String)  # e.g., "Confused by Spanish speakers"
+)
+
 class Vowel(db.Model):
     __tablename__ = "vowels"
 
@@ -20,6 +29,14 @@ class Vowel(db.Model):
     tongue = db.Column(db.String, nullable=True)
     example_words = db.Column(db.JSON, nullable=True)
     mouth_image_url = db.Column(db.String, nullable=True)
+
+    tricky_pairs = db.relationship(
+        'Vowel',
+        secondary=tricky_vowel_pairs,
+        primaryjoin=(tricky_vowel_pairs.c.vowel1_id == id),
+        secondaryjoin=(tricky_vowel_pairs.c.vowel2_id == id),
+        backref=db.backref('paired_with', lazy='dynamic')
+    )
 
     word_examples = db.relationship(
         "WordExample",
@@ -57,6 +74,13 @@ class Vowel(db.Model):
             "tongue": self.tongue,
             "example_words": self.example_words
         }
+
+    def get_word_examples(self, limit=None):
+        """Get word examples for this vowel"""
+        query = WordExample.query.filter_by(vowel_id=self.id)
+        if limit:
+            query = query.limit(limit)
+        return query.all()
 
     def __repr__(self):
         return f"<Vowel id={self.id} phoneme='{self.phoneme}' name='{self.name}'>"
