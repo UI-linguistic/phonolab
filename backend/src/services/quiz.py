@@ -141,7 +141,7 @@ def get_formatted_quiz_by_id(quiz_id) -> QuizItem | None:
 def get_quiz_attempts(session_id):
     """Get all quiz attempts for a user"""
     attempts = QuizAttempt.query.filter_by(session_id=session_id).all()
-    
+
     return [
         {
             "quiz_id": attempt.quiz_id,
@@ -153,10 +153,11 @@ def get_quiz_attempts(session_id):
         for attempt in attempts
     ]
 
+
 def get_latest_quiz_results(session_id):
     """Get the latest result for each quiz attempted by a user"""
     attempts = QuizAttempt.query.filter_by(session_id=session_id).all()
-    
+
     latest_attempts = {}
     for attempt in attempts:
         if attempt.quiz_id not in latest_attempts or \
@@ -167,35 +168,37 @@ def get_latest_quiz_results(session_id):
                 "percentage": (attempt.score / attempt.total * 100) if attempt.total > 0 else 0,
                 "attempted_at": attempt.attempted_at.isoformat()
             }
-    
+
     return latest_attempts
+
 
 def get_quiz_performance(session_id):
     """Get overall quiz performance statistics"""
     attempts = QuizAttempt.query.filter_by(session_id=session_id).all()
-    
+
     if not attempts:
         return {
             "attempts": 0,
             "average_score": 0
         }
-    
+
     total_score = sum(attempt.score for attempt in attempts)
     total_questions = sum(attempt.total for attempt in attempts)
-    
+
     return {
         "attempts": len(attempts),
         "average_score": (total_score / total_questions * 100) if total_questions > 0 else 0
     }
 
+
 def get_latest_quiz_attempt(session_id):
     """Get the most recent quiz attempt"""
     latest = QuizAttempt.query.filter_by(session_id=session_id)\
-             .order_by(QuizAttempt.attempted_at.desc()).first()
-    
+        .order_by(QuizAttempt.attempted_at.desc()).first()
+
     if not latest:
         return None
-        
+
     return {
         "quiz_id": latest.quiz_id,
         "score": latest.score,

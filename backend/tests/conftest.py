@@ -9,6 +9,7 @@ from src.models.phoneme import db
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+
 @pytest.fixture(scope="module")
 def app():
     flask_app.config.update({
@@ -16,7 +17,7 @@ def app():
         "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         "SQLALCHEMY_TRACK_MODIFICATIONS": False,
     })
-    
+
     with flask_app.app_context():
         db.create_all()
         yield flask_app
@@ -31,7 +32,7 @@ def capture_warnings():
         if recorded_warnings:
             print("\n\n=== WARNINGS ===")
             for i, warning in enumerate(recorded_warnings):
-                print(f"\nWarning {i+1}:")
+                print(f"\nWarning {i + 1}:")
                 print(f"  Message: {warning.message}")
                 print(f"  Category: {warning.category.__name__}")
                 print(f"  File: {warning.filename}")
