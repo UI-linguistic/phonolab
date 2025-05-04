@@ -5,8 +5,8 @@ from flask_migrate import Migrate
 from .api.blueprints import all_blueprints
 from .config import Config
 from .db import db
+from .cache import cache
 
-# from src.models import lesson, phoneme
 
 migrate = Migrate()
 
@@ -17,6 +17,7 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+    cache.init_app(app)
 
     with app.app_context():
         db.create_all()

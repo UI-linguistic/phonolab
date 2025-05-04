@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from sqlalchemy.exc import SQLAlchemyError
 
+from src.cache import cache
 from src.db import db
 from src.models.phoneme import Vowel
 from src.utils.error_handling import handle_db_operation
@@ -20,6 +21,11 @@ def get_all_lessons() -> List[Lesson]:
         List[Lesson]: List of all lessons
     """
     return Lesson.query.all()
+
+
+def get_lessons_by_type(lesson_type):
+    """Get all lessons of a specific type."""
+    return Lesson.query.filter_by(lesson_type=lesson_type).all()
 
 
 def get_lesson_by_id(lesson_id: int) -> Optional[Lesson]:
@@ -368,7 +374,8 @@ def get_latest_completed_lesson(session_id):
     }
 
 
-def build_vowel_tongue_position_matrix() -> List[Vowel]:
+@cache.memoize(timeout=86400)
+def build_vowel_tongue_position_matrix() -> List:
     """
     Build a 3x3 matrix of vowels for the tongue position interaction.
     
@@ -436,6 +443,7 @@ def build_vowel_tongue_position_matrix() -> List[Vowel]:
     
     return result_matrix
 
+@cache.memoize(timeout=86400)
 def build_vowel_lip_shape_config() -> dict:
     """
     Build the lip shape configuration for the Vowels 101 lesson.
@@ -497,6 +505,7 @@ def build_vowel_lip_shape_config() -> dict:
     }
     
     return lip_shape_config
+
 
 def create_vowels_101_lesson(title=None, description=None) -> Lesson:
     """

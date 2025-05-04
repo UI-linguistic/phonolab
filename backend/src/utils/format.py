@@ -88,24 +88,36 @@ def format_lesson_http(lesson) -> dict | None:
     """
     if not lesson:
         return None
-
-    vowel = lesson.vowel
-    if not vowel:
-        return None
-
-    lesson_card = vowel.get_lesson_card()
-
-    return {
+        
+    # base lesson data
+    formatted = {
         "id": lesson.id,
-        "vowel_id": vowel.id,
-        "phoneme": vowel.phoneme,
-        "name": vowel.name,
-        "description": vowel.description,
-        "audio_url": vowel.audio_url,
-        "mouth_image_url": vowel.mouth_image_url,
-        "lesson_card": lesson_card
-        # word_examples removed as they're not needed for lessons
+        "title": lesson.title,
+        "description": lesson.description,
+        "lesson_type": lesson.lesson_type,
+        "content": lesson.content
     }
+    
+    # vowel data if present
+    if lesson.vowel:
+        formatted["vowel"] = {
+            "id": lesson.vowel.id,
+            "phoneme": lesson.vowel.phoneme,
+            "name": lesson.vowel.name,
+            "audio_url": lesson.vowel.audio_url,
+            "mouth_image_url": lesson.vowel.mouth_image_url
+        }
+    
+    # interactions
+    formatted["interactions"] = [
+        {
+            "type": interaction.interaction_type,
+            "config": interaction.config
+        }
+        for interaction in lesson.interactions
+    ]
+    
+    return formatted
 
 
 def format_lessons_http(lessons) -> list:

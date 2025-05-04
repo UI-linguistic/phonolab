@@ -3,6 +3,7 @@ import logging
 
 from flask import Blueprint, jsonify, request
 
+from src.cache import cache
 from src.services.lesson import (
     create_lesson,
     create_lessons_for_all_vowels,
@@ -10,14 +11,21 @@ from src.services.lesson import (
     get_all_lessons,
     get_lesson_by_id,
     get_lesson_by_vowel_id,
+    get_lessons_by_type,
     update_lesson,
 )
-from src.utils.format import error_response, format_lesson_http, format_lessons_http, success_response
+from src.utils.format import (
+    error_response, 
+    format_lesson_http, 
+    format_lessons_http, 
+    success_response
+)
 
 lesson_bp = Blueprint("lesson", __name__, url_prefix="/lesson")
 
 
 @lesson_bp.route("/", methods=["GET"])
+@cache.cached(timeout=3600, query_string=True)
 def fetch_all_lessons():
     """
     Get all lessons.
@@ -38,7 +46,12 @@ def fetch_all_lessons():
         500: If there's an error retrieving or formatting the lessons
     """
     try:
-        lessons = get_all_lessons()
+        lesson_type = request.args.get('type')
+        if lesson_type:
+            lessons = get_lessons_by_type(lesson_type)
+        else:
+            lessons = get_all_lessons()
+        
         formatted_lessons = format_lessons_http(lessons)
         return jsonify(formatted_lessons)
     except (ValueError, TypeError) as e:
@@ -49,6 +62,7 @@ def fetch_all_lessons():
 
 
 @lesson_bp.route("/<int:lesson_id>", methods=["GET"])
+@cache.cached(timeout=3600)
 def fetch_lesson_by_id(lesson_id):
     """
     Get a lesson by ID.
@@ -88,6 +102,7 @@ def fetch_lesson_by_id(lesson_id):
 
 
 @lesson_bp.route("/vowel/<string:vowel_id>", methods=["GET"])
+@cache.cached(timeout=3600)
 def fetch_lesson_by_vowel_id(vowel_id):
     """
     Get a lesson by vowel ID.
