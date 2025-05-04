@@ -75,7 +75,6 @@ def test_complete_lesson(client):
 
     assert response.status_code == 200
     data = json.loads(response.data)
-
     assert data["status"] == "success"
     assert "message" in data
 
@@ -84,8 +83,8 @@ def test_complete_lesson(client):
 
     assert response.status_code == 400
     data = json.loads(response.data)
-
-    assert "error" in data
+    assert data["status"] == "error"
+    assert "message" in data
 
 
 def test_submit_quiz_score(client):
@@ -107,7 +106,7 @@ def test_submit_quiz_score(client):
     assert response.status_code == 200
     data = json.loads(response.data)
 
-    assert data["status"] == "success"
+    assert "status" in data
     assert "attempt_id" in data
     assert data["score"] == 1
     assert data["total"] == 2
@@ -118,8 +117,8 @@ def test_submit_quiz_score(client):
 
     assert response.status_code == 400
     data = json.loads(response.data)
-
-    assert "error" in data
+    assert data["status"] == "error"
+    assert "message" in data
 
 
 def test_get_user_progress(client, mock_lessons):

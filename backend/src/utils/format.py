@@ -120,6 +120,7 @@ def format_lessons_http(lessons) -> list:
     """
     return [format_lesson_http(lesson) for lesson in lessons if lesson.vowel]
 
+
 def format_quiz_attempt_http(attempt) -> dict:
     """
     Formats a QuizAttempt object into the structure expected by the HTTP client.
@@ -131,7 +132,7 @@ def format_quiz_attempt_http(attempt) -> dict:
         dict: A dictionary with the formatted quiz attempt data
     """
     percentage = (attempt.score / attempt.total * 100) if attempt.total > 0 else 0
-    
+
     return {
         "status": "success",
         "attempt_id": attempt.id,
