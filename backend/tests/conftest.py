@@ -4,13 +4,12 @@ import pytest
 import warnings
 
 from server import app as flask_app
-
 from src.models.phoneme import db
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def app():
     flask_app.config.update({
         "TESTING": True,
@@ -21,7 +20,13 @@ def app():
     with flask_app.app_context():
         db.create_all()
         yield flask_app
+        db.session.remove()
         db.drop_all()
+
+@pytest.fixture
+def client(app):
+    """A test client for the app."""
+    return app.test_client()
 
 
 @pytest.fixture(autouse=True)
