@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import pytest
+import warnings
 
 from server import app as flask_app
 
@@ -20,3 +21,19 @@ def app():
         db.create_all()
         yield flask_app
         db.drop_all()
+
+
+@pytest.fixture(autouse=True)
+def capture_warnings():
+    with warnings.catch_warnings(record=True) as recorded_warnings:
+        warnings.simplefilter("always")  # Show all warnings
+        yield
+        if recorded_warnings:
+            print("\n\n=== WARNINGS ===")
+            for i, warning in enumerate(recorded_warnings):
+                print(f"\nWarning {i+1}:")
+                print(f"  Message: {warning.message}")
+                print(f"  Category: {warning.category.__name__}")
+                print(f"  File: {warning.filename}")
+                print(f"  Line: {warning.lineno}")
+            print("=== END WARNINGS ===\n")
