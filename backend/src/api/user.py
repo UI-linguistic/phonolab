@@ -7,6 +7,12 @@ from src.services.user import (
     get_session_status,
     get_user_progress
 )
+from src.utils.format import (
+    format_session_http,
+    format_quiz_attempt_http,
+    success_response,
+    error_response
+)
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 
@@ -15,10 +21,7 @@ user_bp = Blueprint("user", __name__, url_prefix="/user")
 def create_session():
     """Create a new session and return the session ID"""
     session = create_new_session()
-    return jsonify({
-        "session_id": session.session_id,
-        "started_at": session.started_at.isoformat()
-    })
+    return jsonify(format_session_http(session))
 
 
 @user_bp.route('/session/<string:session_id>', methods=['GET'])
@@ -32,43 +35,36 @@ def get_session_status_route(session_id):
 def complete_lesson():
     """Mark a lesson as completed for a user"""
     data = request.get_json()
-
+    
     if not data or 'session_id' not in data or 'lesson_id' not in data:
-        return jsonify({"error": "Missing required fields"}), 400
-
+        return error_response("Missing required fields", 400)
+    
     session_id = data['session_id']
     lesson_id = data['lesson_id']
-
+    
     success = mark_lesson_complete(session_id, lesson_id)
-
+    
     if success:
-        return jsonify({"status": "success", "message": "Lesson marked as complete"})
-
-    return jsonify({"error": "Failed to mark lesson as complete"}), 500
+        return success_response("Lesson marked as complete")
+    
+    return error_response("Failed to mark lesson as complete", 500)
 
 
 @user_bp.route('/quiz-score', methods=['POST'])
 def submit_quiz_score():
     """Log a quiz attempt"""
     data = request.get_json()
-
+    
     if not data or 'session_id' not in data or 'quiz_id' not in data or \
        'answers' not in data:
-        return jsonify({"error": "Missing required fields"}), 400
-
+        return error_response("Missing required fields", 400)
+    
     session_id = data['session_id']
     quiz_id = data['quiz_id']
     answers = data['answers']
-
+    
     attempt = log_quiz_attempt(session_id, quiz_id, answers)
-
-    return jsonify({
-        "status": "success",
-        "attempt_id": attempt.id,
-        "score": attempt.score,
-        "total": attempt.total,
-        "percentage": (attempt.score / attempt.total * 100) if attempt.total > 0 else 0
-    })
+    return jsonify(format_quiz_attempt_http(attempt))
 
 
 @user_bp.route('/progress/<string:session_id>', methods=['GET'])

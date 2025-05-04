@@ -119,3 +119,39 @@ def format_lessons_http(lessons) -> list:
         list: A list of dictionaries matching the frontend lesson schema.
     """
     return [format_lesson_http(lesson) for lesson in lessons if lesson.vowel]
+
+def format_quiz_attempt_http(attempt) -> dict:
+    """
+    Formats a QuizAttempt object into the structure expected by the HTTP client.
+
+    Args:
+        attempt (QuizAttempt): The quiz attempt to format
+
+    Returns:
+        dict: A dictionary with the formatted quiz attempt data
+    """
+    percentage = (attempt.score / attempt.total * 100) if attempt.total > 0 else 0
+    
+    return {
+        "status": "success",
+        "attempt_id": attempt.id,
+        "score": attempt.score,
+        "total": attempt.total,
+        "percentage": percentage
+    }
+
+
+def format_session_http(session) -> dict:
+    """
+    Formats a UserSession object into the structure expected by the HTTP client.
+
+    Args:
+        session (UserSession): The session to format
+
+    Returns:
+        dict: A dictionary with the formatted session data
+    """
+    return {
+        "session_id": session.session_id,
+        "started_at": session.started_at.isoformat()
+    }
