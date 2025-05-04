@@ -6,6 +6,7 @@ from flask import json
 from src.db import db
 from src.models.quiz import QuizItem, QuizOption
 from src.utils.format import format_quiz_http
+from src.models.user import QuizAttempt
 
 
 def _load_quiz_json(path: str = None) -> dict:
@@ -133,3 +134,75 @@ def get_formatted_quiz_by_id(quiz_id) -> QuizItem | None:
     """
     quiz = get_quiz_by_id(quiz_id)
     return format_quiz_http(quiz)
+
+
+# user functions
+
+def get_quiz_attempts(session_id):
+    """Get all quiz attempts for a user"""
+    attempts = QuizAttempt.query.filter_by(session_id=session_id).all()
+
+    return [
+        {
+            "quiz_id": attempt.quiz_id,
+            "score": attempt.score,
+            "total": attempt.total,
+            "percentage": (attempt.score / attempt.total * 100) if attempt.total > 0 else 0,
+            "attempted_at": attempt.attempted_at.isoformat()
+        }
+        for attempt in attempts
+    ]
+
+
+def get_latest_quiz_results(session_id):
+    """Get the latest result for each quiz attempted by a user"""
+    attempts = QuizAttempt.query.filter_by(session_id=session_id).all()
+
+    latest_attempts = {}
+    for attempt in attempts:
+        if attempt.quiz_id not in latest_attempts or \
+           attempt.attempted_at > latest_attempts[attempt.quiz_id]["attempted_at"]:
+            latest_attempts[attempt.quiz_id] = {
+                "score": attempt.score,
+                "total": attempt.total,
+                "percentage": (attempt.score / attempt.total * 100) if attempt.total > 0 else 0,
+                "attempted_at": attempt.attempted_at.isoformat()
+            }
+
+    return latest_attempts
+
+
+def get_quiz_performance(session_id):
+    """Get overall quiz performance statistics"""
+    attempts = QuizAttempt.query.filter_by(session_id=session_id).all()
+
+    if not attempts:
+        return {
+            "attempts": 0,
+            "average_score": 0
+        }
+
+    total_score = sum(attempt.score for attempt in attempts)
+    total_questions = sum(attempt.total for attempt in attempts)
+
+    return {
+        "attempts": len(attempts),
+        "average_score": (total_score / total_questions * 100) if total_questions > 0 else 0
+    }
+
+
+def get_latest_quiz_attempt(session_id):
+    """Get the most recent quiz attempt"""
+    latest = QuizAttempt.query.filter_by(session_id=session_id)\
+        .order_by(QuizAttempt.attempted_at.desc()).first()
+
+    if not latest:
+        return None
+
+    return {
+        "quiz_id": latest.quiz_id,
+        "score": latest.score,
+        "total": latest.total,
+        "percentage": (latest.score / latest.total * 100) if latest.total > 0 else 0,
+        "attempted_at": latest.attempted_at.isoformat()
+    }

@@ -1,7 +1,6 @@
 # src/models/user.py
 
-from datetime import datetime
-
+from datetime import datetime, UTC
 from src.db import db
 
 
@@ -10,7 +9,7 @@ class UserSession(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.String, unique=True, nullable=False)
-    started_at = db.Column(db.DateTime, default=datetime.utcnow)
+    started_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
     completed_lessons = db.relationship("CompletedLesson", backref="session", cascade="all, delete-orphan")
     quiz_attempts = db.relationship("QuizAttempt", backref="session", cascade="all, delete-orphan")
@@ -22,7 +21,7 @@ class CompletedLesson(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     session_id = db.Column(db.String, db.ForeignKey("user_sessions.session_id"))
     lesson_id = db.Column(db.Integer, nullable=False)
-    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    completed_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 
 class QuizAttempt(db.Model):
@@ -33,7 +32,7 @@ class QuizAttempt(db.Model):
     quiz_id = db.Column(db.Integer, nullable=False)
     score = db.Column(db.Integer, nullable=False)
     total = db.Column(db.Integer, nullable=False)
-    attempted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    attempted_at = db.Column(db.DateTime, default=lambda: datetime.now(UTC))
 
 
 # class QuizLog(Base):

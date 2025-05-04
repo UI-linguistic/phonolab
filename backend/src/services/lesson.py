@@ -7,6 +7,7 @@ from src.db import db
 from src.models.lesson import Lesson
 from src.models.phoneme import Vowel
 from src.utils.error_handling import handle_db_operation
+from src.models.user import CompletedLesson
 
 
 # --- Lesson CRUD Operations ---
@@ -315,6 +316,55 @@ def seed_lessons_from_json_file(file_path: str, clear_existing: bool = False) ->
         return 0, f"Invalid JSON format in file: {file_path}"
     except Exception as e:
         return 0, f"Error reading JSON file: {str(e)}"
+
+
+# user functions
+
+def get_all_lesson_ids():
+    """Get a list of all lesson IDs"""
+    lessons = Lesson.query.all()
+    return [lesson.id for lesson in lessons]
+
+
+def get_completed_lessons(session_id):
+    """Get all lessons completed by a user"""
+    completed = CompletedLesson.query.filter_by(session_id=session_id).all()
+    return [lesson.lesson_id for lesson in completed]
+
+
+def get_remaining_lessons(session_id):
+    """Get all lessons not yet completed by a user"""
+    all_lessons = get_all_lesson_ids()
+    completed = get_completed_lessons(session_id)
+    return [lid for lid in all_lessons if lid not in completed]
+
+
+def get_lesson_progress(session_id):
+    """Get lesson progress statistics"""
+    completed = get_completed_lessons(session_id)
+    all_lessons = get_all_lesson_ids()
+
+    return {
+        "completed": len(completed),
+        "total": len(all_lessons),
+        "percentage": (len(completed) / len(all_lessons) * 100) if all_lessons else 0,
+        "completed_lessons": completed,
+        "remaining_lessons": get_remaining_lessons(session_id)
+    }
+
+
+def get_latest_completed_lesson(session_id):
+    """Get the most recently completed lesson"""
+    latest = CompletedLesson.query.filter_by(session_id=session_id)\
+        .order_by(CompletedLesson.completed_at.desc()).first()
+
+    if not latest:
+        return None
+
+    return {
+        "lesson_id": latest.lesson_id,
+        "completed_at": latest.completed_at.isoformat()
+    }
 
 
 def get_lesson_stats():
