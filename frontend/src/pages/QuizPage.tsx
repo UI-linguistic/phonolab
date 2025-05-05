@@ -236,7 +236,7 @@ const NextButton = styled.button`
 `;
 
 const FeedbackMessage = styled.div<{ $isCorrect?: boolean }>`
-  color: ${({ theme, $isCorrect }) => $isCorrect ? theme.colors.success : theme.colors.error};
+  color: ${({ theme, $isCorrect }) => $isCorrect ? '#4CAF50' : '#F44336'};
   font-size: 1.2rem;
   margin-top: ${({ theme }) => theme.spacing.medium};
   text-align: center;
@@ -300,7 +300,7 @@ const SelectedCard = styled.div<{ $isCorrect: boolean }>`
   gap: ${({ theme }) => theme.spacing.medium};
   padding: ${({ theme }) => theme.spacing.medium};
   border-radius: ${({ theme }) => theme.borderRadius};
-  background-color: ${({ theme, $isCorrect }) => 
+  background-color: ${({ $isCorrect }) => 
     $isCorrect ? 'rgba(76, 175, 80, 0.1)' : 'rgba(244, 67, 54, 0.1)'};
   margin-bottom: ${({ theme }) => theme.spacing.small};
 `;
@@ -573,7 +573,7 @@ const QuizPage: React.FC = () => {
       language: quizOptions[cardId].language,
       isCorrect: currentQuestion?.options_pool.correct_answers.some(
         correct => correct.word === quizOptions[cardId].word
-      )
+      ) ?? false
     }));
   };
 
@@ -643,12 +643,12 @@ const QuizPage: React.FC = () => {
               Score: {getScore()}/3
             </ScoreTitle>
             {getSelectedCardsInfo().map((card, index) => (
-              <SelectedCard key={index} $isCorrect={card.isCorrect}>
+              <SelectedCard key={index} $isCorrect={card.isCorrect ?? false}>
                 <CardInfo>
                   <CardWord>{card.word}</CardWord>
                   <CardLanguage>{card.language}</CardLanguage>
                 </CardInfo>
-                <ResultIcon $isCorrect={card.isCorrect}>
+                <ResultIcon $isCorrect={card.isCorrect ?? false}>
                   {card.isCorrect ? '✓' : '✗'}
                 </ResultIcon>
               </SelectedCard>
