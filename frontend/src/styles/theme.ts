@@ -2,10 +2,10 @@ import { DefaultTheme } from 'styled-components';
 
 export const theme: DefaultTheme = {
   colors: {
-    primary: '#FF69B4', // Pink from the mockup
+    primary: '#107E7D', // Pink from the mockup
     secondary: '#FF8C00', // Orange for buttons
     text: '#333333',
-    background: '#FFFFFF',
+    background: '#EFD9CE',
     accent: '#4A90E2'
   },
   fonts: {

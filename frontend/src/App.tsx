@@ -11,6 +11,7 @@ import QuizInstructionsPage from './pages/QuizInstructionsPage';
 import QuizResultPage from './pages/QuizResultPage';
 import VowelLessonPage from './pages/VowelLessonPage';
 import Navigation from './components/Navigation';
+import VowelMapPage from './pages/VowelMapPage';
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/learn" element={<LearnPathPage />} />
-          <Route path="/learn/vowels-101/:lessonId" element={<VowelLessonPage />} />
+          <Route path="/learn/vowels-101/:lessonId" element={<VowelMapPage />} />
           <Route path="/learn/:lessonId" element={<LearnPage />} />
           <Route path="/quiz" element={<QuizInstructionsPage />} />
           <Route path="/quiz/:questionId" element={<QuizPage />} />

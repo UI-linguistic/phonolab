@@ -3,127 +3,168 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import LearnIllustration from '../images/learn_brain-mouth.png';
 
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: ${({ theme }) => theme.spacing.xlarge};
-`;
+const BG_COLOR = '#F7D9CB';
 
-const Header = styled.div`
+const Container = styled.div`
+  min-height: calc(100vh - 64px);
+  width: 100vw;
+  background: ${BG_COLOR};
   display: flex;
   align-items: center;
-  margin-bottom: ${({ theme }) => theme.spacing.xlarge};
+  justify-content: center;
 `;
 
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
-  color: ${({ theme }) => theme.colors.text};
-  padding: ${({ theme }) => theme.spacing.small};
-  margin-right: ${({ theme }) => theme.spacing.large};
-  
-  &:hover {
-    color: ${({ theme }) => theme.colors.primary};
+const MainContent = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  gap: 4vw;
+  @media (max-width: 900px) {
+    flex-direction: column;
+    gap: 3rem;
   }
+`;
+
+const Left = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  min-width: 350px;
+  max-width: 500px;
+`;
+
+const BackArrow = styled.div`
+  font-size: 2.5rem;
+  color: #d3cfc7;
+  margin-bottom: 0.5rem;
+  user-select: none;
 `;
 
 const Title = styled.h1`
   font-size: 2.5rem;
-  color: ${({ theme }) => theme.colors.text};
+  font-weight: 800;
+  color: #23243a;
+  margin-bottom: 1.1rem;
+  text-align: left;
 `;
 
-const ContentWrapper = styled.div`
+const Subtitle = styled.div`
+  font-size: 1.15rem;
+  color: #6d6d6d;
+  font-weight: 500;
+  margin-bottom: 2.5rem;
+  text-align: left;
+  line-height: 1.4;
+`;
+
+const ButtonStack = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.spacing.xlarge};
+  flex-direction: column;
   align-items: flex-start;
-  margin-top: ${({ theme }) => theme.spacing.xlarge};
+  gap: 1.3rem;
+  width: 100%;
 `;
 
-const IllustrationContainer = styled.div`
-  flex: 1;
-  max-width: 400px;
-  img {
-    width: 100%;
-    height: auto;
+const OrangeButton = styled.button`
+  background: #F26522;
+  color: #fff;
+  border: 2px solid #232323;
+  border-radius: 16px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  padding: 1.1rem 2.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  margin-bottom: 0.5rem;
+  text-align: left;
+  width: 270px;
+  &:hover {
+    background: #d94e0f;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    transform: translateY(-2px);
   }
 `;
 
-const LearningPathsContainer = styled.div`
+const OutlineButton = styled.button`
+  background: #fff;
+  color: #F26522;
+  border: 2px solid #F26522;
+  border-radius: 16px;
+  font-size: 1.25rem;
+  font-weight: bold;
+  padding: 1.1rem 2.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  text-align: left;
+  width: 270px;
+  &:hover {
+    background: #ffe5d3;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
+    transform: translateY(-2px);
+  }
+`;
+
+const Right = styled.div`
   flex: 1;
-`;
-
-const PathTitle = styled.h2`
-  font-size: 2rem;
-  color: ${({ theme }) => theme.colors.primary};
-  margin-bottom: ${({ theme }) => theme.spacing.xlarge};
-`;
-
-const PathGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: ${({ theme }) => theme.spacing.large};
-`;
-
-const PathButton = styled.button`
-  background-color: ${({ theme }) => theme.colors.secondary};
-  color: white;
-  padding: ${({ theme }) => theme.spacing.large};
-  border-radius: ${({ theme }) => theme.borderRadius};
-  font-size: 1.2rem;
-  font-weight: 500;
-  text-align: center;
-  transition: ${({ theme }) => theme.transitions.default};
-  height: 100%;
-  min-height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 320px;
+`;
+
+const IllustrationCircle = styled.div`
+  background: #e3d7d1;
+  border: 3px solid #b6b0ad;
+  border-radius: 50%;
+  width: 420px;
+  height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @media (max-width: 600px) {
+    width: 90vw;
+    height: 90vw;
+    max-width: 350px;
+    max-height: 350px;
   }
-  
-  &:active {
-    transform: translateY(0);
-  }
+`;
+
+const Illustration = styled.img`
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+  display: block;
 `;
 
 const LearnPathPage: React.FC = () => {
   const navigate = useNavigate();
-  
+
   return (
     <Container>
-      <Header>
-        <BackButton onClick={() => navigate('/')}>←</BackButton>
-        <Title>Sound School</Title>
-      </Header>
-      
-      <ContentWrapper>
-        <IllustrationContainer>
-          <img src={LearnIllustration} alt="Brain with headphones" />
-        </IllustrationContainer>
-        
-        <LearningPathsContainer>
-          <PathTitle>Choose Your Learning Path</PathTitle>
-          <PathGrid>
-            <PathButton onClick={() => navigate('/learn/vowels-101/1')}>
-              Vowels 101
-            </PathButton>
-            <PathButton onClick={() => navigate('/learn/map-vowel-space')}>
-              Map the Vowel Space
-            </PathButton>
-            <PathButton onClick={() => navigate('/learn/mouth-right')}>
-              Get Your Mouth Right
-            </PathButton>
-            <PathButton onClick={() => navigate('/learn/tricky-pairs')}>
-              Tackle Tricky Pairs
-            </PathButton>
-          </PathGrid>
-        </LearningPathsContainer>
-      </ContentWrapper>
+      <MainContent>
+        <Left>
+          <BackArrow>&larr;</BackArrow>
+          <Title>Choose Your Learning Path</Title>
+          <Subtitle>Master those slippery English vowels that<br/>trip up even fluent speakers.</Subtitle>
+          <ButtonStack>
+            <OrangeButton onClick={() => navigate('/learn/vowels-101/1')}>Vowels 101</OrangeButton>
+            <OutlineButton onClick={() => navigate('/learn/map-vowel-space')}>Map the Vowel Space</OutlineButton>
+            <OutlineButton onClick={() => navigate('/learn/mouth-right')}>Get Your Mouth Right</OutlineButton>
+            <OutlineButton onClick={() => navigate('/learn/tricky-pairs')}>Tackle Tricky Pairs</OutlineButton>
+          </ButtonStack>
+        </Left>
+        <Right>
+          <IllustrationCircle>
+            <Illustration src={LearnIllustration} alt="Brain with lips" />
+          </IllustrationCircle>
+        </Right>
+      </MainContent>
     </Container>
   );
 };
