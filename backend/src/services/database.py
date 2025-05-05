@@ -17,7 +17,6 @@ from src.models.phoneme import Vowel, WordExample
 from src.utils.error_handling import handle_db_operation
 
 
-
 def extract_vowel_info_from_filename(filename: str) -> Tuple[str, str, str, str]:
     """
     Extract vowel information from a filename.
@@ -298,7 +297,7 @@ def seed_lessons_from_json_file(file_path: str, clear_existing: bool = False) ->
         return 0, f"Invalid JSON format in file: {file_path}"
     except Exception as e:
         return 0, f"Error reading JSON file: {str(e)}"
-    
+
 
 def create_quiz_batch(data: dict):
     """

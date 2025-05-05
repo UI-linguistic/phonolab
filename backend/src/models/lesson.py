@@ -1,73 +1,78 @@
 # src/models/lesson.py
 from src.db import db
-from enum import Enum
 
 
-class LessonType(Enum):
-    VOWEL_LESSON = "vowel_lesson"
-    VOWELS_101 = "vowels_101"
-    MAP_VOWEL_SPACE = "map_vowel_space"
-    TRAIN_YOUR_EAR = "train_your_ear"
-    TRICKY_PAIRS = "tricky_pairs"
+class LessonMode(db.Model):
+    __tablename__ = "lesson_modes"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    slug = db.Column(db.String, unique=True, nullable=False)
+    description = db.Column(db.Text)
+
+    lessons = db.relationship("Lesson", backref="mode", cascade="all, delete-orphan")
 
 
 class Lesson(db.Model):
     __tablename__ = "lessons"
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String, nullable=True)
-    description = db.Column(db.Text, nullable=True)
-    lesson_type = db.Column(db.String, nullable=False, default="vowel_lesson")
+    title = db.Column(db.String)
+    description = db.Column(db.Text)
 
-    vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=True)
-    vowel = db.relationship("Vowel", backref=db.backref("lesson", uselist=False, cascade="all, delete-orphan"))
+    lesson_mode_id = db.Column(db.Integer, db.ForeignKey("lesson_modes.id"), nullable=False)
 
-    # content varies per lesson
-    content = db.Column(db.JSON, nullable=True)
-
-    # lesson types
-    interactions = db.relationship("LessonInteraction", backref="lesson", cascade="all, delete-orphan")
-
-    def __repr__(self):
-        return f"<Lesson id={self.id} type={self.lesson_type} vowel_id={self.vowel_id}>"
+    type = db.Column(db.String, nullable=False)
+    __mapper_args__ = {
+        'polymorphic_on': type,
+        'polymorphic_identity': 'base_lesson',
+    }
 
 
-class LessonInteraction(db.Model):
-    """Stores specific interaction components for lessons"""
-    __tablename__ = "lesson_interactions"
+class VowelLesson(Lesson):
+    __tablename__ = "vowel_lessons"
 
-    id = db.Column(db.Integer, primary_key=True)
-    lesson_id = db.Column(db.Integer, db.ForeignKey("lessons.id"), nullable=False)
-    interaction_type = db.Column(db.String, nullable=False)  # e.g., "tongue_position", "lip_shape"
+    id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
+    vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=False)
+    vowel = db.relationship("Vowel")
 
-    # Interaction-specific data
-    config = db.Column(db.JSON, nullable=False)
+    content = db.Column(db.JSON)
 
-    def __repr__(self):
-        return f"<LessonInteraction {self.id}: {self.interaction_type} for Lesson {self.lesson_id}>"
-
-# For Tricky Pairs specifically
+    __mapper_args__ = {
+        'polymorphic_identity': 'vowel_lesson',
+    }
 
 
-class WordPair(db.Model):
-    """Stores word pairs for the Tricky Pairs lesson type"""
-    __tablename__ = "word_pairs"
+class TrickyPairLesson(Lesson):
+    __tablename__ = "tricky_pair_lessons"
 
-    id = db.Column(db.Integer, primary_key=True)
-    lesson_id = db.Column(db.Integer, db.ForeignKey("lessons.id"), nullable=False)
+    id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
+    instructions = db.Column(db.Text)
 
-    word1 = db.Column(db.String, nullable=False)
-    word2 = db.Column(db.String, nullable=False)
+    word_pairs = db.relationship("WordPair", backref="lesson", cascade="all, delete-orphan")
 
-    ipa1 = db.Column(db.String, nullable=False)
-    ipa2 = db.Column(db.String, nullable=False)
+    __mapper_args__ = {
+        'polymorphic_identity': 'tricky_pairs',
+    }
 
-    audio_url1 = db.Column(db.String, nullable=True)
-    audio_url2 = db.Column(db.String, nullable=True)
 
-    # The vowels/phonemes that distinguish these words
-    target_phoneme1_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=True)
-    target_phoneme2_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=True)
+class MapVowelSpaceLesson(Lesson):
+    __tablename__ = "map_vowel_space_lessons"
 
-    def __repr__(self):
-        return f"<WordPair {self.id}: {self.word1}/{self.word2}>"
+    id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
+    grid_data = db.Column(db.JSON, nullable=False)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'map_vowel_space',
+    }
+
+
+class GraphemeLesson(Lesson):
+    __tablename__ = "grapheme_lessons"
+
+    id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
+    grapheme_data = db.Column(db.JSON, nullable=False)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'get_your_graphemes_right',
+    }

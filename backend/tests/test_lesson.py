@@ -12,7 +12,6 @@ from tests.factories import CompletedLessonFactory, UserSessionFactory
 from tests.fixtures import sample_vowels, sample_lessons
 
 
-
 def test_build_vowel_tongue_position_matrix(app, sample_vowels):
     """Test building the vowel tongue position matrix."""
     with app.app_context():
@@ -186,7 +185,7 @@ def test_get_vowel_by_tongue_position(sample_vowels):
 
     front_vowel_ids = {vowel["id"] for vowel in vowel_groups["front"]}
     assert front_vowel_ids == {"i", "e"}
-    
+
     front_vowel = next(v for v in vowel_groups["front"] if v["id"] == "i")
     assert front_vowel["phoneme"] == "i"
     assert front_vowel["audio_url"] == "/audio/vowels/i.mp3"
