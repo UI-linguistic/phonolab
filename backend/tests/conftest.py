@@ -23,6 +23,7 @@ def app():
         db.session.remove()
         db.drop_all()
 
+
 @pytest.fixture
 def client(app):
     """A test client for the app."""

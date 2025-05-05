@@ -4,11 +4,12 @@ from src.db import db
 # No imports from factories here to avoid circular imports
 # We'll define the fixtures directly
 
+
 @pytest.fixture
 def sample_vowels(app):
     """Create sample vowels for testing."""
     from tests.factories import VowelFactory
-    
+
     with app.app_context():
         vowels = [
             VowelFactory(
@@ -77,35 +78,31 @@ def sample_vowels(app):
                 pronounced="oh"
             ),
         ]
-        
+
         yield vowels
-        
+
         # Clean up
         for vowel in vowels:
             db.session.delete(vowel)
         db.session.commit()
+
 
 @pytest.fixture
 def sample_lessons(app, sample_vowels):
     """Create sample lessons for testing."""
     from tests.factories import LessonFactory
     from src.models.lesson import Lesson
-    
+
     with app.app_context():
         lessons = []
         for vowel in sample_vowels:
-            # Instead of using the vowel object directly, just use its ID
             lesson = Lesson(vowel_id=vowel.id)
             db.session.add(lesson)
-        
         db.session.commit()
-        
-        # Fetch the lessons we just created
         lessons = Lesson.query.all()
-        
+
         yield lessons
-        
-        # Clean up
+
         for lesson in lessons:
             db.session.delete(lesson)
         db.session.commit()

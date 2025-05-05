@@ -82,18 +82,18 @@ def complete_lesson():
         500: If there's an error marking the lesson as complete
     """
     data = request.get_json()
-    
+
     if not data or 'session_id' not in data or 'lesson_id' not in data:
         return error_response("Missing required fields", 400)
-    
+
     session_id = data['session_id']
     lesson_id = data['lesson_id']
-    
+
     success = mark_lesson_complete(session_id, lesson_id)
-    
+
     if success:
         return success_response("Lesson marked as complete")
-    
+
     return error_response("Failed to mark lesson as complete", 500)
 
 

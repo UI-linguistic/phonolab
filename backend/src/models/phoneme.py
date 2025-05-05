@@ -11,6 +11,7 @@ tricky_vowel_pairs = db.Table(
     db.Column('description', db.String)  # e.g., "Confused by Spanish speakers"
 )
 
+
 class Vowel(db.Model):
     __tablename__ = "vowels"
 

@@ -15,9 +15,9 @@ from src.services.lesson import (
     update_lesson,
 )
 from src.utils.format import (
-    error_response, 
-    format_lesson_http, 
-    format_lessons_http, 
+    error_response,
+    format_lesson_http,
+    format_lessons_http,
     success_response
 )
 
@@ -51,7 +51,7 @@ def fetch_all_lessons():
             lessons = get_lessons_by_type(lesson_type)
         else:
             lessons = get_all_lessons()
-        
+
         formatted_lessons = format_lessons_http(lessons)
         return jsonify(formatted_lessons)
     except (ValueError, TypeError) as e:

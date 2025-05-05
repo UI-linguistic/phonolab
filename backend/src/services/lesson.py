@@ -1,8 +1,5 @@
-import json
 from typing import Any, Dict, List, Optional, Tuple
-
 from sqlalchemy.exc import SQLAlchemyError
-
 from src.cache import cache
 from src.db import db
 from src.models.phoneme import Vowel, tricky_vowel_pairs
@@ -248,82 +245,6 @@ def create_lessons_for_all_vowels() -> Tuple[int, Optional[str]]:
     return handle_db_operation(_create_lessons, 0)
 
 
-def seed_lessons_from_data(vowel_ids: List[str], clear_existing: bool = False) -> Tuple[int, Optional[str]]:
-    """
-    Seed lessons from a list of vowel IDs.
-
-    Args:
-        vowel_ids (List[str]): List of vowel IDs to create lessons for
-        clear_existing (bool): Whether to clear existing lessons before seeding
-
-    Returns:
-        Tuple[int, Optional[str]]: (Number of lessons created, Error message)
-    """
-    try:
-        # Clear existing lessons if requested
-        if clear_existing:
-            Lesson.query.delete()
-            db.session.commit()
-
-        # Create new lessons
-        created_count = 0
-        for vowel_id in vowel_ids:
-            # Check if vowel exists
-            vowel = Vowel.query.get(vowel_id)
-            if not vowel:
-                continue
-
-            # Skip if lesson already exists for this vowel and we're not clearing
-            if not clear_existing and Lesson.query.filter_by(vowel_id=vowel_id).first():
-                continue
-
-            # Create the lesson
-            lesson = Lesson(vowel_id=vowel_id)
-            db.session.add(lesson)
-            created_count += 1
-
-        db.session.commit()
-        return created_count, None
-
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        return 0, f"Database error: {str(e)}"
-    except Exception as e:
-        db.session.rollback()
-        return 0, f"Error seeding lessons: {str(e)}"
-
-
-def seed_lessons_from_json_file(file_path: str, clear_existing: bool = False) -> Tuple[int, Optional[str]]:
-    """
-    Seed lessons from a JSON file.
-
-    Args:
-        file_path (str): Path to the JSON file
-        clear_existing (bool): Whether to clear existing lessons before seeding
-
-    Returns:
-        Tuple[int, Optional[str]]: (Number of lessons created, Error message)
-    """
-    try:
-        # Read the JSON file
-        with open(file_path, 'r', encoding='utf-8') as f:
-            lessons_data = json.load(f)
-
-        # Validate the data structure
-        if not isinstance(lessons_data, list):
-            return 0, "JSON file must contain a list of lesson data"
-
-        # Seed the lessons
-        return seed_lessons_from_data(lessons_data, clear_existing)
-
-    except FileNotFoundError:
-        return 0, f"File not found: {file_path}"
-    except json.JSONDecodeError:
-        return 0, f"Invalid JSON format in file: {file_path}"
-    except Exception as e:
-        return 0, f"Error reading JSON file: {str(e)}"
-
-
 # user functions
 
 def get_all_lesson_ids():
@@ -377,15 +298,15 @@ def get_latest_completed_lesson(session_id):
 def build_vowel_tongue_position_matrix() -> List:
     """
     Build a 3x3 matrix of vowels for the tongue position interaction.
-    
+
     The matrix follows this structure:
     [ i I, null, ʊ u]
     [ e ɛ, ʌ ə, o ɔ]
     [æ, null, ɑ]
-    
+
     Each vowel in the matrix contains only essential fields:
     id, phoneme, name, audio_url, lips, tongue, mouth_image_url
-    
+
     Returns:
         list: A 3x3 matrix with vowel objects or null values
     """
@@ -399,10 +320,10 @@ def build_vowel_tongue_position_matrix() -> List:
     vowel_dict = {vowel.phoneme: vowel for vowel in all_vowels}
 
     result_matrix = []
-    
+
     for row in matrix_structure:
         result_row = []
-        
+
         for cell in row:
             if cell is None:
                 result_row.append(None)
@@ -437,26 +358,27 @@ def build_vowel_tongue_position_matrix() -> List:
                         })
                     else:
                         result_row.append(None)
-        
+
         result_matrix.append(result_row)
-    
+
     return result_matrix
+
 
 @cache.memoize(timeout=86400)
 def build_vowel_lip_shape_config() -> dict:
     """
     Build the lip shape configuration for the Vowels 101 lesson.
-    
+
     This includes:
     1. Two lip shape images (rounded and unrounded)
     2. A 4x3 table of individual vowels
-    
+
     Returns:
         dict: Configuration for the lip shape interaction
     """
     all_vowels = Vowel.query.all()
     vowel_dict = {vowel.phoneme: vowel for vowel in all_vowels}
-    
+
     # 4x3 table structure with vowel IDs
     table_structure = [
         ["i", "ɪ", "e", "ɛ"],
@@ -465,7 +387,7 @@ def build_vowel_lip_shape_config() -> dict:
     ]
 
     vowel_table = []
-    
+
     for row in table_structure:
         table_row = []
         for vowel_id in row:
@@ -483,7 +405,7 @@ def build_vowel_lip_shape_config() -> dict:
             else:
                 table_row.append(None)
         vowel_table.append(table_row)
-    
+
     # lip shape option
     lip_shape_config = {
         "lip_shapes": [
@@ -502,14 +424,14 @@ def build_vowel_lip_shape_config() -> dict:
         ],
         "vowel_table": vowel_table
     }
-    
+
     return lip_shape_config
 
 
 def create_vowels_101_lesson(title=None, description=None) -> Lesson:
     """
     Create a Vowels 101 lesson with the appropriate tongue position matrix and lip shapes.
-    
+
     Returns:
         Lesson: A new Vowels 101 lesson
     """
@@ -530,7 +452,7 @@ def create_vowels_101_lesson(title=None, description=None) -> Lesson:
             "columns": ["Front", "Central", "Back"]
         }
     }
-    
+
     tongue_position = LessonInteraction(
         interaction_type="tongue_position",
         config=tongue_position_config
@@ -552,11 +474,11 @@ def create_vowels_101_lesson(title=None, description=None) -> Lesson:
 def find_minimal_pairs(vowel1, vowel2):
     """
     Find or create a minimal pair for two vowels.
-    
+
     Args:
         vowel1: First vowel object
         vowel2: Second vowel object
-        
+
     Returns:
         dict: Minimal pair data with word template and options
     """
@@ -570,7 +492,7 @@ def find_minimal_pairs(vowel1, vowel2):
 
         word = example1.word
         template = word.replace(vowel1.phoneme, "_")
-        
+
         return {
             "word_template": template,
             "options": [
@@ -592,7 +514,7 @@ def find_minimal_pairs(vowel1, vowel2):
                 }
             ]
         }
-    
+
     # no examples found
     return None
 
@@ -600,7 +522,7 @@ def find_minimal_pairs(vowel1, vowel2):
 def get_tricky_pairs_data():
     """
     Retrieve all tricky vowel pairs from the database and organize them as minimal pairs.
-    
+
     Returns:
         list: List of minimal pairs with their categories
     """
@@ -614,32 +536,34 @@ def get_tricky_pairs_data():
     for vowel1_id, vowel2_id, category in pairs_query:
         vowel1 = db.session.get(Vowel, vowel1_id)
         vowel2 = db.session.get(Vowel, vowel2_id)
-        
+
         if vowel1 and vowel2:
             minimal_pair = find_minimal_pairs(vowel1, vowel2)
-            
+
             if minimal_pair:
                 pairs.append({
                     "category": category,
                     "minimal_pair": minimal_pair
                 })
-    
+
     return pairs
 
 
 def build_tricky_pairs_lesson_card(title, description, pairs):
     """
     Build the lesson card content for tricky vowel pairs with minimal pairs.
-    
+
     Args:
         title (str): The lesson title
         description (str): The lesson description
         pairs (list): List of minimal pairs with their categories
-        
+
     Returns:
         dict: The structured lesson card content
     """
     return {
+        "title": title,
+        "description": description,
         "pairs": pairs
     }
 
@@ -647,18 +571,18 @@ def build_tricky_pairs_lesson_card(title, description, pairs):
 def create_tricky_pairs_lesson(title=None, description=None):
     """
     Create a lesson focused on tricky vowel pairs using minimal pairs.
-    
+
     Args:
         title (str, optional): Custom title for the lesson
         description (str, optional): Custom description for the lesson
-        
+
     Returns:
         Lesson: The created lesson object
     """
-    
+
     if not title:
         title = "Tricky Vowel Pairs"
-    
+
     if not description:
         description = "Learn to distinguish between commonly confused vowel pairs in English."
 
@@ -671,8 +595,123 @@ def create_tricky_pairs_lesson(title=None, description=None):
         lesson_type="tricky_pairs",
         content=lesson_card
     )
-    
+
     db.session.add(lesson)
     db.session.commit()
-    
+
+    return lesson
+
+
+def get_vowel_by_tongue_position():
+    """
+    Retrieve all vowels from the database and organize them by tongue position.
+
+    Returns:
+        dict: Vowels organized by tongue position (front, central, back)
+    """
+
+    vowels = Vowel.query.all()
+    vowel_groups = {
+        "front": [],
+        "central": [],
+        "back": []
+    }
+
+    for vowel in vowels:
+        tongue_position = vowel.tongue.lower() if vowel.tongue else ""
+
+        if "front" in tongue_position:
+            group = "front"
+        elif "central" in tongue_position:
+            group = "central"
+        elif "back" in tongue_position:
+            group = "back"
+        else:
+            group = "central"
+
+        examples = vowel.get_word_examples(limit=2)
+
+        vowel_data = {
+            "id": vowel.id,
+            "phoneme": vowel.phoneme,
+            "audio_url": vowel.audio_url,
+            "examples": [
+                {
+                    "word": ex.word,
+                    "audio_url": ex.audio_url,
+                    "ipa": ex.ipa
+                }
+                for ex in examples
+            ]
+        }
+
+        vowel_groups[group].append(vowel_data)
+
+    return vowel_groups
+
+
+def build_train_your_ear_lesson_card(title, description, vowel_groups):
+    """
+    Build the lesson card content for the Train Your Ear lesson.
+
+    Args:
+        title (str): The lesson title
+        description (str): The lesson description
+        vowel_groups (dict): Vowels organized by tongue position
+
+    Returns:
+        dict: The structured lesson card content
+    """
+    return {
+        "title": title,
+        "description": description,
+        "vowel_groups": [
+            {
+                "name": "Front Vowels",
+                "vowels": vowel_groups["front"]
+            },
+            {
+                "name": "Central Vowels",
+                "vowels": vowel_groups["central"]
+            },
+            {
+                "name": "Back Vowels",
+                "vowels": vowel_groups["back"]
+            }
+        ]
+    }
+
+
+def create_train_your_ear_lesson(title=None, description=None):
+    """
+    Create a 'Train Your Ear' lesson that allows users to glide between vowel sounds.
+
+    Args:
+        title (str, optional): Custom title for the lesson
+        description (str, optional): Custom description for the lesson
+
+    Returns:
+        Lesson: The created lesson object
+    """
+    from src.models.lesson import Lesson
+
+    if not title:
+        title = "Train Your Ear"
+
+    if not description:
+        description = "Use the slider to glide between vowel sounds and train your ear to recognize subtle differences."
+
+    vowel_groups = get_vowel_by_tongue_position()
+    lesson_card = build_train_your_ear_lesson_card(title, description, vowel_groups)
+
+    lesson = Lesson(
+        title=title,
+        description=description,
+        lesson_type="train_your_ear",
+        content=lesson_card
+    )
+
+    db.session.add(lesson)
+    db.session.commit()
+
     return lesson

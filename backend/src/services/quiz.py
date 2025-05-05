@@ -62,21 +62,6 @@ def create_quiz_from_json_id(quiz_id: int, data: dict | None = None) -> QuizItem
     return quiz
 
 
-def create_quiz_batch(data: dict):
-    """
-    Seeds the quiz database from quiz.json format.
-    """
-    if data is None:
-        data = _load_quiz_json()
-
-    QuizOption.query.delete()
-    QuizItem.query.delete()
-    db.session.commit()
-
-    for entry in data["quiz"]:
-        create_quiz_from_json_id(entry["id"], data)
-
-
 def get_all_quizzes() -> QuizItem:
     """
     Retrieves all quiz items from the database.

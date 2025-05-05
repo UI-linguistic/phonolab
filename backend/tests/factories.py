@@ -13,7 +13,7 @@ class VowelFactory(factory.alchemy.SQLAlchemyModelFactory):
         model = Vowel
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
-    
+
     id = factory.Sequence(lambda n: f"vowel_{n}")
     phoneme = factory.Sequence(lambda n: f"p_{n}")
     name = factory.Sequence(lambda n: f"Vowel {n}")
@@ -28,54 +28,59 @@ class VowelFactory(factory.alchemy.SQLAlchemyModelFactory):
     example_words = None
     mouth_image_url = None
 
+
 class LessonFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Lesson
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
-    
+
     id = factory.Sequence(lambda n: n)
     vowel_id = factory.LazyAttribute(lambda o: o.vowel.id if hasattr(o, 'vowel') else None)
+
 
 class WordExampleFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = WordExample
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
-    
+
     id = factory.Sequence(lambda n: n)
     word = factory.Sequence(lambda n: f"word_{n}")
     ipa = factory.Sequence(lambda n: f"ipa_{n}")
     audio_url = factory.Sequence(lambda n: f"/audio/word_{n}.mp3")
     vowel_id = factory.LazyAttribute(lambda o: o.vowel.id if hasattr(o, 'vowel') else None)
 
+
 class UserSessionFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = UserSession
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
-    
+
     id = factory.Sequence(lambda n: n)
     session_id = factory.LazyFunction(lambda: str(uuid.uuid4()))
     started_at = factory.LazyFunction(lambda: datetime.now(UTC))
+
 
 class CompletedLessonFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = CompletedLesson
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
-    
+
     id = factory.Sequence(lambda n: n)
     session_id = factory.LazyAttribute(lambda o: o.session.session_id if hasattr(o, 'session') else None)
     lesson_id = factory.Sequence(lambda n: n)
     completed_at = factory.LazyFunction(lambda: datetime.now(UTC))
+
 
 class QuizAttemptFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = QuizAttempt
         sqlalchemy_session = db.session
         sqlalchemy_session_persistence = "commit"
-    
+
     id = factory.Sequence(lambda n: n)
     session_id = factory.LazyAttribute(lambda o: o.session.session_id if hasattr(o, 'session') else None)
     quiz_id = factory.Sequence(lambda n: n)

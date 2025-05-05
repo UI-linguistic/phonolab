@@ -88,7 +88,7 @@ def format_lesson_http(lesson) -> dict | None:
     """
     if not lesson:
         return None
-        
+
     # base lesson data
     formatted = {
         "id": lesson.id,
@@ -97,7 +97,7 @@ def format_lesson_http(lesson) -> dict | None:
         "lesson_type": lesson.lesson_type,
         "content": lesson.content
     }
-    
+
     # vowel data if present
     if lesson.vowel:
         formatted["vowel"] = {
@@ -107,7 +107,7 @@ def format_lesson_http(lesson) -> dict | None:
             "audio_url": lesson.vowel.audio_url,
             "mouth_image_url": lesson.vowel.mouth_image_url
         }
-    
+
     # interactions
     formatted["interactions"] = [
         {
@@ -116,7 +116,7 @@ def format_lesson_http(lesson) -> dict | None:
         }
         for interaction in lesson.interactions
     ]
-    
+
     return formatted
 
 
