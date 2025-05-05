@@ -83,8 +83,8 @@ const OrangeButton = styled.button`
 `;
 
 const OutlineButton = styled.button`
-  background: #fff;
-  color: #F26522;
+  background: ${BG_COLOR};
+  color: #23243a;
   border: 2px solid #F26522;
   border-radius: 16px;
   font-size: 1.25rem;

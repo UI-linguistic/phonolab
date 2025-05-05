@@ -68,8 +68,8 @@ const Tabs = styled.div`
 `;
 
 const TabButton = styled.button<{ active?: boolean }>`
-  background: ${({ active }) => (active ? ORANGE : '#fff')};
-  color: ${({ active }) => (active ? '#fff' : ORANGE)};
+  background: ${({ active }) => (active ? ORANGE : BG_COLOR)};
+  color: ${({ active }) => (active ? '#fff' : '#23243a')};
   border: 2px solid ${({ active }) => (active ? '#232323' : OUTLINE)};
   border-radius: 16px;
   font-size: 1.25rem;
@@ -195,6 +195,10 @@ const HorizontalArrow = styled.div`
 
 const VowelGridWrapper = styled.div`
   position: relative;
+  background: ${BG_COLOR};
+  border: 4px solid #232323;
+  padding: 1.2rem;
+  border-radius: 6px;
 `;
 
 const VowelGrid = styled.div`
@@ -214,7 +218,7 @@ const VowelCell = styled.div<{ selected?: boolean }>`
   font-size: 2.2rem;
   font-weight: 700;
   border: 1.5px solid ${GRID_BORDER};
-  background: ${({ selected }) => (selected ? '#FDE6D2' : 'transparent')};
+  background: ${({ selected }) => (selected ? '#F2652280' : 'transparent')};
   color: #23243a;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
@@ -307,7 +311,7 @@ const LipGridCol = styled.div`
 `;
 
 const LipVowelGridWrapper = styled.div`
-  background: #fff;
+  background: ${BG_COLOR};
   border: 4px solid #232323;
   padding: 1.2rem 1.2rem 0.7rem 1.2rem;
   border-radius: 6px;
@@ -332,7 +336,7 @@ const LipVowelCell = styled.div<{ highlight?: boolean }>`
   font-size: 2.1rem;
   font-weight: 700;
   border: 2px solid #232323;
-  background: ${({ highlight }) => (highlight ? '#F26522' : '#fff')};
+  background: ${({ highlight }) => (highlight ? '#F26522' : BG_COLOR)};
   color: ${({ highlight }) => (highlight ? '#fff' : '#23243a')};
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
@@ -434,6 +438,7 @@ const VowelMapPage: React.FC = () => {
                             <VowelCell
                               key={rowIdx + '-' + colIdx}
                               style={{ cursor: cell[0] ? 'pointer' : 'default' }}
+                              selected={cell.some(vowel => vowel === selectedVowel)}
                             >
                               {cell.map((symbol, i) => (
                                 <span
