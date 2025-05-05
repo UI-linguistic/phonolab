@@ -66,8 +66,32 @@ class PhonicTrioQuiz(Quiz):
     __tablename__ = "phonic_trio_quizzes"
 
     id = db.Column(db.Integer, db.ForeignKey("quizzes.id"), primary_key=True)
-    trios = db.Column(db.JSON, nullable=False)
+    
+    prompt_samples = db.Column(db.JSON, nullable=False)
+    source_id = db.Column(db.Integer, nullable=True, unique=True)
+    feedback_correct = db.Column(db.Text, nullable=True)
+    feedback_incorrect = db.Column(db.Text, nullable=True)
+    
+    options = db.relationship(
+        "PhonicTrioOption",
+        backref="quiz",
+        cascade="all, delete-orphan",
+        lazy=True
+    )
 
     __mapper_args__ = {
         'polymorphic_identity': 'phonic_trio',
     }
+
+
+class PhonicTrioOption(db.Model):
+    __tablename__ = "phonic_trio_options"
+
+    id = db.Column(db.Integer, primary_key=True)
+    quiz_id = db.Column(db.Integer, db.ForeignKey("phonic_trio_quizzes.id"), nullable=False)
+
+    word = db.Column(db.String, nullable=False)
+    ipa = db.Column(db.String)
+    audio_url = db.Column(db.String)
+    is_correct = db.Column(db.Boolean, default=False)
+    language = db.Column(db.String)
