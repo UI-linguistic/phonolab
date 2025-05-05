@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Nav = styled.nav`
-  background-color: #702F45; /* Burgundy */
+  background-color: #107E7D; /* Burgundy */
   padding: 1rem 2rem;
   display: flex;
   align-items: center;
