@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import pronounMouthArt from '../images/PNG/pronounmouthart-01.png';
 
@@ -214,8 +214,12 @@ interface VowelLessonsData {
 const VowelLessonPage: React.FC = () => {
   const navigate = useNavigate();
   const { lessonId } = useParams<{ lessonId: string }>();
+  const location = useLocation();
   const [currentLesson, setCurrentLesson] = useState<VowelLesson | null>(null);
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+
+  // Get the current section path (e.g., 'vowels-101' or 'mouth-right')
+  const currentPath = location.pathname.split('/')[2];
 
   useEffect(() => {
     const fetchLessonData = async () => {
@@ -238,14 +242,14 @@ const VowelLessonPage: React.FC = () => {
   const handlePrevious = () => {
     const prevId = Number(lessonId) - 1;
     if (prevId >= 1) {
-      navigate(`/learn/vowels-101/${prevId}`);
+      navigate(`/learn/${currentPath}/${prevId}`);
     }
   };
 
   const handleNext = () => {
     const nextId = Number(lessonId) + 1;
     if (nextId <= 12) {
-      navigate(`/learn/vowels-101/${nextId}`);
+      navigate(`/learn/${currentPath}/${nextId}`);
     }
   };
 
