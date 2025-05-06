@@ -7,6 +7,7 @@ import re
 from typing import Dict, List
 
 from colorama import Fore, Style
+from models.phoneme import TrickyPair
 from src.app import create_app
 import json
 
@@ -15,6 +16,8 @@ app = create_app()
 VOWEL_AUDIO_DIR = os.path.join(os.path.dirname(app.root_path), "static/audio/vowels")
 WORD_EX_AUDIO_DIR = os.path.join(os.path.dirname(app.root_path), "static/audio/word_examples")
 VOWEL_JSON_PATH = os.path.join(os.path.dirname(app.root_path), "src", "data", "lesson.json")
+TRICKY_PAIRS_PATH = os.path.join(os.path.dirname(app.root_path), "src", "data", "tricky_pairs.json")
+PHONEMES_PATH = os.path.join(os.path.dirname(app.root_path), "src", "data", "phonemes.json")
 
 IPA_NORMALIZATION_MAP = {
     "iː": "i",
@@ -153,6 +156,23 @@ def print_extended_vowel_dictionary(vowel_dict: dict) -> None:
                 elif isinstance(audio_urls, str):
                     print(f"      Audio URL: {audio_urls}")
         print(f"{Style.RESET_ALL}{'-'*60}")
+
+def print_tricky_pairs_dict(pairs: list) -> None:
+    """
+    Print a list of tricky vowel pairs in a readable format.
+    """
+    print(f"{Fore.MAGENTA}📂 Tricky Vowel Pairs:")
+    for idx, pair in enumerate(pairs, start=1):
+        print(f"{Fore.CYAN}#{idx}")
+        print(f"{Fore.YELLOW}  Word A: {pair.word_a} ({pair.vowel_a})")
+        print(f"{Fore.YELLOW}  Audio A: {pair.audio_a or '—'}")
+        print(f"{Fore.GREEN}  Word B: {pair.word_b} ({pair.vowel_b})")
+        print(f"{Fore.GREEN}  Audio B: {pair.audio_b or '—'}")
+        print(f"{Fore.LIGHTMAGENTA_EX}  Description: {pair.description or '—'}")
+        print(f"{Fore.LIGHTBLUE_EX}  Category: {pair.category or '—'}")
+        print(f"{Style.RESET_ALL}{'-'*60}")
+    print(f"{Fore.CYAN}✅ Total tricky pairs: {len(pairs)}{Style.RESET_ALL}\n")
+
 
 # === Phase 1: Extract IPA, lips, tongue from filenames ===
 def extract_vowel_info_mp3(filename):
@@ -426,6 +446,90 @@ def build_phoneme_schemas(
     return vowel_dict
 
 
+def load_tricky_pairs_from_json(json_path: str) -> list[TrickyPair]:
+    """
+    Load tricky pair data from JSON and return a list of TrickyPair objects.
+    """
+    tricky_pairs = []
+
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    for item in data:
+        pair = TrickyPair(
+            word_a=item["word_a"],
+            word_b=item["word_b"],
+            vowel_a=item["vowel_a"],
+            vowel_b=item["vowel_b"],
+            audio_a=item.get("audio_a"),
+            audio_b=item.get("audio_b"),
+            description=item.get("description"),
+            category=item.get("category"),
+        )
+        tricky_pairs.append(pair)
+
+    return tricky_pairs
+
+def sync_tricky_pair_audio_from_phoneme_json(
+    tricky_pairs_list: list,
+    phoneme_json_path: str
+) -> list:
+    """
+    For each tricky pair, verifies and replaces audio_a and audio_b fields
+    using the canonical audio URLs from the phoneme JSON data.
+
+    Returns the updated tricky_pairs_list.
+    """
+    with open(phoneme_json_path, "r", encoding="utf-8") as f:
+        phoneme_data = json.load(f)
+
+    word_to_audio_map = {}
+    for phoneme in phoneme_data.values():
+        for word_obj in phoneme.get("word_examples", []):
+            word = word_obj.get("word", "").lower()
+            audio_url = word_obj.get("audio_url")
+            if word and audio_url:
+                if isinstance(audio_url, list) and audio_url:
+                    word_to_audio_map[word] = audio_url[0]
+                elif isinstance(audio_url, str):
+                    word_to_audio_map[word] = audio_url
+
+    for pair in tricky_pairs_list:
+        word_a = pair.word_a.lower()
+        word_b = pair.word_b.lower()
+
+        if word_a in word_to_audio_map:
+            pair.audio_a = word_to_audio_map[word_a]
+        if word_b in word_to_audio_map:
+            pair.audio_b = word_to_audio_map[word_b]
+
+    return tricky_pairs_list
+
+def export_tricky_pairs_to_json(
+    tricky_pairs: List[TrickyPair], output_path: str
+) -> None:
+    """
+    Exports the tricky pairs list into a JSON file at the specified path.
+    Only includes essential fields in export schema.
+    """
+    data = []
+    for pair in tricky_pairs:
+        data.append({
+            "word_a": pair.word_a,
+            "word_b": pair.word_b,
+            "vowel_a": pair.vowel_a,
+            "vowel_b": pair.vowel_b,
+            "audio_a": pair.audio_a,
+            "audio_b": pair.audio_b,
+            "description": pair.description,
+            "category": pair.category,
+        })
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    print(f"\n📤 Exported minimal pairs to: {output_path}")
+
+
 def seed_vowels(audio_dir: str = VOWEL_AUDIO_DIR, 
                 vowel_json_path: str = VOWEL_JSON_PATH,
                 word_audio_dir: str = WORD_EX_AUDIO_DIR) -> None:
@@ -436,47 +540,26 @@ def seed_vowels(audio_dir: str = VOWEL_AUDIO_DIR,
     
 
 
-def seed_tricky_pairs(tricky_pairs_path: str) -> None:
-    """Seed TrickyPair entries from JSON"""
-    # with open(tricky_pairs_path, "r", encoding="utf-8") as f:
-    #     data = json.load(f)
+def seed_tricky_pairs(
+    json_path: str = TRICKY_PAIRS_PATH,
+    phoneme_path: str = PHONEMES_PATH
+) -> None:
+    """
+    Loads tricky pair data from a JSON file, syncs it with phoneme audio data from phonemes.json,
+    and prints the result for inspection. No DB commit is made.
 
-    # added = 0
-    # skipped = 0
+    Returns:
+        dict[int, dict]: Index-keyed tricky pair objects as dictionaries
+    """
+    tricky_pairs_dict = load_tricky_pairs_from_json(json_path)
+    synced_pairs = sync_tricky_pair_audio_from_phoneme_json(tricky_pairs_dict, phoneme_path)
 
-    # for item in data.get("tricky_pairs", []):
-    #     p1 = item["vowels"][0]
-    #     p2 = item["vowels"][1]
-
-    #     vowel1 = Vowel.query.filter_by(phoneme=p1).first()
-    #     vowel2 = Vowel.query.filter_by(phoneme=p2).first()
-
-    #     if not vowel1 or not vowel2:
-    #         skipped += 1
-    #         continue
-
-    #     # Avoid duplicate pairs in either direction
-    #     exists = TrickyPair.query.filter(
-    #         db.or_(
-    #             db.and_(TrickyPair.vowel1_id == vowel1.id, TrickyPair.vowel2_id == vowel2.id),
-    #             db.and_(TrickyPair.vowel1_id == vowel2.id, TrickyPair.vowel2_id == vowel1.id)
-    #         )
-    #     ).first()
-
-    #     if not exists:
-    #         pair = TrickyPair(
-    #             vowel1_id=vowel1.id,
-    #             vowel2_id=vowel2.id,
-    #             category=item.get("category"),
-    #             difficulty=item.get("difficulty", 1),
-    #             description=item.get("description")
-    #         )
-    #         db.session.add(pair)
-    #         added += 1
-
-    # db.session.commit()
-    # print(f"✅ Added {added} tricky pairs. Skipped {skipped} (missing vowels).")
-    pass
+    print("\n🔗 Synced tricky pair audio with phoneme examples.")
+    export_tricky_pairs_to_json(
+        synced_pairs,
+        output_path=os.path.join(os.path.dirname(json_path), "minimal_pairs.json")
+    )
+    print_tricky_pairs_dict(synced_pairs)
 
 
 def seed_phonic_trio_quiz(quiz_json_path: str) -> None:
@@ -562,8 +645,8 @@ def run_all_seeds():
             audio_dir=VOWEL_AUDIO_DIR,
         )
 
-        # print("Seeding tricky vowel pairs...")
-        # seed_tricky_pairs(str(base_path / "src" / "data" / "tricky_pairs.json"))
+        print(f"{Fore.CYAN}Seeding tricky vowel pairs...{Style.RESET_ALL}")
+        seed_tricky_pairs(json_path=TRICKY_PAIRS_PATH, phoneme_path=PHONEMES_PATH)
 
         # print("Seeding Phonic Trio quiz...")
         # seed_phonic_trio_quiz(str(base_path / "src" / "data" / "quiz.json"))

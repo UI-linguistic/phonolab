@@ -15,7 +15,7 @@
     "vowel_a": "ʌ",
     "vowel_b": "æ",
     "audio_a": "/audio/tricky_pairs/cut.mp3",
-    "audio_b": "/audio/tricky_pairs/cat.mp3",
+    "audio_b": "/audio/word_examples/13_æ_ref_cat.mp3",
     "description": "Minimal pair: /ʌ/ vs /æ/ distinction.",
     "category": "vowel contrast"
   },
@@ -25,7 +25,7 @@
     "vowel_a": "æ",
     "vowel_b": "ɛ",
     "audio_a": "/audio/tricky_pairs/bad.mp3",
-    "audio_b": "/audio/tricky_pairs/bed.mp3",
+    "audio_b": "/audio/word_examples/10_ɛ_ref_bed.mp3",
     "description": "Minimal pair: /æ/ vs /ɛ/ distinction.",
     "category": "vowel contrast"
   },
