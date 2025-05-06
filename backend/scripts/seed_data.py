@@ -102,6 +102,28 @@ LENGTH_MAP = {
     "ə": "neutral"
 }
 
+LESSON_MODE_MAP = {
+    "VOWELS_101": (
+        "Vowels 101",
+        "vowels-101",
+        "Learn about tongue position, lip shape, and vowel length."
+    ),
+    "MAP_VOWEL_SPACE": (
+        "Map the Vowel Space",
+        "map-vowel-space",
+        "Explore vowels on a visual vowel chart to understand tongue height and backness."
+    ),
+    "GET_YOUR_GRAPHEMES_RIGHT": (
+        "Get Your Graphemes Right",
+        "get-your-graphemes-right",
+        "Match spelling patterns to their corresponding vowel sounds."
+    ),
+    "TACKLE_TRICKY_PAIRS": (
+        "Tackle Tricky Pairs",
+        "tackle-tricky-pairs",
+        "Practice distinguishing between similar-sounding vowels."
+    )
+}
 
 
 def normalize_ipa(ipa: str) -> str:
@@ -778,8 +800,27 @@ def seed_tricky_pairs(
 # LESSON MODES
 #
 
-def seed_vowels_101_lesson():
-    pass
+def commit_lesson_mode(map_variable: tuple[str, str, str]) -> LessonMode:
+    name, slug, description = map_variable
+    mode = LessonMode(name=name, slug=slug, description=description)
+    db.session.add(mode)
+    db.session.commit()
+    print(f"✅ Lesson Mode committed: {name} ({slug})")
+    return mode
+
+def lesson_mode_exists(slug_or_name: str) -> bool:
+    return db.session.query(
+        LessonMode.query.filter(
+            (LessonMode.slug == slug_or_name) | (LessonMode.name == slug_or_name)
+        ).exists()
+    ).scalar()
+
+
+def seed_vowels_101_lesson(map_variable):
+    if not lesson_mode_exists():
+        commit_lesson_mode(map_variable)
+    
+    
 
 def seed_map_vowel_space_lesson():
     pass
