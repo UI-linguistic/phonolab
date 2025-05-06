@@ -87,26 +87,18 @@ class TrickyPair(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    vowel1_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=False)
-    vowel2_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=False)
+    word_a = db.Column(db.String, nullable=False)  # e.g. "pit"
+    word_b = db.Column(db.String, nullable=False)  # e.g. "pet"
 
-    category = db.Column(db.String)
-    difficulty = db.Column(db.Integer, default=1)
-    description = db.Column(db.String)
+    vowel_a = db.Column(db.String, nullable=False)  # e.g. "ɪ"
+    vowel_b = db.Column(db.String, nullable=False)  # e.g. "ɛ"
 
-    vowel1 = db.relationship("Vowel", foreign_keys=[vowel1_id])
-    vowel2 = db.relationship("Vowel", foreign_keys=[vowel2_id])
+    audio_a = db.Column(db.String)
+    audio_b = db.Column(db.String)
+
+    description = db.Column(db.String)  # Optional tip (e.g. "ɪ vs ɛ distinction")
+    category = db.Column(db.String)     # Optional category ("vowel height", etc.)
 
     __table_args__ = (
-        db.UniqueConstraint('vowel1_id', 'vowel2_id', name='uq_tricky_pair_unique'),
+        db.UniqueConstraint("word_a", "word_b", name="uq_tricky_pair_wordpair"),
     )
-
-    def involves(self, vowel_id: str) -> bool:
-        return self.vowel1_id == vowel_id or self.vowel2_id == vowel_id
-
-    def get_other(self, vowel_id: str) -> Optional["Vowel"]:
-        if self.vowel1_id == vowel_id:
-            return self.vowel2
-        elif self.vowel2_id == vowel_id:
-            return self.vowel1
-        return None
