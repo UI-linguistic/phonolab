@@ -663,10 +663,39 @@ def seed_tricky_pairs(
     commit_pairs(synced_pairs)
     
 
+#
+# LESSON MODES
+#
 
-def seed_phonic_trio_quiz(quiz_json_path: str) -> None:
-    """Seed PhonicTrioQuiz from quiz.json"""
+def seed_vowels_101_lesson():
     pass
+
+def seed_map_vowel_space_lesson():
+    pass
+
+def seed_get_your_graphenes_right_lesson():
+    pass
+
+def seed_tackle_tricky_pairs_lesson(): 
+    pass
+
+
+#
+# QUIZ MODES
+#
+def seed_vowel_shuffle_quiz():
+    pass
+
+def seed_spell_and_tell_quiz():
+    pass
+
+def seed_pair_play_quiz():
+    pass
+
+def seed_phonic_trio_quiz():
+    pass
+
+
 
 
 def run_all_seeds():
