@@ -1,12 +1,14 @@
 
 # backend/scripts/seed_data.py
 
+from collections import namedtuple
 import os
 from pathlib import Path
 import re
 from typing import Dict, List
 
 from colorama import Fore, Style
+from models.lesson import LessonMode, VowelLesson
 from models.phoneme import TrickyPair, Vowel, WordExample
 from src.app import create_app
 import json
@@ -19,6 +21,7 @@ WORD_EX_AUDIO_DIR = os.path.join(os.path.dirname(app.root_path), "static/audio/w
 VOWEL_JSON_PATH = os.path.join(os.path.dirname(app.root_path), "src", "data", "lesson.json")
 TRICKY_PAIRS_PATH = os.path.join(os.path.dirname(app.root_path), "src", "data", "tricky_pairs.json")
 PHONEMES_PATH = os.path.join(os.path.dirname(app.root_path), "src", "data", "phonemes.json")
+DATA_DIR = PATH = os.path.join(os.path.dirname(app.root_path), "src", "data")
 
 IPA_NORMALIZATION_MAP = {
     "iː": "i",
@@ -102,26 +105,28 @@ LENGTH_MAP = {
     "ə": "neutral"
 }
 
+LessonModeMeta = namedtuple("LessonModeMeta", ["name", "slug", "description"])
+
 LESSON_MODE_MAP = {
-    "VOWELS_101": (
-        "Vowels 101",
-        "vowels-101",
-        "Learn about tongue position, lip shape, and vowel length."
+    "VOWELS_101": LessonModeMeta(
+        name="Vowels 101",
+        slug="vowels-101",
+        description="Learn about tongue position, lip shape, and vowel length."
     ),
-    "MAP_VOWEL_SPACE": (
-        "Map the Vowel Space",
-        "map-vowel-space",
-        "Explore vowels on a visual vowel chart to understand tongue height and backness."
+    "MAP_VOWEL_SPACE": LessonModeMeta(
+        name="Map the Vowel Space",
+        slug="map-vowel-space",
+        description="Explore vowels on a visual vowel chart to understand tongue height and backness."
     ),
-    "GET_YOUR_GRAPHEMES_RIGHT": (
-        "Get Your Graphemes Right",
-        "get-your-graphemes-right",
-        "Match spelling patterns to their corresponding vowel sounds."
+    "GET_YOUR_GRAPHEMES_RIGHT": LessonModeMeta(
+        name="Get Your Graphemes Right",
+        slug="get-your-graphemes-right",
+        description="Match spelling patterns to their corresponding vowel sounds."
     ),
-    "TACKLE_TRICKY_PAIRS": (
-        "Tackle Tricky Pairs",
-        "tackle-tricky-pairs",
-        "Practice distinguishing between similar-sounding vowels."
+    "TACKLE_TRICKY_PAIRS": LessonModeMeta(
+        name="Tackle Tricky Pairs",
+        slug="tackle-tricky-pairs",
+        description="Practice distinguishing between similar-sounding vowels."
     )
 }
 
@@ -805,7 +810,7 @@ def commit_lesson_mode(map_variable: tuple[str, str, str]) -> LessonMode:
     mode = LessonMode(name=name, slug=slug, description=description)
     db.session.add(mode)
     db.session.commit()
-    print(f"✅ Lesson Mode committed: {name} ({slug})")
+    print(f"🆕 Lesson Mode committed: {name} ({slug})")
     return mode
 
 def lesson_mode_exists(slug_or_name: str) -> bool:
@@ -816,10 +821,222 @@ def lesson_mode_exists(slug_or_name: str) -> bool:
     ).scalar()
 
 
-def seed_vowels_101_lesson(map_variable):
-    if not lesson_mode_exists():
-        commit_lesson_mode(map_variable)
+def build_tongue_position_content():
+    """
+    Builds a 3x3 tongue position matrix based on the original IPA grid layout.
+    Each tile in the matrix may contain one or more vowel objects (as dicts).
+    Returns a dict containing the matrix grid and a caption.
+    """
+    IPA_GROUPS = {
+        (0, 0): ["i", "ɪ"],   # High front
+        (0, 1): [],           # High central (empty)
+        (0, 2): ["u", "ʊ"],   # High back
+        (1, 0): ["e", "ɛ"],   # Mid front
+        (1, 1): ["ə", "ʌ"],   # Mid central
+        (1, 2): ["o", "ɔ"],   # Mid back
+        (2, 0): ["æ"],        # Low front
+        (2, 1): [],           # Low central (empty)
+        (2, 2): ["ɑ"],        # Low back
+    }
+
+    grid = [[[] for _ in range(3)] for _ in range(3)]
+
+    for (row, col), ipa_list in IPA_GROUPS.items():
+        vowels = Vowel.query.filter(Vowel.ipa.in_(ipa_list)).all()
+        grid[row][col] = [
+            {
+                "ipa": v.ipa,
+                "id": v.id,
+                "pronounced": v.pronounced,
+                "audio_url": v.audio_url,
+                "mouth_image_url": v.mouth_image_url,
+            }
+            for v in vowels
+        ]
+
+    return {
+        "title": "Tongue Position",
+        "caption": "Explore how vowels are produced with different tongue heights and placements.",
+        "grid": grid
+    }
+
+LIP_SHAPE_GRID_LAYOUT = [
+    ["i", "ɪ", "e", "ɛ"],
+    ["æ", "ɑ", "ə", "ʌ"],
+    ["ɔ", "o", "ʊ", "u"]
+]
+
+def build_lip_shape_vowel_table():
+    """
+    Constructs a static 3x4 vowel grid containing vowel objects with ID, IPA, and audio.
+    Used for the lip shape interaction page.
+    """
+    grid = []
+
+    for row in LIP_SHAPE_GRID_LAYOUT:
+        grid_row = []
+        for ipa in row:
+            vowel = Vowel.query.filter_by(ipa=ipa).first()
+            if not vowel:
+                print(f"⚠️ Vowel not found for IPA '{ipa}' — skipping.")
+                grid_row.append(None)
+                continue
+
+            grid_row.append({
+                "id": vowel.id,
+                "ipa": vowel.ipa,
+                "audio_url": vowel.audio_url
+            })
+        grid.append(grid_row)
+
+    return grid
+
+
+def build_lip_shape_content():
+    """
+    Builds the lip shape lesson content including:
+    - a vowel grid (3x4) with vowel objects
+    - static lip shape illustrations
+    - instructions for interaction
+    """
+    return {
+        "title": "Lip Shape",
+        "caption": "Click a lip to highlight the matching vowels and hear their sounds.",
+        "lip_shape_table": build_lip_shape_vowel_table(),
+        "lip_shape_images": {
+            "unrounded": "/static/images/lips/unrounded.png",
+            "rounded": "/static/images/lips/rounded.png"
+        }
+    }
+
+
+def build_length_content():
+    """
+    Builds the length-based vowel lesson content.
+    Groups vowels into 'tense', 'lax', and 'neutral' columns based on their length field.
+    Returns a dict structured for lesson content rendering.
+    """
+    categories = {
+        "tense": [],
+        "lax": [],
+        "neutral": [],
+    }
+
+    vowels = Vowel.query.all()
+
+    for v in vowels:
+        length_type = v.length or "neutral"
+        if length_type not in categories:
+            print(f"⚠️ Unknown length '{length_type}' for IPA '{v.ipa}' — defaulting to 'neutral'.")
+            length_type = "neutral"
+
+        categories[length_type].append({
+            "id": v.id,
+            "ipa": v.ipa,
+            "audio_url": v.audio_url,
+        })
+
+    return {
+        "title": "Length",
+        "caption": "Click to hear the sound! Grouped by tense (long), lax (short), or neutral.",
+        "columns": {
+            "tense": categories["tense"],
+            "lax": categories["lax"],
+            "neutral": categories["neutral"],
+        }
+    }
+
+
+
+
+def build_vowels_101_lesson_mode(map_variable: tuple[str, str, str]) -> LessonMode:
+    """
+    Builds and returns the content structure for the Vowels 101 lesson.
+    Does not interact with the database.
+    """
+    return {
+        "tongue_position": build_tongue_position_content(),
+        "lip_shape": build_lip_shape_content(),
+        "length": build_length_content(),
+    }
+
+
+def export_preview_to_file(data: dict, slug: str, folder: str):
+    """
+    Saves a lesson preview to a JSON file under a given folder using the slug as filename.
+    """
+    os.makedirs(folder, exist_ok=True)
+    filename = os.path.join(folder, f"{slug}_preview.json")
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    print(f"💾 Saved preview to: {filename}")
     
+
+
+def preview_vowels_101_lesson(map_variable):
+    """
+    Simulates seeding the Vowels 101 lesson mode by printing out the structure.
+    No database actions are performed.
+    """
+    name = map_variable.name
+    slug = map_variable.slug
+
+    # Simulate build
+    print(f"🔧 Building lesson content for: {name} ({slug})\n")
+    content = build_vowels_101_lesson_mode(map_variable)
+
+    lesson_preview = {
+        "title": name,
+        "description": "Learn how vowels are categorized by tongue position, lip shape, and length.",
+        "lesson_mode_slug": slug,
+        "content": content,
+        "type": "vowel_lesson"
+    }
+
+    print("📦 VowelLesson JSON Preview:\n")
+    print(json.dumps(lesson_preview, indent=2, ensure_ascii=False))
+
+    # Save to JSON file
+    export_preview_to_file(lesson_preview, slug, DATA_DIR)
+
+    print("\n✅ Preview complete — lesson not committed.\n")
+
+
+def seed_vowels_101_lesson(map_variable: tuple[str, str, str]) -> LessonMode:
+    """
+    Seeds the Vowels 101 lesson mode and its associated VowelLesson.
+    Commits to the database only if not already present.
+    """
+    name, slug, _ = map_variable
+
+    # Check or commit the mode
+    if lesson_mode_exists(slug):
+        mode = LessonMode.query.filter(
+            (LessonMode.slug == slug) | (LessonMode.name == name)
+        ).first()
+        print(f"🔁 Lesson mode already exists: {slug}")
+    else:
+        mode = commit_lesson_mode(map_variable)
+
+    # Prevent duplicate lesson creation
+    existing_lesson = VowelLesson.query.filter_by(lesson_mode_id=mode.id).first()
+    if existing_lesson:
+        print(f"⚠️ A VowelLesson already exists for mode '{slug}' — skipping.")
+        return mode
+
+    # Build and commit lesson
+    content = build_vowels_101_lesson_mode(map_variable)
+    lesson = VowelLesson(
+        title="Vowels 101",
+        description="Learn how vowels are categorized by tongue position, lip shape, and length.",
+        lesson_mode_id=mode.id,
+        content=content
+    )
+    db.session.add(lesson)
+    db.session.commit()
+    print(f"✅ VowelLesson created for mode: {slug}")
+
+    return mode
     
 
 def seed_map_vowel_space_lesson():
@@ -849,21 +1066,20 @@ def seed_phonic_trio_quiz():
 
 
 
-
 def run_all_seeds():
     with app.app_context():
-        print(f"{Fore.CYAN}Seeding vowels and word examples...{Style.RESET_ALL}")
+        # print(f"{Fore.CYAN}Seeding vowels and word examples...{Style.RESET_ALL}")
 
-        seed_vowels(
-            vowel_json_path=VOWEL_JSON_PATH,
-            audio_dir=VOWEL_AUDIO_DIR,
-        )
+        # seed_vowels(
+        #     vowel_json_path=VOWEL_JSON_PATH,
+        #     audio_dir=VOWEL_AUDIO_DIR,
+        # )
 
-        print(f"{Fore.CYAN}Seeding tricky vowel pairs...{Style.RESET_ALL}")
-        seed_tricky_pairs(json_path=TRICKY_PAIRS_PATH, phoneme_path=PHONEMES_PATH)
+        # print(f"{Fore.CYAN}Seeding tricky vowel pairs...{Style.RESET_ALL}")
+        # seed_tricky_pairs(json_path=TRICKY_PAIRS_PATH, phoneme_path=PHONEMES_PATH)
 
-        # print("Seeding lessons...")
-        # seed_vowels_101_lesson()
+        print(f"{Fore.MAGENTA}📦 Previewing Vowels 101 lesson...{Style.RESET_ALL}")
+        seed_vowels_101_lesson(LESSON_MODE_MAP["VOWELS_101"])
 
         print("✅ All seeding operations completed.")
 

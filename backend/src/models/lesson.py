@@ -30,10 +30,10 @@ class Lesson(db.Model):
 
 
 class VowelLesson(Lesson):
-    __tablename__ = "vowel_lessons"
+    __tablename__ = "vowels_101"
 
     id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
-    vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=False)
+    vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=True)
     vowel = db.relationship("Vowel")
 
     content = db.Column(db.JSON)
@@ -49,7 +49,7 @@ class TrickyPairLesson(Lesson):
     id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
     instructions = db.Column(db.Text)
 
-    word_pairs = db.relationship("WordPair", backref="lesson", cascade="all, delete-orphan")
+    content = db.Column(db.JSON)
 
     __mapper_args__ = {
         'polymorphic_identity': 'tricky_pairs',
