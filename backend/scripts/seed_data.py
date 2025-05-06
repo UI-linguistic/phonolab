@@ -55,6 +55,55 @@ IPA_TO_VOWEL_ID = {
     "u": "v10",    # boot, food, two
 }
 
+TONGUE_POSITION_GRID = {
+    "i":  ["high", "front"],
+    "ɪ":  ["high", "central"],
+    "ʊ":  ["high", "back"],
+    "u":  ["high", "back"],
+
+    "e":  ["mid", "front"],
+    "ɛ":  ["mid", "front"],
+    "ʌ":  ["mid", "central"],
+    "ə":  ["mid", "central"],
+    "o":  ["mid", "back"],
+    "ɔ":  ["mid", "back"],
+
+    "æ":  ["low", "front"],
+    "ɑ":  ["low", "back"],
+}
+
+LIP_SHAPE_MAP = {
+    "i": "unrounded",
+    "ɪ": "unrounded",
+    "e": "unrounded",
+    "ɛ": "unrounded",
+    "æ": "unrounded",
+    "ʌ": "unrounded",
+    "ə": "unrounded",
+    "ɑ": "unrounded",
+    "u": "rounded",
+    "ʊ": "rounded",
+    "o": "rounded",
+    "ɔ": "rounded"
+}
+
+LENGTH_MAP = {
+    "i": "tense",
+    "e": "tense",
+    "u": "tense",
+    "o": "tense",
+    "ɪ": "lax",
+    "ɛ": "lax",
+    "ʊ": "lax",
+    "ɔ": "lax",
+    "æ": "neutral",
+    "ɑ": "neutral",
+    "ʌ": "neutral",
+    "ə": "neutral"
+}
+
+
+
 def normalize_ipa(ipa: str) -> str:
     return IPA_NORMALIZATION_MAP.get(ipa, ipa)
 
@@ -242,7 +291,58 @@ def normalize_term(term: str) -> str:
         "rounded": "rounded",
     }
 
-    return replacements.get(term, term)  # fallback to original if not found
+    return replacements.get(term, term)
+
+
+# def get_tongue_and_lip_features(ipa: str = None, tongue_raw: list[str] = None, lips_raw: str = None):
+#     """
+#     Derives the tongue and lip features either from IPA or raw descriptive terms.
+#     Priority is given to IPA if available and found in the grid.
+#     """
+
+#     tongue = []
+#     if ipa and ipa in TONGUE_POSITION_GRID:
+#         tongue = TONGUE_POSITION_GRID[ipa]
+#     elif tongue_raw:
+#         tongue = [normalize_term(t) for t in tongue_raw if t.strip()]
+
+#     lips = normalize_term(lips_raw) if lips_raw else None
+
+#     return {
+#         "tongue": tongue,
+#         "lips": lips,
+#     }
+def get_tongue_and_lip_features(ipa: str = None, tongue_raw: list[str] = None, lips_raw: str = None):
+    """
+    Derives the tongue and lip features either from IPA or raw descriptive terms.
+    Priority is given to IPA if available and found in the grid.
+    Prints any normalization changes for traceability.
+    """
+
+    tongue = []
+    if ipa and ipa in TONGUE_POSITION_GRID:
+        tongue = TONGUE_POSITION_GRID[ipa]
+    elif tongue_raw:
+        normalized = []
+        for t in tongue_raw:
+            clean = t.strip()
+            norm = normalize_term(clean)
+            if norm != clean:
+                print(f"🔁 Normalized tongue term: '{clean}' → '{norm}'")
+            normalized.append(norm)
+        tongue = normalized
+
+    lips = None
+    if lips_raw:
+        clean = lips_raw.strip()
+        lips = normalize_term(clean)
+        if lips != clean:
+            print(f"🔁 Normalized lips term: '{clean}' → '{lips}'")
+
+    return {
+        "tongue": tongue,
+        "lips": lips,
+    }
 
 
 def merge_with_lesson_json(phase_1_vowel_dict: dict, lesson_json_path: str) -> dict:
@@ -259,6 +359,7 @@ def merge_with_lesson_json(phase_1_vowel_dict: dict, lesson_json_path: str) -> d
         ipa = normalize_ipa(raw_ipa)
         id_str = f"v{entry['id']}"
 
+        # If IPA wasn't extracted from audio filenames, create fallback entry
         if ipa not in phase_1_vowel_dict:
             print(f"⚠️ IPA {raw_ipa} not found in Phase 1 data — creating fallback entry.")
             phase_1_vowel_dict[ipa] = {
@@ -267,35 +368,45 @@ def merge_with_lesson_json(phase_1_vowel_dict: dict, lesson_json_path: str) -> d
                 "lips": [],
                 "tongue": [],
                 "audio_url": [entry.get("audio_url")] if entry.get("audio_url") else [],
+                "length": None,
             }
 
         target = phase_1_vowel_dict[ipa]
 
+        # Audio URL merging
         lesson_audio = entry.get("audio_url")
         if lesson_audio and lesson_audio not in target["audio_url"]:
             target["audio_url"].append(lesson_audio)
 
-        lesson_lips = [normalize_term(s.strip()) for s in entry.get("lips", "").split(",") if s.strip()]
-        for val in lesson_lips:
-            if val not in target["lips"]:
-                target["lips"].append(val)
+        # Normalize tongue/lips
+        features = get_tongue_and_lip_features(
+            ipa=ipa,
+            tongue_raw=entry.get("tongue", "").split(","),
+            lips_raw=entry.get("lips", "")
+        )
+        target["tongue"] = features["tongue"]
+        target["lips"] = features["lips"]
 
-        lesson_tongue = [normalize_term(s.strip()) for s in entry.get("tongue", "").split(",") if s.strip()]
-        for val in lesson_tongue:
-            if val not in target["tongue"]:
-                target["tongue"].append(val)
+        # Enforce canonical vowel length
+        correct_length = LENGTH_MAP.get(ipa)
+        if correct_length:
+            if target.get("length") != correct_length:
+                print(f"🔁 Fixing length for /{ipa}/ → {correct_length}")
+            target["length"] = correct_length
 
+        # Other enrichments
         target["pronounced"] = entry.get("pronounced")
         target["common_spellings"] = entry.get("common_spellings", [])
         target["example_words"] = entry.get("example_words", [])
         target["mouth_image_url"] = entry.get("mouth_image_url")
 
-    # Sort by integer value of the "id" field (v1 → 1, v2 → 2, ...)
+    # Sort by integer in "v1" -> 1, etc.
     sorted_dict = dict(
         sorted(phase_1_vowel_dict.items(), key=lambda item: int(item[1]["id"][1:]))
     )
 
     return sorted_dict
+
 
 # === Phase 3 ===
 def extract_word_examples(audio_dir: str) -> Dict[str, List[dict]]:
@@ -710,8 +821,8 @@ def run_all_seeds():
         print(f"{Fore.CYAN}Seeding tricky vowel pairs...{Style.RESET_ALL}")
         seed_tricky_pairs(json_path=TRICKY_PAIRS_PATH, phoneme_path=PHONEMES_PATH)
 
-        # print("Seeding Phonic Trio quiz...")
-        # seed_phonic_trio_quiz(str(base_path / "src" / "data" / "quiz.json"))
+        # print("Seeding lessons...")
+        # seed_vowels_101_lesson()
 
         print("✅ All seeding operations completed.")
 

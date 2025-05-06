@@ -9,8 +9,7 @@ class Vowel(db.Model):
     ipa = db.Column(db.String, nullable=False)
 
     # Fields now nullable or removed
-    phoneme = db.Column(db.String, nullable=True)
-    name = db.Column(db.String, nullable=True)
+    length = db.Column(db.String, nullable=True)
     color_code = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
 
