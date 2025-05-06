@@ -17,97 +17,97 @@
 # from src.utils.error_handling import handle_db_operation
 
 
-def extract_vowel_info_from_filename(filename: str) -> Tuple[str, str, str, str]:
-    """
-    Extract vowel information from a filename.
+# def extract_vowel_info_from_filename(filename: str) -> Tuple[str, str, str, str]:
+#     """
+#     Extract vowel information from a filename.
 
-    Expected format: "N-X_description.mp3" where:
-    - N is a number (position)
-    - X is the IPA symbol
-    - description contains information about the vowel
+#     Expected format: "N-X_description.mp3" where:
+#     - N is a number (position)
+#     - X is the IPA symbol
+#     - description contains information about the vowel
 
-    Args:
-        filename: The audio filename
+#     Args:
+#         filename: The audio filename
 
-    Returns:
-        Tuple of (vowel_id, phoneme, name, description)
-    """
-    # Regular expression to match the expected format
-    pattern = r"(\d+)-([^_]+)_(.+)*\.mp3"
-    match = re.match(pattern, filename)
+#     Returns:
+#         Tuple of (vowel_id, phoneme, name, description)
+#     """
+#     # Regular expression to match the expected format
+#     pattern = r"(\d+)-([^_]+)_(.+)\.mp3"
+#     match = re.match(pattern, filename)
 
-    if not match:
-        raise ValueError(f"Filename {filename} does not match expected format")
+#     if not match:
+#         raise ValueError(f"Filename {filename} does not match expected format")
 
-    position, phoneme, description = match.groups()
-    vowel_id = f"v{position}"
-    name = phoneme
-    description = description.replace('_', ' ')
+#     position, phoneme, description = match.groups()
+#     vowel_id = f"v{position}"
+#     name = phoneme
+#     description = description.replace('_', ' ')
 
-    return vowel_id, phoneme, name, description
+#     return vowel_id, phoneme, name, description
 
 
-def seed_vowels_from_audio_directory(
-        audio_dir_path: str,
-        clear_existing: bool = True,
-        base_url: str = "/audio/vowels/") -> Tuple[int, Optional[str]]:
-    """
-    Seed the vowel table by scanning a directory for audio files.
+# def seed_vowels_from_audio_directory(
+#         audio_dir_path: str,
+#         clear_existing: bool = True,
+#         base_url: str = "/audio/vowels/") -> Tuple[int, Optional[str]]:
+#     """
+#     Seed the vowel table by scanning a directory for audio files.
 
-    Args:
-        audio_dir_path: Path to the directory containing vowel audio files
-        clear_existing: Whether to clear existing vowels before seeding
-        base_url: Base URL path for accessing the audio files
+#     Args:
+#         audio_dir_path: Path to the directory containing vowel audio files
+#         clear_existing: Whether to clear existing vowels before seeding
+#         base_url: Base URL path for accessing the audio files
 
-    Returns:
-        Tuple of (count of vowels added, error message if any)
-    """
-    def _seed_vowels():
-        # Clear existing vowels if requested
-        if clear_existing:
-            Vowel.query.delete()
-            db.session.commit()
+#     Returns:
+#         Tuple of (count of vowels added, error message if any)
+#     """
+#     def _seed_vowels():
+#         # Clear existing vowels if requested
+#         if clear_existing:
+#             Vowel.query.delete()
+#             db.session.commit()
 
-        count = 0
+#         count = 0
 
-        # Get all mp3 files in the directory
-        audio_files = [f for f in os.listdir(audio_dir_path) if f.endswith('.mp3')]
+#         # Get all mp3 files in the directory
+#         audio_files = [f for f in os.listdir(audio_dir_path) if f.endswith('.mp3')]
 
-        for audio_file in audio_files:
-            try:
-                # Extract vowel information from filename
-                vowel_id, phoneme, name, description = extract_vowel_info_from_filename(audio_file)
-                existing_vowel = Vowel.query.get(vowel_id)
-                if existing_vowel:
-                    # Update existing vowel
-                    existing_vowel.phoneme = phoneme
-                    existing_vowel.name = name
-                    existing_vowel.ipa_example = phoneme
-                    existing_vowel.audio_url = f"{base_url}{audio_file}"
-                    existing_vowel.description = description
-                else:
-                    # Create new vowel
-                    vowel = Vowel(
-                        id=vowel_id,
-                        phoneme=phoneme,
-                        name=name,
-                        ipa_example=phoneme,
-                        color_code="#CCCCCC",
-                        audio_url=f"{base_url}{audio_file}",
-                        description=description
-                    )
-                    db.session.add(vowel)
+#         for audio_file in audio_files:
+#             try:
+#                 # Extract vowel information from filename
+#                 vowel_id, phoneme, name, description = extract_vowel_info_from_filename(audio_file)
+#                 existing_vowel = Vowel.query.get(vowel_id)
+#                 if existing_vowel:
+#                     # Update existing vowel
+#                     existing_vowel.phoneme = phoneme
+#                     existing_vowel.name = name
+#                     existing_vowel.ipa_example = phoneme
+#                     existing_vowel.audio_url = f"{base_url}{audio_file}"
+#                     existing_vowel.description = description
+#                 else:
+#                     # Create new vowel
+#                     vowel = Vowel(
+#                         id=vowel_id,
+#                         phoneme=phoneme,
+#                         name=name,
+#                         ipa_example=phoneme,
+#                         color_code="#CCCCCC",
+#                         audio_url=f"{base_url}{audio_file}",
+#                         description=description
+#                     )
+#                     db.session.add(vowel)
 
-                count += 1
+#                 count += 1
 
-            except ValueError as e:
-                print(f"Warning: Skipping file {audio_file} - {str(e)}")
-                continue
+#             except ValueError as e:
+#                 print(f"Warning: Skipping file {audio_file} - {str(e)}")
+#                 continue
 
-        db.session.commit()
-        return count
+#         db.session.commit()
+#         return count
 
-    return handle_db_operation(_seed_vowels, 0)
+#     return handle_db_operation(_seed_vowels, 0)
 
 
 # def seed_from_json_file(json_file_path: str, clear_existing: bool = False, preserve_audio_urls: bool = True) -> Tuple[int, int, Optional[str]]:

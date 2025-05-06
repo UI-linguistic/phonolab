@@ -7,9 +7,10 @@ import re
 from typing import Dict, List
 
 from colorama import Fore, Style
-from models.phoneme import TrickyPair
+from models.phoneme import TrickyPair, Vowel, WordExample
 from src.app import create_app
 import json
+from src.db import db
 
 app = create_app()
 
@@ -446,6 +447,73 @@ def build_phoneme_schemas(
     return vowel_dict
 
 
+def commit_phonemes(
+    audio_dir: str = VOWEL_AUDIO_DIR,
+    vowel_json_path: str = VOWEL_JSON_PATH,
+    word_audio_dir: str = WORD_EX_AUDIO_DIR,
+) -> None:
+    """
+    Commits vowels and word examples to the database using the full seeding pipeline (Phases 1–4).
+    Skips JSON export. Commits data directly and prints each entry after insertion.
+    """
+
+    print("🔍 PHASE 1: Extract from audio files...")
+    vowel_dict = {}
+    for filename in os.listdir(audio_dir):
+        if filename.endswith(".mp3"):
+            info = extract_vowel_info_mp3(filename)
+            if info:
+                ipa = info["ipa"]
+                vowel_dict[ipa] = info
+            else:
+                print(f"⚠️ Skipped {filename}: invalid format")
+    phase1_count = len(vowel_dict)
+    print(f"\n✅ Phase 1 complete — extracted {phase1_count} vowel entries.\n")
+
+    print("\n🔄 PHASE 2: Merge lesson JSON...")
+    vowel_dict = merge_with_lesson_json(vowel_dict, vowel_json_path)
+    phase2_total = len(vowel_dict)
+    phase2_added = phase2_total - phase1_count
+    print(f"\n✅ Phase 2 complete — added {phase2_added} new entries from lesson.json.")
+    print(f"\n📊 Total vowel entries after merge: {phase2_total}\n")
+
+    print("\n🎧 PHASE 3: Extract word examples...")
+    word_examples_dict = extract_word_examples(word_audio_dir)
+
+    print("\n📥 PHASE 4: Attach word examples to vowels...")
+    merge_word_examples_to_vowels(vowel_dict, word_examples_dict)
+
+    print("\n🧱 PHASE 6: Commit to database...")
+    for ipa, data in vowel_dict.items():
+        vowel_obj = Vowel(
+            id=data["id"],
+            ipa=data["ipa"],
+            lips=", ".join(data.get("lips", [])),
+            tongue=", ".join(data.get("tongue", [])),
+            pronounced=data.get("pronounced"),
+            common_spellings=data.get("common_spellings", []),
+            mouth_image_url=data.get("mouth_image_url"),
+            audio_url=data.get("audio_url", [])
+        )
+        db.session.add(vowel_obj)
+        db.session.commit()
+        print(f"✅ Committed Vowel: /{data['ipa']}/ ({data['id']})")
+
+        for ex in data.get("word_examples", []):
+            word_example_obj = WordExample(
+                word=ex["word"],
+                ipa=ex["ipa"],
+                audio_url=ex["audio_url"],
+                vowel_id=vowel_obj.id
+            )
+            db.session.add(word_example_obj)
+        db.session.commit()
+        print(f"   ↪️  {len(data.get('word_examples', []))} word examples committed for /{data['ipa']}/")
+
+    print("\n✅ All vowels and word examples committed.")
+
+
+
 def load_tricky_pairs_from_json(json_path: str) -> list[TrickyPair]:
     """
     Load tricky pair data from JSON and return a list of TrickyPair objects.
@@ -530,27 +598,7 @@ def export_tricky_pairs_to_json(
     print(f"\n📤 Exported minimal pairs to: {output_path}")
 
 
-def seed_vowels(audio_dir: str = VOWEL_AUDIO_DIR, 
-                vowel_json_path: str = VOWEL_JSON_PATH,
-                word_audio_dir: str = WORD_EX_AUDIO_DIR) -> None:
-    """
-    Runs Phase 1–3: extracts vowel info, merges lesson JSON, extracts word examples,
-    and prints the combined result without saving to the database.
-    """
-    
-
-
-def seed_tricky_pairs(
-    json_path: str = TRICKY_PAIRS_PATH,
-    phoneme_path: str = PHONEMES_PATH
-) -> None:
-    """
-    Loads tricky pair data from a JSON file, syncs it with phoneme audio data from phonemes.json,
-    and prints the result for inspection. No DB commit is made.
-
-    Returns:
-        dict[int, dict]: Index-keyed tricky pair objects as dictionaries
-    """
+def build_pairs_schema(json_path: str, phoneme_path: str) -> List[Dict]:
     tricky_pairs_dict = load_tricky_pairs_from_json(json_path)
     synced_pairs = sync_tricky_pair_audio_from_phoneme_json(tricky_pairs_dict, phoneme_path)
 
@@ -562,77 +610,62 @@ def seed_tricky_pairs(
     print_tricky_pairs_dict(synced_pairs)
 
 
+def commit_pairs(pairs_list: List[TrickyPair]) -> None:
+    """
+    Commits a list of TrickyPair objects to the database.
+
+    Parameters:
+        pairs_list (List[TrickyPair]): List of tricky pair objects (not yet committed).
+    """
+    print("\n🧱 Committing tricky vowel pairs to the database...")
+
+    for pair in pairs_list:
+        # Check if the pair already exists (optional: avoids duplicates if rerun)
+        exists = TrickyPair.query.filter_by(word_a=pair.word_a, word_b=pair.word_b).first()
+        if exists:
+            print(f"⚠️ Pair already exists: {pair.word_a} vs {pair.word_b} — skipping.")
+            continue
+
+        db.session.add(pair)
+        db.session.commit()
+        print(f"✅ Committed Tricky Pair: {pair.word_a} ({pair.vowel_a}) vs {pair.word_b} ({pair.vowel_b})")
+
+
+
+def seed_vowels(
+    audio_dir: str = VOWEL_AUDIO_DIR,
+    vowel_json_path: str = VOWEL_JSON_PATH,
+    word_audio_dir: str = WORD_EX_AUDIO_DIR
+) -> None:
+    """
+    Calls the full vowel seeding pipeline that extracts, merges, attaches,
+    and commits phoneme and word example data to the database.
+    """
+    commit_phonemes(
+        audio_dir=audio_dir,
+        vowel_json_path=vowel_json_path,
+        word_audio_dir=word_audio_dir
+    )
+
+
+def seed_tricky_pairs(
+    json_path: str = TRICKY_PAIRS_PATH,
+    phoneme_path: str = PHONEMES_PATH
+) -> None:
+    """
+    Loads tricky pair data from a JSON file, syncs it with phoneme audio data from phonemes.json,
+    and commits it to the database.
+    """
+    tricky_pairs_list = load_tricky_pairs_from_json(json_path)
+    synced_pairs = sync_tricky_pair_audio_from_phoneme_json(tricky_pairs_list, phoneme_path)
+
+    print("\n🔗 Synced tricky pair audio with phoneme examples.")
+    commit_pairs(synced_pairs)
+    
+
+
 def seed_phonic_trio_quiz(quiz_json_path: str) -> None:
     """Seed PhonicTrioQuiz from quiz.json"""
-    # from src.models.quiz import QuizMode, PhonicTrioQuiz, PhonicTrioOption
-    # from src.db import db
-
-    # with open(quiz_json_path, "r", encoding="utf-8") as f:
-    #     data = json.load(f)
-
-    # if "quiz" not in data:
-    #     print("⚠️ No 'quiz' key found in JSON.")
-    #     return
-
-    # # Ensure the quiz mode exists
-    # mode = QuizMode.query.filter_by(name="phonic_trio").first()
-    # if not mode:
-    #     mode = QuizMode(name="phonic_trio", description="Pick 3 words with the same vowel")
-    #     db.session.add(mode)
-    #     db.session.commit()
-    #     print("✅ Created 'phonic_trio' quiz mode.")
-
-    # added_quizzes = 0
-    # added_options = 0
-
-    # for item in data["quiz"]:
-    #     entry_id = item.get("id")
-    #     existing = PhonicTrioQuiz.query.filter_by(source_id=entry_id).first()
-    #     if existing:
-    #         continue
-
-    #     # Save only the first sample as primary prompt for now
-    #     main_sample = item["samples"][0]
-    #     prompt_samples = item["samples"]  # Save all for the field
-
-    #     quiz = PhonicTrioQuiz(
-    #         source_id=entry_id,
-    #         prompt_word=main_sample["text"],
-    #         prompt_ipa=main_sample["IPA"],
-    #         prompt_audio_url=main_sample["audio"],
-    #         prompt_samples=prompt_samples,  # list of dicts
-    #         quiz_mode_id=mode.id
-    #     )
-
-    #     # Correct options
-    #     for opt in item["options_pool"].get("correct_answers", []):
-    #         option = PhonicTrioOption(
-    #             word=opt["word"],
-    #             ipa=opt["IPA"],
-    #             audio_url=opt["audio"],
-    #             is_correct=True,
-    #             language=opt.get("language")
-    #         )
-    #         quiz.options.append(option)
-    #         added_options += 1
-
-    #     # Wrong options
-    #     for opt in item["options_pool"].get("wrong_answers", []):
-    #         option = PhonicTrioOption(
-    #             word=opt["word"],
-    #             ipa=opt["IPA"],
-    #             audio_url=opt["audio"],
-    #             is_correct=False,
-    #             language=opt.get("language")
-    #         )
-    #         quiz.options.append(option)
-    #         added_options += 1
-
-    #     db.session.add(quiz)
-    #     added_quizzes += 1
-
-    # db.session.commit()
-    # print(f"✅ Added {added_quizzes} PhonicTrioQuiz items with {added_options} options.")
     pass
 
 

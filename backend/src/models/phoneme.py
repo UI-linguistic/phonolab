@@ -1,31 +1,35 @@
 # # src/models/phoneme.py
-from typing import Optional
+from sqlalchemy import JSON
 from src.db import db
-
 
 class Vowel(db.Model):
     __tablename__ = "vowels"
 
     id = db.Column(db.String, primary_key=True)
-    phoneme = db.Column(db.String, nullable=False)
-    name = db.Column(db.String, nullable=False)
-    ipa_example = db.Column(db.String, nullable=False)
-    color_code = db.Column(db.String, nullable=False)
-    audio_url = db.Column(db.String, nullable=False)
-    description = db.Column(db.String, nullable=False)
+    ipa = db.Column(db.String, nullable=False)
+
+    # Fields now nullable or removed
+    phoneme = db.Column(db.String, nullable=True)
+    name = db.Column(db.String, nullable=True)
+    color_code = db.Column(db.String, nullable=True)
+    description = db.Column(db.String, nullable=True)
 
     # Optional details
     pronounced = db.Column(db.String)
-    common_spellings = db.Column(db.JSON)
+    common_spellings = db.Column(JSON)
     lips = db.Column(db.String)
     tongue = db.Column(db.String)
+    audio_url = db.Column(JSON)
     mouth_image_url = db.Column(db.String)
 
-    # One-to-many
-    word_examples = db.relationship("WordExample",
-                                    backref="vowel",
-                                    cascade="all, delete-orphan",
-                                    lazy=True)
+    # One-to-many: Vowel → WordExample
+    word_examples = db.relationship(
+        "WordExample",
+        backref="vowel",
+        cascade="all, delete-orphan",
+        lazy=True
+    )
+
 
     def get_tricky_pairs(self):
         """Return all TrickyPairs involving this vowel"""
@@ -72,7 +76,7 @@ class WordExample(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String, nullable=False)
-    audio_url = db.Column(db.String, nullable=False)
+    audio_url = db.Column(JSON)
     ipa = db.Column(db.String)
     example_sentence = db.Column(db.String)
 
