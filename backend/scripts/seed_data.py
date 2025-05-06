@@ -127,7 +127,7 @@ def print_vowel_with_word_examples(vowel_dict: dict):
 
 def print_extended_vowel_dictionary(vowel_dict: dict) -> None:
     """
-    Prints the enriched vowel dictionary, including word examples if present.
+    Prints the enriched vowel dictionary, including nested word examples.
     """
     for ipa, data in vowel_dict.items():
         print(f"{Fore.MAGENTA}🧩 Phoneme Object — /{ipa}/")
@@ -139,20 +139,20 @@ def print_extended_vowel_dictionary(vowel_dict: dict) -> None:
         print(f"{Fore.BLUE}  Tongue: {', '.join(data.get('tongue', []))}")
         print(f"{Fore.LIGHTCYAN_EX}  Pronounced: {data.get('pronounced', '—')}")
         print(f"{Fore.LIGHTGREEN_EX}  Common Spellings: {', '.join(data.get('common_spellings', []))}")
-        print(f"{Fore.LIGHTBLUE_EX}  Example Words:")
-        for word in data.get("example_words", []):
-            print(f"    - {word}")
         print(f"{Fore.LIGHTYELLOW_EX}  Mouth Image URL: {data.get('mouth_image_url', '—')}")
 
         if "word_examples" in data:
             print(f"{Fore.LIGHTMAGENTA_EX}  Word Examples:")
             for example in data["word_examples"]:
-                print(f"    - Word: {example['word']}")
-                print(f"      IPA: {example['ipa']}")
-                for audio in example.get("audio_url", []):
-                    print(f"      Audio URL: {audio}")
+                print(f"    - Word: {example.get('word', '—')}")
+                print(f"      IPA: {example.get('ipa', '—')}")
+                audio_urls = example.get("audio_url")
+                if isinstance(audio_urls, list):
+                    for url in audio_urls:
+                        print(f"      Audio URL: {url}")
+                elif isinstance(audio_urls, str):
+                    print(f"      Audio URL: {audio_urls}")
         print(f"{Style.RESET_ALL}{'-'*60}")
-
 
 # === Phase 1: Extract IPA, lips, tongue from filenames ===
 def extract_vowel_info_mp3(filename):
@@ -324,29 +324,69 @@ def extract_word_examples(audio_dir: str) -> Dict[str, List[dict]]:
 
 
 # === Phase 4 ===
-def attach_word_examples_to_vowels(vowel_dict: dict, word_examples: dict) -> None:
+def merge_word_examples_to_vowels(
+    vowel_dict: Dict[str, dict],
+    word_examples: Dict[str, List[dict]]
+) -> None:
     """
-    Attach word example entries to the corresponding vowel entries in vowel_dict.
+    Transfers string-based example_words into detailed word_examples objects
+    by matching vowel IDs from word_examples. Removes example_words field.
 
-    Modifies vowel_dict in place.
+    This modifies vowel_dict in place.
     """
     for ipa, phoneme_data in vowel_dict.items():
-        vowel_id = phoneme_data["id"]
-        if vowel_id in word_examples:
-            phoneme_data["word_examples"] = word_examples[vowel_id]
-        else:
-            phoneme_data["word_examples"] = []
+        vowel_id = phoneme_data.get("id")
+        phoneme_data["word_examples"] = []
+        examples_from_audio = word_examples.get(vowel_id, [])
+        example_word_texts = phoneme_data.get("example_words", [])
+
+        for word_text in example_word_texts:
+            matched = next(
+                (ex for ex in examples_from_audio if ex["word"].lower() == word_text.lower()),
+                None
+            )
+            if matched:
+                if isinstance(matched["audio_url"], str):
+                    matched["audio_url"] = [matched["audio_url"]]
+                phoneme_data["word_examples"].append(matched)
+            else:
+                phoneme_data["word_examples"].append({
+                    "word": word_text,
+                    "ipa": ipa,
+                    "audio_url": []
+                })
+
+        phoneme_data.pop("example_words", None)
 
 
-
-def seed_vowels(audio_dir: str = VOWEL_AUDIO_DIR, 
-                vowel_json_path: str = VOWEL_JSON_PATH,
-                word_audio_dir: str = WORD_EX_AUDIO_DIR) -> None:
+# === Phase 5 ===
+def export_vowel_dict_to_json(vowel_dict: dict, base_data_dir: str) -> None:
     """
-    Runs Phase 1–3: extracts vowel info, merges lesson JSON, extracts word examples,
-    and prints the combined result without saving to the database.
+    Exports the final vowel dictionary to phonemes.json in the given base data directory.
+
+    Parameters:
+        vowel_dict (dict): The enriched vowel dictionary.
+        base_data_dir (str): The directory where the output file will be stored.
     """
-    # ──────────────────────────────────────────────────────────────
+    output_path = os.path.join(base_data_dir, "phonemes.json")
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(vowel_dict, f, ensure_ascii=False, indent=2)
+
+    print(f"\n📝 Phase 5 complete — dictionary exported to {output_path}")
+
+
+def build_phoneme_schemas(
+    audio_dir: str = VOWEL_AUDIO_DIR,
+    vowel_json_path: str = VOWEL_JSON_PATH,
+    word_audio_dir: str = WORD_EX_AUDIO_DIR
+) -> dict:
+    """
+    Runs Phases 1–5: extract vowel info, merge lesson JSON, extract word examples,
+    attach them to vowels, and export the final dictionary to phonemes.json.
+
+    Returns the final vowel dictionary.
+    """
     print("🔍 PHASE 1: Extract from audio files...")
     vowel_dict = {}
     for filename in os.listdir(audio_dir):
@@ -360,7 +400,6 @@ def seed_vowels(audio_dir: str = VOWEL_AUDIO_DIR,
     phase1_count = len(vowel_dict)
     print(f"\n✅ Phase 1 complete — extracted {phase1_count} vowel entries.\n")
 
-    # ──────────────────────────────────────────────────────────────
     print("\n🔄 PHASE 2: Merge lesson JSON...")
     vowel_dict = merge_with_lesson_json(vowel_dict, vowel_json_path)
     phase2_total = len(vowel_dict)
@@ -371,17 +410,30 @@ def seed_vowels(audio_dir: str = VOWEL_AUDIO_DIR,
     print("\n📦 FINAL Merged Vowel Dictionary:")
     print_vowel_dictionary_colored(vowel_dict)
 
-    # ──────────────────────────────────────────────────────────────
     print("\n🎧 PHASE 3: Extract word examples...")
     word_examples_dict = extract_word_examples(word_audio_dir)
     print_word_examples_dict(word_examples_dict)
 
-    # ──────────────────────────────────────────────────────────────
     print("\n📥 PHASE 4: Attach word examples to vowels...")
-    attach_word_examples_to_vowels(vowel_dict, word_examples_dict)
-    print("\n📦 FINAL Merged Vowel Dictionary:")
-    
+    merge_word_examples_to_vowels(vowel_dict, word_examples_dict)
 
+    print("\n📦 FINAL Merged Vowel Dictionary:")
+    print_extended_vowel_dictionary(vowel_dict)
+
+    print("\n📝 PHASE 5: Export to JSON...")
+    export_vowel_dict_to_json(vowel_dict, base_data_dir=os.path.dirname(vowel_json_path))
+
+    return vowel_dict
+
+
+def seed_vowels(audio_dir: str = VOWEL_AUDIO_DIR, 
+                vowel_json_path: str = VOWEL_JSON_PATH,
+                word_audio_dir: str = WORD_EX_AUDIO_DIR) -> None:
+    """
+    Runs Phase 1–3: extracts vowel info, merges lesson JSON, extracts word examples,
+    and prints the combined result without saving to the database.
+    """
+    
 
 
 def seed_tricky_pairs(tricky_pairs_path: str) -> None:
