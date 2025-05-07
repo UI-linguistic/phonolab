@@ -1,33 +1,71 @@
 # # src/database/phoneme.py
 import json
+import os
 from pathlib import Path
 from sqlalchemy.orm.exc import DetachedInstanceError
 from src.models.phoneme import MinimalPair, SeedingStats, Vowel, WordExample
 from src.utils.decorators import safe_db_op
 from src.db import db
+from src.config import Config
+
+
+def resolve_vowel_assets(vowel_data: dict) -> tuple[str, str, str, str]:
+    """
+    Resolve lips, tongue, lip_image_url, and tongue_image_url for a vowel entry.
+
+    Returns a tuple: (lips, tongue, lip_image_url, tongue_image_url)
+    """
+    lips_raw = vowel_data.get("lips", [])
+    lips = ", ".join(lips_raw) if isinstance(lips_raw, list) else lips_raw
+    tongue = ", ".join(vowel_data.get("tongue", []))
+
+    # Lip image logic
+    lip_image_url = vowel_data.get("lip_image_url")
+    if not lip_image_url:
+        if isinstance(lips_raw, list) and any("rounded" in s.lower() for s in lips_raw):
+            lip_image_url = "/images/lip_shape/rounded-lips.svg"
+        else:
+            lip_image_url = "/images/lip_shape/unrounded-lips.svg"
+
+    # Tongue image logic
+    tongue_image_url = vowel_data.get("tongue_image_url")
+    if not tongue_image_url:
+        ipa = vowel_data["ipa"]
+        image_dir = Config.TONGUE_IMAGE_DIR
+        for file in os.listdir(image_dir):
+            if file.lower().startswith(ipa.lower()):
+                tongue_image_url = f"/images/tongue_position/{file}"
+                break
+
+    return lips, tongue, lip_image_url, tongue_image_url
 
 
 @safe_db_op(default=None, error_message="Failed to insert vowel")
 def insert_vowel_if_not_exists(vowel_data: dict, stats: SeedingStats | None = None) -> Vowel:
-    """Insert a Vowel only if it doesn't already exist (by ID)."""
     existing = Vowel.query.filter_by(id=vowel_data["id"]).first()
     if existing:
         if stats:
             stats.increment("skipped_vowels")
         return existing
 
+    lips, tongue, lip_image_url, tongue_image_url = resolve_vowel_assets(vowel_data)
+
     vowel = Vowel(
         id=vowel_data["id"],
         ipa=vowel_data["ipa"],
-        lips=", ".join(vowel_data.get("lips", [])),
-        tongue=", ".join(vowel_data.get("tongue", [])),
         pronounced=vowel_data.get("pronounced"),
         common_spellings=vowel_data.get("common_spellings", []),
+        length=vowel_data.get("length"),
+        lips=lips,
+        tongue=tongue,
+        description=vowel_data.get("description"),
         audio_url=vowel_data.get("audio_url", []),
         mouth_image_url=vowel_data.get("mouth_image_url"),
+        lip_image_url=lip_image_url,
+        tongue_image_url=tongue_image_url,
     )
     db.session.add(vowel)
-    db.session.flush()  # ID must be available
+    db.session.flush()
     if stats:
         stats.increment("inserted_vowels")
     return vowel
@@ -69,22 +107,38 @@ def validate_phoneme_data(phoneme_data: dict):
         raise ValueError("Phoneme data must be a dictionary keyed by IPA symbol.")
 
     seen_words = set()
+    required_vowel_fields = ["id", "ipa"]
+    optional_str_fields = [
+        "pronounced", "length", "lips", "tongue",
+        "mouth_image_url", "lip_image_url", "tongue_image_url", "description"
+    ]
+    optional_list_fields = ["common_spellings", "audio_url"]
 
     for symbol, data in phoneme_data.items():
         if not isinstance(data, dict):
             raise ValueError(f"Entry for symbol '{symbol}' must be a dict.")
 
-        required_vowel_fields = ["id", "ipa"]
+        # Validate required fields
         for field in required_vowel_fields:
             if field not in data or not isinstance(data[field], str):
                 raise ValueError(f"Missing or invalid field '{field}' in vowel '{symbol}'")
 
+        # Validate optional string fields
+        for field in optional_str_fields:
+            if field in data and not isinstance(data[field], str):
+                raise ValueError(f"Field '{field}' in vowel '{symbol}' must be a string.")
+
+        # Validate optional list fields
+        for field in optional_list_fields:
+            if field in data and not isinstance(data[field], list):
+                raise ValueError(f"Field '{field}' in vowel '{symbol}' must be a list.")
+
+        # Validate word examples
         if "word_examples" in data:
-            word_list = data["word_examples"]
-            if not isinstance(word_list, list):
+            if not isinstance(data["word_examples"], list):
                 raise ValueError(f"'word_examples' for vowel '{symbol}' must be a list.")
 
-            for word_data in word_list:
+            for word_data in data["word_examples"]:
                 if not isinstance(word_data, dict):
                     raise ValueError(f"A word entry under vowel '{symbol}' is not a dict.")
 
@@ -122,38 +176,27 @@ def seed_all_phonemes_from_file(json_path: Path | str = "src/data/phonemes.json"
 def check_word_vowel_relationship_integrity(verbose: bool = False, fail_fast: bool = False) -> bool:
     """
     Verify that every WordExample has a valid vowel relationship.
-
     Returns True if all are valid, False if any broken/missing links are found.
     If `fail_fast` is True, stops at the first issue.
     """
     broken = []
 
-    all_words = WordExample.query.all()
-    for word in all_words:
+    for word in WordExample.query.all():
         if not word.vowel_id:
-            msg = f"Missing vowel_id"
-            if verbose:
-                print(f"   - '{word.word}': {msg}")
-            if fail_fast:
-                return False
-            broken.append((word.word, msg))
-            continue
-
-        try:
-            if not word.vowel:
+            msg = "Missing vowel_id"
+        else:
+            try:
+                if word.vowel:
+                    continue
                 msg = f"No vowel relation for ID {word.vowel_id}"
-                if verbose:
-                    print(f"   - '{word.word}': {msg}")
-                if fail_fast:
-                    return False
-                broken.append((word.word, msg))
-        except DetachedInstanceError:
-            msg = f"Detached relation for ID {word.vowel_id}"
-            if verbose:
-                print(f"   - '{word.word}': {msg}")
-            if fail_fast:
-                return False
-            broken.append((word.word, msg))
+            except DetachedInstanceError:
+                msg = f"Detached relation for ID {word.vowel_id}"
+
+        if verbose:
+            print(f"   - '{word.word}': {msg}")
+        if fail_fast:
+            return False
+        broken.append((word.word, msg))
 
     if broken:
         print(f"Found {len(broken)} WordExamples with invalid vowel links.")

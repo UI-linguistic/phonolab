@@ -37,6 +37,8 @@ class Config:
     DATA_DIR = DATA_DIR
     VOWEL_AUDIO_DIR = os.path.join(STATIC_DIR, "audio/vowels")
     WORD_EX_AUDIO_DIR = os.path.join(STATIC_DIR, "audio/word_examples")
+    LIP_IMAGE_DIR = os.path.join(STATIC_DIR, "images/lip_shape")
+    TONGUE_IMAGE_DIR = os.path.join(STATIC_DIR, "images/tongue_position")
     VOWEL_JSON_PATH = os.path.join(DATA_DIR, "lesson.json")
     TRICKY_PAIRS_PATH = os.path.join(DATA_DIR, "tricky_pairs.json")
     PHONEMES_PATH = os.path.join(DATA_DIR, "phonemes.json")

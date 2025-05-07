@@ -3,7 +3,9 @@ import os
 from pathlib import Path
 
 from cli.cli_runner import cli_runner
+from database.lesson import seed_vowels101_tongue_section_from_file
 from src.app import create_app
+from src.app import Config
 from src.database.phoneme import (
     check_minimal_pair_integrity, 
     seed_all_phonemes_from_file, 
@@ -55,6 +57,18 @@ def main():
         help="Path to minimal pair JSON file"
     )
 
+    seed_tongue_parser = subparsers.add_parser(
+        "seed-tongue",
+        help="Seed the Vowels 101 - Tongue Position section",
+        description="Creates the Vowels101Section and VowelGridCells for the tongue position lesson"
+    )
+    seed_tongue_parser.add_argument(
+        "--json",
+        type=str,
+        default="src/data/vowels101_tongue.json",
+        help="Path to the tongue position JSON grid file"
+    )
+
 
     check_parser = subparsers.add_parser(
         "check-relations",
@@ -80,6 +94,13 @@ def main():
     check_minimal_parser.add_argument("--fail-fast", action="store_true")
     check_minimal_parser.add_argument("--silent", action="store_true")
 
+    reset_parser = subparsers.add_parser(
+        "reset-db",
+        help="Delete the entire database file",
+        description="⚠ Destroys the SQLite DB file completely. Use with caution."
+    )
+
+
 
     cli_runner(parser, async_main)
 
@@ -93,6 +114,10 @@ async def async_main(args, parser) -> int:
         return await handle_check_minimal_pairs(args)
     elif args.command == "seed-minimal-pairs":
         return await handle_seed_minimal_pairs(args)
+    elif args.command == "seed-tongue":
+        return await handle_seed_tongue(args)
+    elif args.command == "reset-db":
+        return await handle_reset_db(args)
 
     parser.print_help()
     return 0
@@ -128,6 +153,18 @@ async def handle_seed_minimal_pairs(args):
     return 0
 
 
+async def handle_seed_tongue(args):
+    app = create_app()
+    with app.app_context():
+        try:
+            seed_vowels101_tongue_section_from_file(args.json)
+            print(success_response("Tongue Position section seeded successfully."))
+        except Exception as e:
+            print(error_response(f"Failed to seed tongue section: {e}"))
+            return 1
+    return 0
+
+
 async def handle_check_relations(args):
     app = create_app()
     with app.app_context():
@@ -146,3 +183,21 @@ async def handle_check_minimal_pairs(args):
             fail_fast=args.fail_fast
         )
         return 0 if result else 1
+
+
+async def handle_reset_db(args):
+    """Deletes the current database file to allow a fresh start."""
+    db_path = os.path.join(Config.INSTANCE_DIR, "phonolab.db")
+
+    if os.path.exists(db_path):
+        try:
+            os.remove(db_path)
+            print(success_response(f"🗑 Deleted database at: {db_path}"))
+            return 0
+        except Exception as e:
+            print(error_response(f"❌ Failed to delete database: {e}"))
+            return 1
+    else:
+        print(error_response(f"⚠️ Database not found at: {db_path}"))
+        return 1
+    

@@ -1,77 +1,56 @@
 # src/models/lesson.py
+
 from src.db import db
-from src.models.phoneme import Vowel
 
 
-class LessonMode(db.Model):
-    __tablename__ = "lesson_modes"
-    __table_args__ = {"extend_existing": True}
-    
+vowel_cell_map = db.Table(
+    "vowel_cell_map",
+    db.Column("vowel_id", db.String, db.ForeignKey("vowels.id"), primary_key=True),
+    db.Column("cell_id", db.Integer, db.ForeignKey("vowel_grid_cells.id"), primary_key=True),
+)
+
+
+class LessonType(db.Model):
+    __tablename__ = "lesson_types"
+
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
-    slug = db.Column(db.String, unique=True, nullable=False)
-    description = db.Column(db.Text)
-    
-    lessons = db.relationship("src.models.lesson.Lesson", backref="mode", cascade="all, delete-orphan")
+    name = db.Column(db.String(64), nullable=False, unique=True)
+    slug = db.Column(db.String(64), nullable=False, unique=True)
+    description = db.Column(db.String(256))
 
-class Lesson(db.Model):
-    __tablename__ = "lessons"
-    __table_args__ = {"extend_existing": True}
-    
+    sections = db.relationship("Vowels101Section", back_populates="lesson_type", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<LessonType '{self.name}'>"
+
+class Vowels101Section(db.Model):
+    __tablename__ = "vowels101_sections"
+
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String)
-    description = db.Column(db.Text)
-    lesson_mode_id = db.Column(db.Integer, db.ForeignKey("lesson_modes.id"), nullable=False)
-    type = db.Column(db.String, nullable=False)
-    
-    __mapper_args__ = {
-        'polymorphic_on': type,
-        'polymorphic_identity': 'lesson',
-    }
+    lesson_type_id = db.Column(db.Integer, db.ForeignKey("lesson_types.id"), nullable=False)
+    name = db.Column(db.String(32), nullable=False)  # e.g. 'tongue', 'lip', 'length'
+    slug = db.Column(db.String(64), nullable=False)
 
-class Vowels101Lesson(Lesson):
-    __tablename__ = "vowels_101_lessons"
-    __table_args__ = {"extend_existing": True}
-    
-    id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
-    content = db.Column(db.JSON)
-    
-    __mapper_args__ = {
-        'polymorphic_identity': 'vowels_101_lesson',
-    }
+    lesson_type = db.relationship("LessonType", back_populates="sections")
+    cells = db.relationship("VowelGridCell", back_populates="section", cascade="all, delete-orphan")
 
+    def __repr__(self):
+        return f"<Vowels101Section '{self.name}'>"
 
-class TrickyPairLesson(Lesson):
-    __tablename__ = "tricky_pair_lessons"
-    __table_args__ = {"extend_existing": True}
-    
-    id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
-    instructions = db.Column(db.Text)
-    content = db.Column(db.JSON)
-    
-    __mapper_args__ = {
-        'polymorphic_identity': 'tricky_pair_lesson',
-    }
+class VowelGridCell(db.Model):
+    __tablename__ = "vowel_grid_cells"
 
-class MapVowelSpaceLesson(Lesson):
-    __tablename__ = "map_vowel_space_lessons"
-    __table_args__ = {"extend_existing": True}
-    
-    id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
-    grid_data = db.Column(db.JSON, nullable=False)
-    
-    __mapper_args__ = {
-        'polymorphic_identity': 'map_vowel_space_lesson',
-    }
+    id = db.Column(db.Integer, primary_key=True)
+    section_id = db.Column(db.Integer, db.ForeignKey("vowels101_sections.id"), nullable=False)
 
-class GraphemeLesson(Lesson):
-    __tablename__ = "grapheme_lessons"
-    __table_args__ = {"extend_existing": True}
-    
-    id = db.Column(db.Integer, db.ForeignKey("lessons.id"), primary_key=True)
-    grapheme_data = db.Column(db.JSON, nullable=False)
-    
-    __mapper_args__ = {
-        'polymorphic_identity': 'grapheme_lesson',
-    }
+    row = db.Column(db.Integer, nullable=False)
+    col = db.Column(db.Integer, nullable=False)
 
+    lip_type = db.Column(db.String(16))     # Optional: 'rounded', 'unrounded'
+    length_type = db.Column(db.String(16))  # Optional: 'tense', 'lax', 'neither'
+
+    section = db.relationship("Vowels101Section", back_populates="cells")
+    vowels = db.relationship("Vowel", secondary=vowel_cell_map, back_populates="grid_cells")
+
+    def __repr__(self):
+        return f"<VowelGridCell section={self.section_id} row={self.row} col={self.col}>"

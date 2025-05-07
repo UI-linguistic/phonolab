@@ -6,18 +6,23 @@ from src.db import db
 class Vowel(db.Model):
     __tablename__ = "vowels"
 
+    # Vowel identity
     id = db.Column(db.String(32), primary_key=True)
     ipa = db.Column(db.String(8), unique=True, nullable=False)
-    description = db.Column(db.String(128), nullable=True)
-
     pronounced = db.Column(db.String(64), nullable=True)
     common_spellings = db.Column(JSON)
+
+    # Acoustic & articulatory details
     length = db.Column(db.String(16), nullable=True)
     lips = db.Column(db.String(64), nullable=True)
     tongue = db.Column(db.String(64), nullable=True)
+    description = db.Column(db.String(128), nullable=True)
 
+    # Media
     audio_url = db.Column(JSON)
-    mouth_image_url = db.Column(db.String(256), nullable=True)
+    lip_image_url = db.Column(db.String(256), nullable=True)
+    tongue_image_url = db.Column(db.String(256), nullable=True)
+
 
     # One-to-many: Vowel → WordExample
     examples = db.relationship(
@@ -25,6 +30,9 @@ class Vowel(db.Model):
         back_populates="vowel", 
         cascade="all, delete-orphan"
     )
+
+    grid_cells = db.relationship("VowelGridCell", secondary="vowel_cell_map", back_populates="vowels")
+
 
     # def get_word_examples(self, limit=None):
     #     """Get word examples for this vowel"""
