@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from cli.cli_runner import cli_runner
-from src.database.lesson import seed_vowels101_tongue_section_from_file
+from src.database.lesson import check_lip_shape_section_integrity, seed_vowels101_lip_section_from_file, seed_vowels101_tongue_section_from_file
 from src.app import create_app
 from src.app import Config
 from src.database.phoneme import (
@@ -11,7 +11,7 @@ from src.database.phoneme import (
     seed_all_phonemes_from_file, 
     seed_minimal_pairs_from_file
 )
-from src.utils.cli_response import cli_success, cli_error, cli_info, cli_warning
+from src.utils.cli_response import cli_success, cli_error, cli_warning
 from src.database.phoneme import check_word_vowel_relationship_integrity
 
 
@@ -69,6 +69,28 @@ def main():
         help="Path to the tongue position JSON grid file"
     )
 
+    # Lip shape seeding
+    seed_lip_parser = subparsers.add_parser(
+        "seed-lip",
+        help="Seed lip shape section from a JSON file",
+        description="Seeds lip shape grid (rounded vs unrounded)"
+    )
+    seed_lip_parser.add_argument(
+        "--json",
+        type=str,
+        default="src/data/lip_shape.json",
+        help="Path to lip shape JSON file"
+    )
+
+    # Lip shape integrity check
+    check_lip_parser = subparsers.add_parser(
+        "check-lip-shape",
+        help="Check that lip shape section content is valid",
+        description="Verifies that lip shape section contains expected vowels"
+    )
+    check_lip_parser.add_argument("--fail-fast", action="store_true")
+    check_lip_parser.add_argument("--silent", action="store_true")
+
 
     check_parser = subparsers.add_parser(
         "check-relations",
@@ -114,12 +136,21 @@ async def async_main(args, parser) -> int:
         return await handle_seed_minimal_pairs(args)
     elif args.command == "seed-tongue":
         return await handle_seed_tongue(args)
+    elif args.command == "seed-lip":
+        return await handle_seed_lip_shape(args)
+    elif args.command == "check-lip-shape":
+        return await handle_check_lip_shape(args)
+
     elif args.command == "reset-db":
         return await handle_reset_db(args)
 
     parser.print_help()
     return 0
 
+
+#
+# Seeding Operations
+#
 
 async def handle_seed(args):
     app = create_app()
@@ -169,6 +200,23 @@ async def handle_seed_tongue(args):
     return 0
 
 
+async def handle_seed_lip_shape(args):
+    app = create_app()
+    json_path = Path(args.json)
+
+    with app.app_context():
+        try:
+            seed_vowels101_lip_section_from_file(json_path)
+            cli_success("Lip Shape section seeded successfully.")
+        except Exception as e:
+            cli_error("Seeding lip shape section failed", details=str(e))
+            return 1
+    return 0
+
+
+#
+# Integrity Checks
+#
 
 async def handle_check_relations(args):
     app = create_app()
@@ -189,6 +237,22 @@ async def handle_check_minimal_pairs(args):
         )
         return 0 if result else 1
 
+
+async def handle_check_lip_shape(args):
+    app = create_app()
+
+    with app.app_context():
+        try:
+            result = check_lip_shape_section_integrity(verbose=not args.silent)
+            return 0 if result else 1
+        except Exception as e:
+            cli_error("Validation failed", details=str(e))
+            return 1
+
+
+#
+#  RESET DB
+#
 
 async def handle_reset_db(args):
     """Deletes the current database file to allow a fresh start."""

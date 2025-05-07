@@ -1,0 +1,22 @@
+{
+    "title": "Lip Shape",
+    "description": "Classify vowels by lip rounding",
+    "grid": {
+        "Rounded": [
+            "u",
+            "ʊ",
+            "o",
+            "ɔ"
+        ],
+        "Unrounded": [
+            "i",
+            "e",
+            "ɪ",
+            "æ",
+            "ɑ",
+            "ʌ",
+            "ə",
+            "ɛ"
+        ]
+    }
+}

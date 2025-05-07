@@ -134,3 +134,95 @@ def seed_vowels101_tongue_section_from_file(json_path: Path | str = "src/data/vo
                 insert_vowel_grid_cell(section_id=section.id, row=row_idx, col=col_idx, vowel_ids=ipa_values)
         db.session.commit()
     print("Tongue Position section seeded successfully.")
+
+
+def validate_vowels101_lip_json(data: dict):
+    if not isinstance(data, dict):
+        raise ValueError("Lip shape data must be a dictionary.")
+
+    for field in ["title", "grid"]:
+        if field not in data:
+            raise ValueError(f"Missing required field '{field}'.")
+
+    grid = data["grid"]
+    if not isinstance(grid, dict):
+        raise ValueError("'grid' must be a dictionary with keys like 'Rounded' and 'Unrounded'.")
+
+    for category, ipa_list in grid.items():
+        if not isinstance(ipa_list, list):
+            raise ValueError(f"'{category}' must map to a list.")
+        for ipa in ipa_list:
+            if not isinstance(ipa, str):
+                raise ValueError(f"IPA '{ipa}' under '{category}' must be a string.")
+
+
+def seed_vowels101_lip_section_from_file(json_path: Path | str = "src/data/lip_shape.json"):
+    json_path = Path(json_path)
+    if not json_path.exists():
+        raise FileNotFoundError(f"Lip shape JSON not found at: {json_path}")
+
+    with json_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    validate_vowels101_lip_json(data)
+
+    all_ipa = set()
+    for ipa_list in data["grid"].values():
+        all_ipa.update(ipa_list)
+
+    missing = [ipa for ipa in all_ipa if not Vowel.query.filter_by(ipa=ipa).first()]
+    if missing:
+        raise ValueError(f"Missing IPA symbols in database: {', '.join(missing)}")
+
+    lesson_type = get_or_create_lesson_type(
+        slug="vowels-101",
+        name="Vowels 101",
+        description="Master those slippery English vowels"
+    )
+
+    section = insert_vowels101_section(name="Lip Shape", slug="lip", lesson_type_id=lesson_type.id)
+
+    for col_idx, category in enumerate(["Unrounded", "Rounded"]):  # left-to-right: unrounded, rounded
+        ipa_list = data["grid"].get(category, [])
+        insert_vowel_grid_cell(
+            section_id=section.id,
+            row=0,
+            col=col_idx,
+            vowel_ids=ipa_list
+        )
+
+    db.session.commit()
+    print("Lip Shape section seeded successfully.")
+
+
+def check_lip_shape_section_integrity(verbose: bool = True) -> bool:
+    """
+    Ensures the Lip Shape section is seeded correctly.
+    Returns True if valid, False otherwise.
+    """
+    success = True
+    expected_slug = "lip"
+    expected_categories = ["Unrounded", "Rounded"]
+
+    section = Vowels101Section.query.filter_by(slug=expected_slug).first()
+    if not section:
+        if verbose:
+            print(f"Section with slug '{expected_slug}' not found.")
+        return False
+
+    if verbose:
+        print(f"Found section '{section.name}' (slug='{section.slug}')")
+
+    cells = section.cells
+    if len(cells) != 2:
+        print(f"Expected 2 grid cells (1 row, 2 cols), found {len(cells)}")
+        success = False
+
+    for cell in cells:
+        col_label = expected_categories[cell.col] if cell.col < len(expected_categories) else f"col {cell.col}"
+        if verbose:
+            print(f"Cell col={cell.col} ({col_label}) has {len(cell.vowels)} vowels")
+            for v in cell.vowels:
+                print(f"    - {v.ipa} ({v.id})")
+
+    return success
