@@ -53,26 +53,32 @@ class WordExample(db.Model):
         return f"<WordExample word='{self.word}' vowel_id='{self.vowel_id}'>"
 
 
-class TrickyPair(db.Model):
-    __tablename__ = "tricky_pairs"
+class MinimalPair(db.Model):
+    __tablename__ = "minimal_pairs"
 
     id = db.Column(db.Integer, primary_key=True)
 
-    word_a = db.Column(db.String(64), nullable=False) # e.g. "pit"
-    word_b = db.Column(db.String(64), nullable=False) # e.g. "pet"
+    # The actual word pair (e.g. "pit" vs "pet")
+    word_a = db.Column(db.String(64), nullable=False)
+    word_b = db.Column(db.String(64), nullable=False)
 
-    vowel_a = db.Column(db.String(8), nullable=False) # e.g. "ɪ"
-    vowel_b = db.Column(db.String(8), nullable=False) # e.g. "ɛ"
+    # The contrasting vowel sounds (e.g. "ɪ" vs "ɛ")
+    vowel_a = db.Column(db.String(8), nullable=False)
+    vowel_b = db.Column(db.String(8), nullable=False)
 
     audio_a = db.Column(db.String(256))
     audio_b = db.Column(db.String(256))
 
-    description = db.Column(db.String(256))  # (e.g. "ɪ vs ɛ distinction")
-    category = db.Column(db.String(64))     # ("vowel height", etc.)
+    # Optional 
+    description = db.Column(db.String(256))  # e.g. "ɪ vs ɛ distinction"
+    category = db.Column(db.String(64))      # e.g. "vowel height"
 
     __table_args__ = (
-        db.UniqueConstraint("word_a", "word_b", name="uq_tricky_pair_wordpair"),
+        db.UniqueConstraint("word_a", "word_b", name="uq_minimal_pair_wordpair"),
     )
+
+    def __repr__(self):
+        return f"<MinimalPair '{self.word_a}' vs '{self.word_b}'>"
 
 
 class SeedingStats:

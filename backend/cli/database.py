@@ -90,4 +90,3 @@ async def handle_check_relations(args):
             fail_fast=args.fail_fast
         )
         return 0 if result else 1
-
