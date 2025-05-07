@@ -115,39 +115,56 @@ def seed_all_phonemes_from_file(json_path: Path | str = "src/data/phonemes.json"
     stats.log()
 
 
-def check_word_vowel_relationship_integrity(verbose: bool = False) -> bool:
+def check_word_vowel_relationship_integrity(verbose: bool = False, fail_fast: bool = False) -> bool:
     """
     Verify that every WordExample has a valid vowel relationship.
+
     Returns True if all are valid, False if any broken/missing links are found.
+    If `fail_fast` is True, stops at the first issue.
     """
     broken = []
 
     all_words = WordExample.query.all()
     for word in all_words:
         if not word.vowel_id:
-            broken.append((word.word, "Missing vowel_id"))
+            msg = f"Missing vowel_id"
+            if verbose:
+                print(f"   - '{word.word}': {msg}")
+            if fail_fast:
+                return False
+            broken.append((word.word, msg))
             continue
 
         try:
             if not word.vowel:
-                broken.append((word.word, f"No vowel relation for ID {word.vowel_id}"))
+                msg = f"No vowel relation for ID {word.vowel_id}"
+                if verbose:
+                    print(f"   - '{word.word}': {msg}")
+                if fail_fast:
+                    return False
+                broken.append((word.word, msg))
         except DetachedInstanceError:
-            broken.append((word.word, f"Detached relation for ID {word.vowel_id}"))
+            msg = f"Detached relation for ID {word.vowel_id}"
+            if verbose:
+                print(f"   - '{word.word}': {msg}")
+            if fail_fast:
+                return False
+            broken.append((word.word, msg))
 
-    if not broken:
-        print("✅ All WordExamples have valid vowel relationships.")
-        return True
+    if broken:
+        print(f"Found {len(broken)} WordExamples with invalid vowel links.")
+        if verbose:
+            for word, reason in broken:
+                print(f"   - '{word}': {reason}")
+        return False
 
-    print(f"❌ Found {len(broken)} WordExamples with invalid vowel links:")
     if verbose:
-        for word, reason in broken:
-            print(f"   - '{word}': {reason}")
-    return False
+        print("All WordExamples have valid vowel relationships.")
+    return True
 
 
 
-
-# @handle_file_operation("load phonemes from JSON")
+# @handle_file_operation("validate vowel data")
 # def load_phonemes_from_json(json_path: Optional[str] = None) -> Dict:
 #     """
 #     Load phoneme data from the phonemes.json file.

@@ -1,4 +1,5 @@
 import argparse
+import os
 from pathlib import Path
 
 from cli.cli_runner import cli_runner
@@ -35,10 +36,23 @@ def main():
         default="src/data/phonemes.json",
         help="Path to phoneme JSON file"
     )
+
     check_parser = subparsers.add_parser(
         "check-relations",
-        help="Check that all WordExamples are linked to valid Vowel entries"
+        help="Check that all WordExamples are linked to valid Vowel entries",
+        description="Validates referential integrity between WordExample and Vowel"
     )
+    check_parser.add_argument(
+        "--fail-fast",
+        action="store_true",
+        help="Stop on first error instead of continuing"
+    )
+    check_parser.add_argument(
+        "--silent",
+        action="store_true",
+        help="Suppress verbose output"
+    )
+
 
     cli_runner(parser, async_main)
 
@@ -71,5 +85,9 @@ async def handle_seed(args):
 async def handle_check_relations(args):
     app = create_app()
     with app.app_context():
-        result = check_word_vowel_relationship_integrity(verbose=True)
+        result = check_word_vowel_relationship_integrity(
+            verbose=not args.silent,
+            fail_fast=args.fail_fast
+        )
         return 0 if result else 1
+
