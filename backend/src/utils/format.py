@@ -1,170 +1,118 @@
 from flask import jsonify
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 
-def success_response(message: str = "Success", data: dict = None, status_code: int = 200):
+def success_response(
+    message: str = "Success", 
+    data: Optional[Union[Dict, List, Any]] = None, 
+    status_code: int = 200,
+    meta: Optional[Dict] = None
+) -> Tuple:
     """
     Return a standardized success response.
+    
+    Args:
+        message: Human-readable success message
+        data: The main payload to return
+        status_code: HTTP status code
+        meta: Optional metadata (pagination, etc.)
+    
+    Returns:
+        Tuple of (JSON response, status code)
     """
-    payload = {"status": "success", "message": message}
+    payload = {
+        "status": "success", 
+        "message": message
+    }
+    
     if data is not None:
         payload["data"] = data
+        
+    if meta is not None:
+        payload["meta"] = meta
+        
     return jsonify(payload), status_code
 
-
-def error_response(message: str = "An error occurred", status_code: int = 400, errors: dict = None):
+def error_response(
+    message: str = "An error occurred", 
+    status_code: int = 400, 
+    errors: Optional[Dict] = None,
+    error_code: Optional[str] = None
+) -> Tuple:
     """
     Return a standardized error response.
+    
+    Args:
+        message: Human-readable error message
+        status_code: HTTP status code
+        errors: Detailed error information (field-specific errors, etc.)
+        error_code: Optional application-specific error code
+    
+    Returns:
+        Tuple of (JSON response, status code)
     """
-    payload = {"status": "error", "message": message}
+    payload = {
+        "status": "error", 
+        "message": message
+    }
+    
     if errors:
         payload["errors"] = errors
+        
+    if error_code:
+        payload["error_code"] = error_code
+        
     return jsonify(payload), status_code
 
-
-def format_quiz_http(quiz) -> dict | None:
+def not_found_response(
+    resource_type: str = "Resource",
+    resource_id: Optional[str] = None
+) -> Tuple:
     """
-    Formats a QuizItem object into the structure expected by the frontend.
-
+    Return a standardized 404 Not Found response.
+    
     Args:
-        quiz (QuizItem): The quiz instance to be formatted.
-
+        resource_type: Type of resource that wasn't found (e.g., "Lesson", "Quiz")
+        resource_id: Optional identifier that was searched for
+    
     Returns:
-        dict | None: A dictionary matching the frontend quiz schema,
-                     or None if the quiz does not exist.
+        Tuple of (JSON response, 404 status code)
     """
-    if not quiz:
-        return None
+    message = f"{resource_type} not found"
+    if resource_id:
+        message = f"{resource_type} with identifier '{resource_id}' not found"
+        
+    return error_response(message=message, status_code=404)
 
-    correct_options = [opt for opt in quiz.options if opt.is_correct]
-    wrong_options = [opt for opt in quiz.options if not opt.is_correct]
 
+#
+# Lesson formatting
+#
+
+def format_lesson_mode_response(lesson_mode) -> Dict:
+    """Format a lesson mode for API response."""
     return {
-        "id": quiz.id,
-        "target": quiz.prompt_ipa,
-        "samples": [
-            {
-                "text": quiz.prompt_word,
-                "IPA": quiz.prompt_ipa,
-                "audio": quiz.prompt_audio_url
-            }
-        ],
-        "options_pool": {
-            "correct_answers": [
-                {
-                    "language": opt.language or "Unknown",
-                    "word": opt.word,
-                    "IPA": opt.ipa,
-                    "audio": opt.audio_url
-                }
-                for opt in correct_options
-            ],
-            "wrong_answers": [
-                {
-                    "language": opt.language or "Unknown",
-                    "word": opt.word,
-                    "IPA": opt.ipa,
-                    "audio": opt.audio_url
-                }
-                for opt in wrong_options
-            ]
-        },
-        "feedback": {
-            "correct": quiz.feedback_correct or "Well done!",
-            "incorrect": quiz.feedback_incorrect or "Try again."
-        }
+        'id': lesson_mode.id,
+        'name': lesson_mode.name,
+        'slug': lesson_mode.slug,
+        'description': lesson_mode.description
     }
 
+def format_lesson_modes_response(lesson_modes) -> List[Dict]:
+    """Format multiple lesson modes for API response."""
+    return [format_lesson_mode_response(mode) for mode in lesson_modes]
 
-def format_lesson_http(lesson) -> dict | None:
-    """
-    Formats a Lesson object into the structure expected by the HTTP client.
-
-    Args:
-        lesson (Lesson): The lesson instance to be formatted.
-
-    Returns:
-        dict | None: A dictionary matching the HTTP client lesson schema,
-                     or None if the lesson does not exist.
-    """
-    if not lesson:
-        return None
-
-    # base lesson data
-    formatted = {
-        "id": lesson.id,
-        "title": lesson.title,
-        "description": lesson.description,
-        "lesson_type": lesson.lesson_type,
-        "content": lesson.content
-    }
-
-    # vowel data if present
-    if lesson.vowel:
-        formatted["vowel"] = {
-            "id": lesson.vowel.id,
-            "phoneme": lesson.vowel.phoneme,
-            "name": lesson.vowel.name,
-            "audio_url": lesson.vowel.audio_url,
-            "mouth_image_url": lesson.vowel.mouth_image_url
-        }
-
-    # interactions
-    formatted["interactions"] = [
-        {
-            "type": interaction.interaction_type,
-            "config": interaction.config
-        }
-        for interaction in lesson.interactions
-    ]
-
-    return formatted
-
-
-def format_lessons_http(lessons) -> list:
-    """
-    Formats a list of Lesson objects into the structure expected by the frontend.
-
-    Args:
-        lessons (List[Lesson]): The list of lesson instances to be formatted.
-
-    Returns:
-        list: A list of dictionaries matching the frontend lesson schema.
-    """
-    return [format_lesson_http(lesson) for lesson in lessons if lesson.vowel]
-
-
-def format_quiz_attempt_http(attempt) -> dict:
-    """
-    Formats a QuizAttempt object into the structure expected by the HTTP client.
-
-    Args:
-        attempt (QuizAttempt): The quiz attempt to format
-
-    Returns:
-        dict: A dictionary with the formatted quiz attempt data
-    """
-    percentage = (attempt.score / attempt.total * 100) if attempt.total > 0 else 0
-
+def format_lesson_response(lesson) -> Dict:
+    """Format a lesson for API response."""
     return {
-        "status": "success",
-        "attempt_id": attempt.id,
-        "score": attempt.score,
-        "total": attempt.total,
-        "percentage": percentage
-    }
-
-
-def format_session_http(session) -> dict:
-    """
-    Formats a UserSession object into the structure expected by the HTTP client.
-
-    Args:
-        session (UserSession): The session to format
-
-    Returns:
-        dict: A dictionary with the formatted session data
-    """
-    return {
-        "session_id": session.session_id,
-        "started_at": session.started_at.isoformat()
+        'id': lesson.id,
+        'title': lesson.title,
+        'description': lesson.description,
+        'lesson_mode': {
+            'id': lesson.lesson_mode.id,
+            'name': lesson.lesson_mode.name,
+            'slug': lesson.lesson_mode.slug
+        } if lesson.lesson_mode else None,
+        'content': lesson.content,
+        'type': lesson.type
     }

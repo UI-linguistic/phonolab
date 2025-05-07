@@ -1042,8 +1042,67 @@ def seed_vowels_101_lesson(map_variable: tuple[str, str, str]) -> LessonMode:
 def seed_map_vowel_space_lesson():
     pass
 
-def seed_get_your_graphenes_right_lesson():
+
+def seed_get_your_graphemes_right_lesson():
     pass
+
+
+
+def preview_tricky_pairs_lesson(map_variable: tuple[str, str, str]):
+    """
+    Simulates seeding the Tricky Pairs lesson mode by printing the lesson JSON structure.
+    No database actions are performed.
+    """
+    name, slug, _ = map_variable
+
+    print(f"{Fore.CYAN}🔧 Building lesson content for: {name} ({slug})\n{Style.RESET_ALL}")
+    content = build_tricky_pairs_lesson_content()
+
+    lesson_preview = {
+        "title": name,
+        "description": "Learn to distinguish between similar-sounding vowels with minimal pairs.",
+        "lesson_mode_slug": slug,
+        "content": content,
+        "type": "tricky_pairs"
+    }
+
+    print(f"{Fore.YELLOW}📦 TrickyPairLesson JSON Preview:\n{Style.RESET_ALL}")
+    print(json.dumps(lesson_preview, indent=2, ensure_ascii=False))
+
+    # Save to file for review/debug
+    export_preview_to_file(lesson_preview, "tricky_pairs", DATA_DIR)
+
+    
+
+
+def build_tricky_pairs_lesson_content() -> dict:
+    """
+    Builds the Tricky Pairs lesson content focusing only on the 'fill' vs 'feel' pair.
+    """
+    pair = TrickyPair.query.filter_by(word_a="fill", word_b="feel").first()
+
+    if not pair:
+        print("⚠️ Could not find tricky pair: 'fill' vs 'feel'.")
+        return {}
+
+    return {
+        "title": "Tricky Minimal Pairs",
+        "caption": "Some vowel sounds are easily confused. Let's learn the difference!",
+        "pairs": [
+            {
+                "word_a": pair.word_a,
+                "word_b": pair.word_b,
+                "vowel_a": pair.vowel_a,
+                "vowel_b": pair.vowel_b,
+                "audio_a": pair.audio_a,
+                "audio_b": pair.audio_b,
+                "tip": pair.description or "These vowels differ in tongue height and tenseness.",
+                "category": pair.category or "tense vs lax"
+            }
+        ]
+    }
+
+
 
 def seed_tackle_tricky_pairs_lesson(): 
     pass
@@ -1078,8 +1137,11 @@ def run_all_seeds():
         # print(f"{Fore.CYAN}Seeding tricky vowel pairs...{Style.RESET_ALL}")
         # seed_tricky_pairs(json_path=TRICKY_PAIRS_PATH, phoneme_path=PHONEMES_PATH)
 
-        print(f"{Fore.MAGENTA}📦 Previewing Vowels 101 lesson...{Style.RESET_ALL}")
-        seed_vowels_101_lesson(LESSON_MODE_MAP["VOWELS_101"])
+        # print(f"{Fore.MAGENTA}📦 Previewing Vowels 101 lesson...{Style.RESET_ALL}")
+        # seed_vowels_101_lesson(LESSON_MODE_MAP["VOWELS_101"])
+
+        print(f"{Fore.MAGENTA}📦 Previewing Tricky Pairs lesson...{Style.RESET_ALL}")
+        preview_tricky_pairs_lesson(LESSON_MODE_MAP["TACKLE_TRICKY_PAIRS"])
 
         print("✅ All seeding operations completed.")
 

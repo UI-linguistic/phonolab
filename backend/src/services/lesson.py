@@ -5,6 +5,89 @@
 # from src.utils.error_handling import handle_db_operation
 # from src.models.user import CompletedLesson
 # from src.models.lesson import Lesson, LessonInteraction, LessonType
+from typing import Dict, List, Optional, Tuple
+from src.models.lesson import LessonMode, VowelLesson
+from utils.error_handling import handle_service_errors
+from utils.format import format_lesson_modes_response, format_lesson_response
+from models.lesson import Lesson
+
+
+@handle_service_errors("get all lesson modes")
+def get_all_lesson_modes() -> List[Dict]:
+    """
+    Get all lesson modes with proper formatting.
+    
+    Returns:
+        List of formatted lesson mode dictionaries
+    """
+    lesson_modes = LessonMode.query.all()
+    return format_lesson_modes_response(lesson_modes)
+
+@handle_service_errors("get lesson by slug")
+def get_lesson_by_slug(slug: str) -> Dict:
+    """
+    Get a lesson by its slug.
+    
+    Args:
+        slug: The lesson mode slug to look up
+        
+    Returns:
+        Formatted lesson dictionary
+    """
+    lesson_mode = LessonMode.query.filter_by(slug=slug).first()
+    if not lesson_mode:
+        return None
+    
+    lesson = VowelLesson.query.filter_by(lesson_mode_id=lesson_mode.id).first()
+    if not lesson:
+        return None
+    
+    return format_lesson_response(lesson)
+
+@handle_service_errors("get lesson by ID")
+def get_lesson_by_id(lesson_id: int) -> Tuple[Optional[Dict], Optional[str], Optional[str]]:
+    """
+    Get any type of lesson by its ID with minimal processing.
+    
+    Args:
+        lesson_id: The numeric ID of the lesson
+        
+    Returns:
+        Tuple of (lesson_data, error_message, error_type)
+    """
+    lesson = Lesson.query.get(lesson_id)
+    if not lesson:
+        return None
+    return lesson_to_dict(lesson)
+
+def lesson_to_dict(lesson):
+    """
+    Convert a lesson object to a dictionary, handling SQLAlchemy relationships.
+    This is a minimal conversion that preserves the structure already in the database.
+    """
+
+    result = {
+        'id': lesson.id,
+        'title': lesson.title,
+        'description': lesson.description,
+        'type': lesson.type,
+        'content': lesson.content
+    }
+
+    if lesson.lesson_mode:
+        result['lesson_mode'] = {
+            'id': lesson.lesson_mode.id,
+            'name': lesson.lesson_mode.name,
+            'slug': lesson.lesson_mode.slug,
+            'description': lesson.lesson_mode.description
+        }
+    
+    return result
+
+
+
+
+
 
 
 # # --- Lesson CRUD Operations ---
