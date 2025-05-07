@@ -4,7 +4,11 @@ from pathlib import Path
 
 from cli.cli_runner import cli_runner
 from src.app import create_app
-from src.database.phoneme import check_minimal_pair_integrity, seed_all_phonemes_from_file, seed_minimal_pairs_from_file
+from src.database.phoneme import (
+    check_minimal_pair_integrity, 
+    seed_all_phonemes_from_file, 
+    seed_minimal_pairs_from_file
+)
 from src.utils.cli_format import success_response, error_response
 from src.database.phoneme import check_word_vowel_relationship_integrity
 
@@ -17,6 +21,8 @@ def main():
                "  database seed --json src/data/phonemes.json  # Seed with custom path\n",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
+
+    parser.set_defaults(command=None)
 
     subparsers = parser.add_subparsers(
         dest="command",
@@ -68,7 +74,7 @@ def main():
 
     check_minimal_parser = subparsers.add_parser(
         "check-minimal-pairs",
-        help="Check logical integrity of MinimalPair entries",
+        help="Check that all MinimalPairs are valid and logically consistent",
         description="Validate minimal pair entries for internal consistency"
     )
     check_minimal_parser.add_argument("--fail-fast", action="store_true")
@@ -90,7 +96,6 @@ async def async_main(args, parser) -> int:
 
     parser.print_help()
     return 0
-
 
 
 async def handle_seed(args):
@@ -121,7 +126,6 @@ async def handle_seed_minimal_pairs(args):
             return 1
 
     return 0
-
 
 
 async def handle_check_relations(args):
