@@ -251,3 +251,47 @@ def seed_minimal_pairs_from_file(json_path: Path | str = "src/data/minimal_pairs
     db.session.commit()
     stats.log()
 
+
+def check_minimal_pair_integrity(verbose: bool = False, fail_fast: bool = False) -> bool:
+    """
+    Check that all MinimalPair entries are logically valid:
+    - word_a != word_b
+    - vowel_a != vowel_b
+    - no missing required fields
+    """
+    issues = []
+
+    pairs = MinimalPair.query.all()
+    for pair in pairs:
+        if pair.word_a == pair.word_b:
+            msg = f"Identical words: '{pair.word_a}' vs '{pair.word_b}'"
+            if verbose:
+                print(f"{msg}")
+            if fail_fast:
+                return False
+            issues.append(msg)
+
+        if pair.vowel_a == pair.vowel_b:
+            msg = f"Identical vowels: '{pair.vowel_a}' in pair '{pair.word_a}' vs '{pair.word_b}'"
+            if verbose:
+                print(f"{msg}")
+            if fail_fast:
+                return False
+            issues.append(msg)
+
+        for field in ["word_a", "word_b", "vowel_a", "vowel_b"]:
+            if not getattr(pair, field):
+                msg = f"Missing field '{field}' in pair ID {pair.id}"
+                if verbose:
+                    print(f"{msg}")
+                if fail_fast:
+                    return False
+                issues.append(msg)
+
+    if issues:
+        print(f"Found {len(issues)} issue(s) in minimal pair integrity.")
+        return False
+
+    if verbose:
+        print("All MinimalPair entries passed integrity check.")
+    return True
