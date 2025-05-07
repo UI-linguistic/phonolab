@@ -33,14 +33,6 @@ class Vowel(db.Model):
 
     grid_cells = db.relationship("VowelGridCell", secondary="vowel_cell_map", back_populates="vowels")
 
-
-    # def get_word_examples(self, limit=None):
-    #     """Get word examples for this vowel"""
-    #     query = WordExample.query.filter_by(vowel_id=self.id)
-    #     if limit:
-    #         query = query.limit(limit)
-    #     return query.all()
-
     def __repr__(self):
         return f"<Vowel id={self.id} ipa='{self.ipa}'>"
 

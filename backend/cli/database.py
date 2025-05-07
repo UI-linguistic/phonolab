@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from cli.cli_runner import cli_runner
-from database.lesson import seed_vowels101_tongue_section_from_file
+from src.database.lesson import seed_vowels101_tongue_section_from_file
 from src.app import create_app
 from src.app import Config
 from src.database.phoneme import (
@@ -100,8 +100,6 @@ def main():
         description="⚠ Destroys the SQLite DB file completely. Use with caution."
     )
 
-
-
     cli_runner(parser, async_main)
 
 
@@ -159,10 +157,17 @@ async def handle_seed_tongue(args):
         try:
             seed_vowels101_tongue_section_from_file(args.json)
             cli_success("Tongue Position section seeded successfully.")
+        except FileNotFoundError as e:
+            cli_error("File not found", details=str(e))
+            return 1
+        except ValueError as ve:
+            cli_error("Validation failed", details=str(ve))
+            return 1
         except Exception as e:
             cli_error("Failed to seed tongue section", details=str(e))
             return 1
     return 0
+
 
 
 async def handle_check_relations(args):

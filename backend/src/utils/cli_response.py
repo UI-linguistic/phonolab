@@ -8,7 +8,7 @@ console = Console()
 
 def cli_success(message: str, data: Optional[Any] = None):
     """Print a success message with optional data."""
-    console.print(Panel(Text(message, style="bold green"), title="✔ SUCCESS", border_style="green"))
+    console.print(Panel(Text(message, style="bold white"), title="✔ SUCCESS", border_style="green"))
     if data is not None:
         console.print(data)
 

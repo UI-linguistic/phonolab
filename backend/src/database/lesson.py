@@ -26,12 +26,31 @@ def validate_vowels101_tongue_json(data: dict):
         if field not in data:
             raise ValueError(f"Missing required field '{field}' in JSON.")
 
+    allowed_heights = {"High", "Mid", "Low"}
+    allowed_columns = {"Front", "Central", "Back"}
+
     for row in data["grid"]:
         if "row" not in row or "columns" not in row:
             raise ValueError("Each grid row must have 'row' and 'columns' keys.")
 
-        if not isinstance(row["columns"], dict):
+        if not isinstance(row["row"], str):
+            raise ValueError(f"'row' must be a string (e.g. 'High'). Got: {type(row['row'])}")
+        if row["row"] not in allowed_heights:
+            raise ValueError(f"Unknown row label '{row['row']}'. Expected one of {sorted(allowed_heights)}.")
+
+        columns = row["columns"]
+        if not isinstance(columns, dict):
             raise ValueError(f"'columns' must be a dict in row: {row}")
+
+        for col_name, ipa_list in columns.items():
+            if col_name not in allowed_columns:
+                raise ValueError(f"Unknown column '{col_name}'. Expected one of {sorted(allowed_columns)}.")
+
+            if not isinstance(ipa_list, list):
+                raise ValueError(f"'{col_name}' in row '{row['row']}' must be a list.")
+            for ipa in ipa_list:
+                if not isinstance(ipa, str):
+                    raise ValueError(f"IPA value '{ipa}' in column '{col_name}' must be a string.")
 
 
 @safe_db_op(default=None, error_message="Failed to get or create LessonType")
@@ -83,6 +102,15 @@ def seed_vowels101_tongue_section_from_file(json_path: Path | str = "src/data/vo
 
     validate_vowels101_tongue_json(data)
 
+    all_ipa = set()
+    for row in data["grid"]:
+        for ipa_list in row["columns"].values():
+            all_ipa.update(ipa_list)
+
+    missing = [ipa for ipa in all_ipa if not Vowel.query.filter_by(ipa=ipa).first()]
+    if missing:
+        raise ValueError(f"Missing IPA symbols in database: {', '.join(missing)}")
+
     lesson_type = get_or_create_lesson_type(
         slug="vowels-101",
         name="Vowels 101",
@@ -92,11 +120,17 @@ def seed_vowels101_tongue_section_from_file(json_path: Path | str = "src/data/vo
     section = insert_vowels101_section(name="Tongue Position", slug="tongue", lesson_type_id=lesson_type.id)
 
     col_map = ["Front", "Central", "Back"]
-    for row_idx, row_data in enumerate(data["grid"]):
+    height_order = ["High", "Mid", "Low"]
+
+    for row_data in data["grid"]:
+        row_label = row_data["row"]
+        if row_label not in height_order:
+            raise ValueError(f"Unknown row label: '{row_label}' (expected one of {height_order})")
+        row_idx = height_order.index(row_label)
+
         for col_idx, col_name in enumerate(col_map):
             ipa_values = row_data["columns"].get(col_name, [])
             if ipa_values:
                 insert_vowel_grid_cell(section_id=section.id, row=row_idx, col=col_idx, vowel_ids=ipa_values)
-
-    db.session.commit()
+        db.session.commit()
     print("Tongue Position section seeded successfully.")

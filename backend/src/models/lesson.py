@@ -3,11 +3,14 @@
 from src.db import db
 
 
-vowel_cell_map = db.Table(
-    "vowel_cell_map",
-    db.Column("vowel_id", db.String, db.ForeignKey("vowels.id"), primary_key=True),
-    db.Column("cell_id", db.Integer, db.ForeignKey("vowel_grid_cells.id"), primary_key=True),
-)
+if "vowel_cell_map" not in db.metadata.tables:
+    vowel_cell_map = db.Table(
+        "vowel_cell_map",
+        db.Column("vowel_id", db.String, db.ForeignKey("vowels.id"), primary_key=True),
+        db.Column("cell_id", db.Integer, db.ForeignKey("vowel_grid_cells.id"), primary_key=True),
+    )
+else:
+    vowel_cell_map = db.metadata.tables["vowel_cell_map"]
 
 
 class LessonType(db.Model):

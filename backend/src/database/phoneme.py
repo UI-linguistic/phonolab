@@ -60,7 +60,6 @@ def insert_vowel_if_not_exists(vowel_data: dict, stats: SeedingStats | None = No
         tongue=tongue,
         description=vowel_data.get("description"),
         audio_url=vowel_data.get("audio_url", []),
-        mouth_image_url=vowel_data.get("mouth_image_url"),
         lip_image_url=lip_image_url,
         tongue_image_url=tongue_image_url,
     )
@@ -108,30 +107,37 @@ def validate_phoneme_data(phoneme_data: dict):
 
     seen_words = set()
     required_vowel_fields = ["id", "ipa"]
+
     optional_str_fields = [
-        "pronounced", "length", "lips", "tongue",
+        "pronounced", "length", 
         "mouth_image_url", "lip_image_url", "tongue_image_url", "description"
     ]
     optional_list_fields = ["common_spellings", "audio_url"]
+    optional_list_or_str_fields = ["lips", "tongue"]
 
     for symbol, data in phoneme_data.items():
         if not isinstance(data, dict):
             raise ValueError(f"Entry for symbol '{symbol}' must be a dict.")
 
-        # Validate required fields
+        # Required fields
         for field in required_vowel_fields:
             if field not in data or not isinstance(data[field], str):
                 raise ValueError(f"Missing or invalid field '{field}' in vowel '{symbol}'")
 
-        # Validate optional string fields
+        # Optional string-only fields
         for field in optional_str_fields:
             if field in data and not isinstance(data[field], str):
                 raise ValueError(f"Field '{field}' in vowel '{symbol}' must be a string.")
 
-        # Validate optional list fields
+        # Optional list-only fields
         for field in optional_list_fields:
             if field in data and not isinstance(data[field], list):
                 raise ValueError(f"Field '{field}' in vowel '{symbol}' must be a list.")
+
+        # Optional fields that can be list or string
+        for field in optional_list_or_str_fields:
+            if field in data and not isinstance(data[field], (str, list)):
+                raise ValueError(f"Field '{field}' in vowel '{symbol}' must be a string or list.")
 
         # Validate word examples
         if "word_examples" in data:

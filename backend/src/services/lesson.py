@@ -1,7 +1,7 @@
 """
 Service functions for lesson-related operations.
 """
-from models.lesson import LessonType
+from src.models.lesson import LessonType
 from src.database.lesson import (
     get_all_lesson_types as db_get_all_lesson_types,
     get_lesson_type_by_id as db_get_lesson_type_by_id
