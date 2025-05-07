@@ -2,6 +2,7 @@
 import os
 
 from dotenv import load_dotenv
+from flask import app
 
 load_dotenv()
 
@@ -30,6 +31,17 @@ class Config:
     CACHE_REDIS_DB = int(os.getenv("CACHE_REDIS_DB", 0))
     CACHE_REDIS_URL = os.getenv("CACHE_REDIS_URL", "redis://localhost:6379/0")
 
+
+    # Static file paths
+    STATIC_DIR = os.path.join(BASE_DIR, "static")
+    VOWEL_AUDIO_DIR = os.path.join(STATIC_DIR, "audio/vowels")
+    WORD_EX_AUDIO_DIR = os.path.join(STATIC_DIR, "audio/word_examples")
+    
+    # Data file paths
+    DATA_DIR = os.path.join(BASE_DIR, "src", "data")
+    VOWEL_JSON_PATH = os.path.join(DATA_DIR, "lesson.json")
+    TRICKY_PAIRS_PATH = os.path.join(DATA_DIR, "tricky_pairs.json")
+    PHONEMES_PATH = os.path.join(DATA_DIR, "phonemes.json")
 
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
