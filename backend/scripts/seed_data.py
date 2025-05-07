@@ -8,7 +8,7 @@ import re
 from typing import Dict, List
 
 from colorama import Fore, Style
-from models.lesson import LessonMode, VowelLesson
+from models.lesson import LessonMode, Vowels101Lesson
 from models.phoneme import TrickyPair, Vowel, WordExample
 from src.app import create_app
 import json
@@ -108,24 +108,24 @@ LENGTH_MAP = {
 LessonModeMeta = namedtuple("LessonModeMeta", ["name", "slug", "description"])
 
 LESSON_MODE_MAP = {
-    "VOWELS_101": LessonModeMeta(
+    "VOWELS_101_LESSON": LessonModeMeta(
         name="Vowels 101",
-        slug="vowels-101",
+        slug="vowels-101-lesson",
         description="Learn about tongue position, lip shape, and vowel length."
     ),
-    "MAP_VOWEL_SPACE": LessonModeMeta(
+    "MAP_VOWEL_SPACE_LESSON": LessonModeMeta(
         name="Map the Vowel Space",
-        slug="map-vowel-space",
+        slug="map-vowel-space-lesson",
         description="Explore vowels on a visual vowel chart to understand tongue height and backness."
     ),
-    "GET_YOUR_GRAPHEMES_RIGHT": LessonModeMeta(
+    "GRAPHEME_LESSON": LessonModeMeta(
         name="Get Your Graphemes Right",
-        slug="get-your-graphemes-right",
+        slug="grapheme-lesson",
         description="Match spelling patterns to their corresponding vowel sounds."
     ),
-    "TACKLE_TRICKY_PAIRS": LessonModeMeta(
+    "TRICKY_PAIR_LESSON": LessonModeMeta(
         name="Tackle Tricky Pairs",
-        slug="tackle-tricky-pairs",
+        slug="tricky-pair-lesson",
         description="Practice distinguishing between similar-sounding vowels."
     )
 }
@@ -588,14 +588,143 @@ def build_phoneme_schemas(
 def commit_phonemes(
     audio_dir: str = VOWEL_AUDIO_DIR,
     vowel_json_path: str = VOWEL_JSON_PATH,
+) -> Dict[str, Vowel]:
+    """
+    Extracts vowel data from audio files and lesson JSON, then commits to database.
+    
+    Args:
+        audio_dir: Directory containing vowel audio files
+        vowel_json_path: Path to the lesson JSON file with vowel data
+        
+    Returns:
+        Dictionary mapping vowel IDs to their SQLAlchemy objects
+    """
+    # Phase 1: Extract basic vowel info from audio files
+    vowel_dict = {}
+    vowel_objects = {}  # To store the SQLAlchemy objects by ID
+    
+    for filename in os.listdir(audio_dir):
+        if filename.endswith(".mp3"):
+            info = extract_vowel_info_mp3(filename)
+            if info:
+                ipa = info["ipa"]
+                vowel_dict[ipa] = info
+    
+    # Phase 2: Merge with lesson JSON to get additional data
+    vowel_dict = merge_with_lesson_json(vowel_dict, vowel_json_path)
+    
+    # Phase 3: Create and commit all vowel objects
+    for ipa, info in vowel_dict.items():
+        vowel_obj = Vowel(
+            id=info["id"],
+            ipa=info["ipa"],
+            length=info.get("length"),
+            color_code=info.get("color_code"),
+            description=info.get("description"),
+            pronounced=info.get("pronounced"),
+            common_spellings=info.get("common_spellings", []),
+            lips=info.get("lips"),
+            tongue=info.get("tongue"),
+            audio_url=info.get("audio_url", []),
+            mouth_image_url=info.get("mouth_image_url")
+        )
+        db.session.add(vowel_obj)
+        vowel_objects[info["id"]] = vowel_obj
+    
+    # Commit all vowels at once
+    db.session.commit()
+    print(f"✅ Committed {len(vowel_objects)} vowels to database")
+    
+    return vowel_objects
+
+def commit_word_examples(
+    vowel_objects: Dict[str, Vowel],
+    vowel_dict: Dict[str, Dict],
+    word_audio_dir: str = WORD_EX_AUDIO_DIR,
+) -> int:
+    """
+    Extracts word examples from audio files and lesson data, then commits to database.
+    
+    Args:
+        vowel_objects: Dictionary mapping vowel IDs to their SQLAlchemy objects
+        vowel_dict: Dictionary with vowel data including example words
+        word_audio_dir: Directory containing word example audio files
+        
+    Returns:
+        Number of word examples committed
+    """
+    # Phase 1: Extract word examples from audio files
+    word_examples_dict = extract_word_examples(word_audio_dir)
+    
+    # Phase 2: Create and commit word examples
+    word_example_count = 0
+    
+    # First, process examples from audio files
+    for vowel_id, examples in word_examples_dict.items():
+        if vowel_id not in vowel_objects:
+            print(f"⚠️ Vowel ID {vowel_id} not found for word examples")
+            continue
+            
+        for example in examples:
+            word_obj = WordExample(
+                word=example["word"],
+                ipa=example.get("ipa"),
+                audio_url=example.get("audio_url", []),
+                vowel_id=vowel_id  # Use the ID directly
+            )
+            db.session.add(word_obj)
+            word_example_count += 1
+    
+    # Then, process any additional examples from the lesson JSON
+    for ipa, info in vowel_dict.items():
+        vowel_id = info["id"]
+        if vowel_id not in vowel_objects:
+            continue
+            
+        # Get example words that might have been in the lesson JSON
+        example_words = info.get("example_words", [])
+        for word in example_words:
+            # Check if this word is already added from audio files
+            existing = WordExample.query.filter_by(
+                vowel_id=vowel_id,
+                word=word
+            ).first()
+            
+            if not existing:
+                word_obj = WordExample(
+                    word=word,
+                    ipa=ipa,
+                    vowel_id=vowel_id
+                )
+                db.session.add(word_obj)
+                word_example_count += 1
+    
+    # Commit all word examples
+    db.session.commit()
+    print(f"✅ Committed {word_example_count} word examples to database")
+    
+    return word_example_count
+
+def seed_vowels(
+    vowel_json_path: str = VOWEL_JSON_PATH,
+    audio_dir: str = VOWEL_AUDIO_DIR,
     word_audio_dir: str = WORD_EX_AUDIO_DIR,
 ) -> None:
     """
-    Commits vowels and word examples to the database using the full seeding pipeline (Phases 1–4).
-    Skips JSON export. Commits data directly and prints each entry after insertion.
+    Main function to seed vowels and their word examples.
+    
+    Args:
+        vowel_json_path: Path to the lesson JSON file with vowel data
+        audio_dir: Directory containing vowel audio files
+        word_audio_dir: Directory containing word example audio files
     """
-
-    print("🔍 PHASE 1: Extract from audio files...")
+    # Step 1: Extract vowel data and commit vowels
+    vowel_objects = commit_phonemes(
+        audio_dir=audio_dir,
+        vowel_json_path=vowel_json_path
+    )
+    
+    # Step 2: Extract vowel dictionary again for word examples
     vowel_dict = {}
     for filename in os.listdir(audio_dir):
         if filename.endswith(".mp3"):
@@ -603,54 +732,84 @@ def commit_phonemes(
             if info:
                 ipa = info["ipa"]
                 vowel_dict[ipa] = info
-            else:
-                print(f"⚠️ Skipped {filename}: invalid format")
-    phase1_count = len(vowel_dict)
-    print(f"\n✅ Phase 1 complete — extracted {phase1_count} vowel entries.\n")
-
-    print("\n🔄 PHASE 2: Merge lesson JSON...")
+    
     vowel_dict = merge_with_lesson_json(vowel_dict, vowel_json_path)
-    phase2_total = len(vowel_dict)
-    phase2_added = phase2_total - phase1_count
-    print(f"\n✅ Phase 2 complete — added {phase2_added} new entries from lesson.json.")
-    print(f"\n📊 Total vowel entries after merge: {phase2_total}\n")
-
-    print("\n🎧 PHASE 3: Extract word examples...")
-    word_examples_dict = extract_word_examples(word_audio_dir)
-
-    print("\n📥 PHASE 4: Attach word examples to vowels...")
-    merge_word_examples_to_vowels(vowel_dict, word_examples_dict)
-
-    print("\n🧱 PHASE 6: Commit to database...")
-    for ipa, data in vowel_dict.items():
-        vowel_obj = Vowel(
-            id=data["id"],
-            ipa=data["ipa"],
-            lips=", ".join(data.get("lips", [])),
-            tongue=", ".join(data.get("tongue", [])),
-            pronounced=data.get("pronounced"),
-            common_spellings=data.get("common_spellings", []),
-            mouth_image_url=data.get("mouth_image_url"),
-            audio_url=data.get("audio_url", [])
-        )
-        db.session.add(vowel_obj)
-        db.session.commit()
-        print(f"✅ Committed Vowel: /{data['ipa']}/ ({data['id']})")
-
-        for ex in data.get("word_examples", []):
-            word_example_obj = WordExample(
-                word=ex["word"],
-                ipa=ex["ipa"],
-                audio_url=ex["audio_url"],
-                vowel_id=vowel_obj.id
-            )
-            db.session.add(word_example_obj)
-        db.session.commit()
-        print(f"   ↪️  {len(data.get('word_examples', []))} word examples committed for /{data['ipa']}/")
-
-    print("\n✅ All vowels and word examples committed.")
+    
+    # Step 3: Commit word examples
+    commit_word_examples(
+        vowel_objects=vowel_objects,
+        vowel_dict=vowel_dict,
+        word_audio_dir=word_audio_dir
+    )
+    
+    print("✅ Vowel seeding complete!")
 
 
+
+# def commit_phonemes(
+#     audio_dir: str = VOWEL_AUDIO_DIR,
+#     vowel_json_path: str = VOWEL_JSON_PATH,
+#     word_audio_dir: str = WORD_EX_AUDIO_DIR,
+# ) -> None:
+#     """
+#     Commits vowels and word examples to the database using the full seeding pipeline (Phases 1–4).
+#     Skips JSON export. Commits data directly and prints each entry after insertion.
+#     """
+
+#     print("🔍 PHASE 1: Extract from audio files...")
+#     vowel_dict = {}
+#     for filename in os.listdir(audio_dir):
+#         if filename.endswith(".mp3"):
+#             info = extract_vowel_info_mp3(filename)
+#             if info:
+#                 ipa = info["ipa"]
+#                 vowel_dict[ipa] = info
+#             else:
+#                 print(f"⚠️ Skipped {filename}: invalid format")
+#     phase1_count = len(vowel_dict)
+#     print(f"\n✅ Phase 1 complete — extracted {phase1_count} vowel entries.\n")
+
+#     print("\n🔄 PHASE 2: Merge lesson JSON...")
+#     vowel_dict = merge_with_lesson_json(vowel_dict, vowel_json_path)
+#     phase2_total = len(vowel_dict)
+#     phase2_added = phase2_total - phase1_count
+#     print(f"\n✅ Phase 2 complete — added {phase2_added} new entries from lesson.json.")
+#     print(f"\n📊 Total vowel entries after merge: {phase2_total}\n")
+
+#     print("\n🎧 PHASE 3: Extract word examples...")
+#     word_examples_dict = extract_word_examples(word_audio_dir)
+
+#     print("\n📥 PHASE 4: Attach word examples to vowels...")
+#     merge_word_examples_to_vowels(vowel_dict, word_examples_dict)
+
+#     print("\n🧱 PHASE 6: Commit to database...")
+#     for ipa, data in vowel_dict.items():
+#         vowel_obj = Vowel(
+#             id=data["id"],
+#             ipa=data["ipa"],
+#             lips=", ".join(data.get("lips", [])),
+#             tongue=", ".join(data.get("tongue", [])),
+#             pronounced=data.get("pronounced"),
+#             common_spellings=data.get("common_spellings", []),
+#             mouth_image_url=data.get("mouth_image_url"),
+#             audio_url=data.get("audio_url", [])
+#         )
+#         db.session.add(vowel_obj)
+#         db.session.commit()
+#         print(f"✅ Committed Vowel: /{data['ipa']}/ ({data['id']})")
+
+#         for ex in data.get("word_examples", []):
+#             word_example_obj = WordExample(
+#                 word=ex["word"],
+#                 ipa=ex["ipa"],
+#                 audio_url=ex["audio_url"],
+#                 vowel_id=vowel_obj.id
+#             )
+#             db.session.add(word_example_obj)
+#         db.session.commit()
+#         print(f"   ↪️  {len(data.get('word_examples', []))} word examples committed for /{data['ipa']}/")
+
+#     print("\n✅ All vowels and word examples committed.")
 
 def load_tricky_pairs_from_json(json_path: str) -> list[TrickyPair]:
     """
@@ -770,20 +929,20 @@ def commit_pairs(pairs_list: List[TrickyPair]) -> None:
 
 
 
-def seed_vowels(
-    audio_dir: str = VOWEL_AUDIO_DIR,
-    vowel_json_path: str = VOWEL_JSON_PATH,
-    word_audio_dir: str = WORD_EX_AUDIO_DIR
-) -> None:
-    """
-    Calls the full vowel seeding pipeline that extracts, merges, attaches,
-    and commits phoneme and word example data to the database.
-    """
-    commit_phonemes(
-        audio_dir=audio_dir,
-        vowel_json_path=vowel_json_path,
-        word_audio_dir=word_audio_dir
-    )
+# def seed_vowels(
+#     audio_dir: str = VOWEL_AUDIO_DIR,
+#     vowel_json_path: str = VOWEL_JSON_PATH,
+#     word_audio_dir: str = WORD_EX_AUDIO_DIR
+# ) -> None:
+#     """
+#     Calls the full vowel seeding pipeline that extracts, merges, attaches,
+#     and commits phoneme and word example data to the database.
+#     """
+#     commit_phonemes(
+#         audio_dir=audio_dir,
+#         vowel_json_path=vowel_json_path,
+#         word_audio_dir=word_audio_dir
+#     )
 
 
 def seed_tricky_pairs(
@@ -993,7 +1152,7 @@ def preview_vowels_101_lesson(map_variable):
         "type": "vowel_lesson"
     }
 
-    print("📦 VowelLesson JSON Preview:\n")
+    print("📦 Vowels101Lesson JSON Preview:\n")
     print(json.dumps(lesson_preview, indent=2, ensure_ascii=False))
 
     # Save to JSON file
@@ -1004,7 +1163,7 @@ def preview_vowels_101_lesson(map_variable):
 
 def seed_vowels_101_lesson(map_variable: tuple[str, str, str]) -> LessonMode:
     """
-    Seeds the Vowels 101 lesson mode and its associated VowelLesson.
+    Seeds the Vowels 101 lesson mode and its associated Vowels101Lesson.
     Commits to the database only if not already present.
     """
     name, slug, _ = map_variable
@@ -1019,14 +1178,14 @@ def seed_vowels_101_lesson(map_variable: tuple[str, str, str]) -> LessonMode:
         mode = commit_lesson_mode(map_variable)
 
     # Prevent duplicate lesson creation
-    existing_lesson = VowelLesson.query.filter_by(lesson_mode_id=mode.id).first()
+    existing_lesson = Vowels101Lesson.query.filter_by(lesson_mode_id=mode.id).first()
     if existing_lesson:
-        print(f"⚠️ A VowelLesson already exists for mode '{slug}' — skipping.")
+        print(f"⚠️ A Vowels101Lesson already exists for mode '{slug}' — skipping.")
         return mode
 
     # Build and commit lesson
     content = build_vowels_101_lesson_mode(map_variable)
-    lesson = VowelLesson(
+    lesson = Vowels101Lesson(
         title="Vowels 101",
         description="Learn how vowels are categorized by tongue position, lip shape, and length.",
         lesson_mode_id=mode.id,
@@ -1034,7 +1193,7 @@ def seed_vowels_101_lesson(map_variable: tuple[str, str, str]) -> LessonMode:
     )
     db.session.add(lesson)
     db.session.commit()
-    print(f"✅ VowelLesson created for mode: {slug}")
+    print(f"✅ Vowels101Lesson created for mode: {slug}")
 
     return mode
     
@@ -1129,19 +1288,19 @@ def run_all_seeds():
     with app.app_context():
         # print(f"{Fore.CYAN}Seeding vowels and word examples...{Style.RESET_ALL}")
 
-        # seed_vowels(
-        #     vowel_json_path=VOWEL_JSON_PATH,
-        #     audio_dir=VOWEL_AUDIO_DIR,
-        # )
+        seed_vowels(
+            vowel_json_path=VOWEL_JSON_PATH,
+            audio_dir=VOWEL_AUDIO_DIR,
+        )
 
         # print(f"{Fore.CYAN}Seeding tricky vowel pairs...{Style.RESET_ALL}")
         # seed_tricky_pairs(json_path=TRICKY_PAIRS_PATH, phoneme_path=PHONEMES_PATH)
 
-        # print(f"{Fore.MAGENTA}📦 Previewing Vowels 101 lesson...{Style.RESET_ALL}")
+        # # print(f"{Fore.MAGENTA}📦 Previewing Vowels 101 lesson...{Style.RESET_ALL}")
         # seed_vowels_101_lesson(LESSON_MODE_MAP["VOWELS_101"])
 
-        print(f"{Fore.MAGENTA}📦 Previewing Tricky Pairs lesson...{Style.RESET_ALL}")
-        preview_tricky_pairs_lesson(LESSON_MODE_MAP["TACKLE_TRICKY_PAIRS"])
+        # print(f"{Fore.MAGENTA}📦 Previewing Tricky Pairs lesson...{Style.RESET_ALL}")
+        # seed_tackle_tricky_pairs_lesson(LESSON_MODE_MAP["TACKLE_TRICKY_PAIRS"])
 
         print("✅ All seeding operations completed.")
 

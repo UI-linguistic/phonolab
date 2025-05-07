@@ -1,19 +1,6 @@
 # # src/api/user.py
 from flask import Blueprint
-# , request, jsonify
-# from src.services.user import (
-#     create_new_session,
-#     mark_lesson_complete,
-#     log_quiz_attempt,
-#     get_session_status,
-#     get_user_progress
-# )
-# from src.utils.format import (
-#     format_session_http,
-#     format_quiz_attempt_http,
-#     success_response,
-#     error_response
-# )
+
 
 user_bp = Blueprint("user", __name__, url_prefix="/user")
 

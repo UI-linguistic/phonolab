@@ -12,7 +12,7 @@ dev_requirements = read_requirements('requirements-dev.txt')
 setup(
     name='phonolab-backend',
     version='0.0.1',
-    author='Phonolab Team',
+    author='dndrade',
     author_email='',
     description='Backend system for the Hooked on Phonetics project',
     packages=find_packages(include=["cli", "cli.*", "src", "src.*"], exclude=["tests", "tests.*"]),
@@ -22,10 +22,10 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'db=cli.database:main',
-            'lesson=cli.lesson:main',
-            'phoneme=cli.phoneme:main',
-            'quiz=cli.quiz:main'
+            # 'db=cli.database:main',
+            'lesson=cli.lesson:main'
+            # 'phoneme=cli.phoneme:main',
+            # 'quiz=cli.quiz:main'
             # add more
         ],
     },

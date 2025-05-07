@@ -66,12 +66,12 @@ class PhonicTrioQuiz(Quiz):
     __tablename__ = "phonic_trio_quizzes"
 
     id = db.Column(db.Integer, db.ForeignKey("quizzes.id"), primary_key=True)
-    
+
     prompt_samples = db.Column(db.JSON, nullable=False)
     source_id = db.Column(db.Integer, nullable=True, unique=True)
     feedback_correct = db.Column(db.Text, nullable=True)
     feedback_incorrect = db.Column(db.Text, nullable=True)
-    
+
     options = db.relationship(
         "PhonicTrioOption",
         backref="quiz",

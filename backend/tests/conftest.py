@@ -4,10 +4,16 @@ import pytest
 import warnings
 
 from server import app as flask_app
-from src.models.phoneme import db
+from src.db import db
+from sqlalchemy.orm import configure_mappers
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+
+@pytest.fixture(scope="session", autouse=True)
+def configure_all_mappers():
+    """Configure all mappers before any tests run."""
+    configure_mappers()
 
 @pytest.fixture(scope="function")
 def app():

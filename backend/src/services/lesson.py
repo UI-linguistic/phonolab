@@ -1,251 +1,106 @@
-# src/services/lesson.py
-from typing import Dict, List, Optional, Tuple
-from models.phoneme import TrickyPair, Vowel
-from src.models.lesson import LessonMode, VowelLesson
-from utils.error_handling import handle_service_errors
-from utils.format import format_lesson_modes_response, format_lesson_response
-from models.lesson import Lesson
+"""
+Service functions for lesson-related operations.
+"""
+from src.db import db
+from src.models.lesson import Lesson, Vowels101Lesson
+from src.models.phoneme import Vowel
+from utils.format import error_response, not_found_response, success_response
 
-
-LIP_SHAPE_GRID_LAYOUT = [
-    ["i", "ɪ", "e", "ɛ"],
-    ["æ", "ɑ", "ə", "ʌ"],
-    ["ɔ", "o", "ʊ", "u"]
-]
-
-
-@handle_service_errors("get all lesson modes")
-def get_all_lesson_modes() -> List[Dict]:
+def get_all_lessons():
     """
-    Get all lesson modes with proper formatting.
+    Retrieve all lessons from the database.
     
     Returns:
-        List of formatted lesson mode dictionaries
+        List of lesson dictionaries
     """
-    lesson_modes = LessonMode.query.all()
-    return format_lesson_modes_response(lesson_modes)
+    try:
+        lessons = Lesson.query.all()
+        return [lesson_to_dict(lesson) for lesson in lessons]
+    except Exception as e:
+        return {"error": f"Error retrieving lessons: {str(e)}"}, 500
 
-
-@handle_service_errors("get lesson by slug")
-def get_lesson_by_slug(slug: str) -> Dict:
+def get_lesson_by_id(lesson_id):
     """
-    Get a lesson by its slug.
+    Retrieve a lesson by its ID.
     
     Args:
-        slug: The lesson mode slug to look up
+        lesson_id: The ID of the lesson to retrieve
         
     Returns:
-        Formatted lesson dictionary
+        Lesson dictionary or error response
     """
-    lesson_mode = LessonMode.query.filter_by(slug=slug).first()
-    if not lesson_mode:
-        return None
-    
-    lesson = VowelLesson.query.filter_by(lesson_mode_id=lesson_mode.id).first()
-    if not lesson:
-        return None
-    
-    return format_lesson_response(lesson)
+    try:
+        lesson = Lesson.query.get(lesson_id)
+        if not lesson:
+            return not_found_response("Lesson", lesson_id)
+        
+        return success_response(
+            message=f"Lesson {lesson_id} retrieved successfully",
+            data=lesson_to_dict(lesson)
+        )
+    except Exception as e:
+        return error_response(f"Error retrieving lesson: {str(e)}", 500)
 
-
-@handle_service_errors("get lesson by ID")
-def get_lesson_by_id(lesson_id: int) -> Tuple[Optional[Dict], Optional[str], Optional[str]]:
+def get_lesson_by_vowel_id(vowel_id):
     """
-    Get any type of lesson by its ID with minimal processing.
+    Retrieve a lesson for a specific vowel.
     
     Args:
-        lesson_id: The numeric ID of the lesson
+        vowel_id: The ID of the vowel to get the lesson for
         
     Returns:
-        Tuple of (lesson_data, error_message, error_type)
+        Lesson dictionary or error response
     """
-    lesson = Lesson.query.get(lesson_id)
-    if not lesson:
-        return None
-    return lesson_to_dict(lesson)
-
+    try:
+        # Find the vowel
+        vowel = Vowel.query.get(vowel_id)
+        if not vowel:
+            return {"error": f"Vowel with ID {vowel_id} not found"}, 404
+        
+        # Find a lesson that references this vowel
+        vowel_lesson = Vowels101Lesson.query.filter_by(vowel_id=vowel_id).first()
+        if not vowel_lesson:
+            return {"error": f"No lesson found for vowel {vowel_id}"}, 404
+        
+        lesson_dict = lesson_to_dict(vowel_lesson)
+        lesson_dict["vowel"] = {
+            "id": vowel.id,
+            "ipa": vowel.ipa,
+            "pronounced": vowel.pronounced
+        }
+        
+        return lesson_dict
+    except Exception as e:
+        return {"error": f"Error retrieving lesson for vowel: {str(e)}"}, 500
 
 def lesson_to_dict(lesson):
     """
-    Convert a lesson object to a dictionary, handling SQLAlchemy relationships.
-    This is a minimal conversion that preserves the structure already in the database.
+    Convert a Lesson object to a dictionary.
+    
+    Args:
+        lesson: The Lesson object to convert
+        
+    Returns:
+        Dictionary representation of the lesson
     """
-
     result = {
-        'id': lesson.id,
-        'title': lesson.title,
-        'description': lesson.description,
-        'type': lesson.type,
-        'content': lesson.content
+        "id": lesson.id,
+        "title": lesson.title,
+        "description": lesson.description,
+        "type": lesson.type
     }
-
-    if lesson.lesson_mode:
-        result['lesson_mode'] = {
-            'id': lesson.lesson_mode.id,
-            'name': lesson.lesson_mode.name,
-            'slug': lesson.lesson_mode.slug,
-            'description': lesson.lesson_mode.description
+    
+    # Add lesson mode if available
+    if hasattr(lesson, "lesson_mode") and lesson.lesson_mode:
+        result["lesson_mode"] = {
+            "id": lesson.lesson_mode.id,
+            "name": lesson.lesson_mode.name,
+            "slug": lesson.lesson_mode.slug,
+            "description": lesson.lesson_mode.description
         }
     
+    # Add content for Vowels101Lesson
+    if isinstance(lesson, Vowels101Lesson) and lesson.content:
+        result["content"] = lesson.content
+    
     return result
-
-
-def build_tongue_position_content():
-    """
-    Builds a 3x3 tongue position matrix based on the original IPA grid layout.
-    Each tile in the matrix may contain one or more vowel objects (as dicts).
-    Returns a dict containing the matrix grid and a caption.
-    """
-    IPA_GROUPS = {
-        (0, 0): ["i", "ɪ"],   # High front
-        (0, 1): [],           # High central (empty)
-        (0, 2): ["u", "ʊ"],   # High back
-        (1, 0): ["e", "ɛ"],   # Mid front
-        (1, 1): ["ə", "ʌ"],   # Mid central
-        (1, 2): ["o", "ɔ"],   # Mid back
-        (2, 0): ["æ"],        # Low front
-        (2, 1): [],           # Low central (empty)
-        (2, 2): ["ɑ"],        # Low back
-    }
-
-    grid = [[[] for _ in range(3)] for _ in range(3)]
-
-    for (row, col), ipa_list in IPA_GROUPS.items():
-        vowels = Vowel.query.filter(Vowel.ipa.in_(ipa_list)).all()
-        grid[row][col] = [
-            {
-                "ipa": v.ipa,
-                "id": v.id,
-                "pronounced": v.pronounced,
-                "audio_url": v.audio_url,
-                "mouth_image_url": v.mouth_image_url,
-            }
-            for v in vowels
-        ]
-
-    return {
-        "title": "Tongue Position",
-        "caption": "Explore how vowels are produced with different tongue heights and placements.",
-        "grid": grid
-    }
-
-
-def build_lip_shape_vowel_table():
-    """
-    Constructs a static 3x4 vowel grid containing vowel objects with ID, IPA, and audio.
-    Used for the lip shape interaction page.
-    """
-    grid = []
-
-    for row in LIP_SHAPE_GRID_LAYOUT:
-        grid_row = []
-        for ipa in row:
-            vowel = Vowel.query.filter_by(ipa=ipa).first()
-            if not vowel:
-                print(f"⚠️ Vowel not found for IPA '{ipa}' — skipping.")
-                grid_row.append(None)
-                continue
-
-            grid_row.append({
-                "id": vowel.id,
-                "ipa": vowel.ipa,
-                "audio_url": vowel.audio_url
-            })
-        grid.append(grid_row)
-
-    return grid
-
-
-def build_lip_shape_content():
-    """
-    Builds the lip shape lesson content including:
-    - a vowel grid (3x4) with vowel objects
-    - static lip shape illustrations
-    - instructions for interaction
-    """
-    return {
-        "title": "Lip Shape",
-        "caption": "Click a lip to highlight the matching vowels and hear their sounds.",
-        "lip_shape_table": build_lip_shape_vowel_table(),
-        "lip_shape_images": {
-            "unrounded": "/static/images/lips/unrounded.png",
-            "rounded": "/static/images/lips/rounded.png"
-        }
-    }
-
-
-def build_length_content():
-    """
-    Builds the length-based vowel lesson content.
-    Groups vowels into 'tense', 'lax', and 'neutral' columns based on their length field.
-    Returns a dict structured for lesson content rendering.
-    """
-    categories = {
-        "tense": [],
-        "lax": [],
-        "neutral": [],
-    }
-
-    vowels = Vowel.query.all()
-
-    for v in vowels:
-        length_type = v.length or "neutral"
-        if length_type not in categories:
-            print(f"⚠️ Unknown length '{length_type}' for IPA '{v.ipa}' — defaulting to 'neutral'.")
-            length_type = "neutral"
-
-        categories[length_type].append({
-            "id": v.id,
-            "ipa": v.ipa,
-            "audio_url": v.audio_url,
-        })
-
-    return {
-        "title": "Length",
-        "caption": "Click to hear the sound! Grouped by tense (long), lax (short), or neutral.",
-        "columns": {
-            "tense": categories["tense"],
-            "lax": categories["lax"],
-            "neutral": categories["neutral"],
-        }
-    }
-
-
-def build_vowels_101_lesson_mode(map_variable: tuple[str, str, str]) -> LessonMode:
-    """
-    Builds and returns the content structure for the Vowels 101 lesson.
-    Does not interact with the database.
-    """
-    return {
-        "tongue_position": build_tongue_position_content(),
-        "lip_shape": build_lip_shape_content(),
-        "length": build_length_content(),
-    }
-
-
-def build_tricky_pairs_lesson_content() -> dict:
-    """
-    Builds the Tricky Pairs lesson content focusing only on the 'fill' vs 'feel' pair.
-    """
-    pair = TrickyPair.query.filter_by(word_a="fill", word_b="feel").first()
-
-    if not pair:
-        print("⚠️ Could not find tricky pair: 'fill' vs 'feel'.")
-        return {}
-
-    return {
-        "title": "Tricky Minimal Pairs",
-        "caption": "Some vowel sounds are easily confused. Let's learn the difference!",
-        "pairs": [
-            {
-                "word_a": pair.word_a,
-                "word_b": pair.word_b,
-                "vowel_a": pair.vowel_a,
-                "vowel_b": pair.vowel_b,
-                "audio_a": pair.audio_a,
-                "audio_b": pair.audio_b,
-                "tip": pair.description or "These vowels differ in tongue height and tenseness.",
-                "category": pair.category or "tense vs lax"
-            }
-        ]
-    }

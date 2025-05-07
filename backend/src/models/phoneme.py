@@ -2,13 +2,15 @@
 from sqlalchemy import JSON
 from src.db import db
 
+
 class Vowel(db.Model):
     __tablename__ = "vowels"
+    __table_args__ = {"extend_existing": True}
 
     id = db.Column(db.String, primary_key=True)
     ipa = db.Column(db.String, nullable=False)
 
-    # Fields now nullable or removed
+    # nullable or removed
     length = db.Column(db.String, nullable=True)
     color_code = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=True)
@@ -21,43 +23,8 @@ class Vowel(db.Model):
     audio_url = db.Column(JSON)
     mouth_image_url = db.Column(db.String)
 
-    # One-to-many: Vowel → WordExample
-    word_examples = db.relationship(
-        "WordExample",
-        backref="vowel",
-        cascade="all, delete-orphan",
-        lazy=True
-    )
-
-
-    def get_tricky_pairs(self):
-        """Return all TrickyPairs involving this vowel"""
-        return TrickyPair.query.filter(
-            db.or_(
-                TrickyPair.vowel1_id == self.id,
-                TrickyPair.vowel2_id == self.id
-            )
-        ).all()
-
-    def get_tricky_neighbors(self):
-        """Return all Vowels confused with this one"""
-        return [
-            pair.get_other(self.id)
-            for pair in self.get_tricky_pairs()
-            if pair.get_other(self.id) is not None
-        ]
-
-    def get_lesson_card(self):
-        """
-        Return a dictionary with the lesson card information.
-        """
-        return {
-            "pronounced": self.pronounced,
-            "common_spellings": self.common_spellings,
-            "lips": self.lips,
-            "tongue": self.tongue,
-            "example_words": [w.word for w in self.word_examples]
-        }
+    # One-to-many: Vowel → WordExample - Use fully qualified path
+    word_examples = db.relationship("src.models.phoneme.WordExample", back_populates="vowel")
 
     def get_word_examples(self, limit=None):
         """Get word examples for this vowel"""
@@ -67,19 +34,21 @@ class Vowel(db.Model):
         return query.all()
 
     def __repr__(self):
-        return f"<Vowel id={self.id} phoneme='{self.phoneme}' name='{self.name}'>"
+        return f"<Vowel id={self.id} ipa='{self.ipa}'>"
 
 
 class WordExample(db.Model):
     __tablename__ = "word_examples"
-
+    __table_args__ = {"extend_existing": True}
+    
     id = db.Column(db.Integer, primary_key=True)
     word = db.Column(db.String, nullable=False)
     audio_url = db.Column(JSON)
     ipa = db.Column(db.String)
     example_sentence = db.Column(db.String)
-
     vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=False)
+    
+    vowel = db.relationship("src.models.phoneme.Vowel", back_populates="word_examples")
 
     def __repr__(self):
         return f"<WordExample word='{self.word}' vowel_id='{self.vowel_id}'>"
@@ -104,4 +73,5 @@ class TrickyPair(db.Model):
 
     __table_args__ = (
         db.UniqueConstraint("word_a", "word_b", name="uq_tricky_pair_wordpair"),
+        {"extend_existing": True}
     )
