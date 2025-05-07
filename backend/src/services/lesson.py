@@ -4,8 +4,9 @@ Service functions for lesson-related operations.
 from typing import Optional
 from src.models.lesson import LessonType
 from src.database.lesson import (
-    get_all_lesson_types as db_get_all_lesson_types,
-    get_lesson_type_by_id as db_get_lesson_type_by_id
+    db_get_lesson_type_by_slug,
+    db_get_all_lesson_types,
+    db_get_lesson_type_by_id
 )
 from utils.response import not_found_response, success_response
 
@@ -22,8 +23,7 @@ def get_lesson_type_by_id(lesson_type_id: int) -> LessonType:
 
 def get_lesson_type_by_slug(slug: str) -> Optional[LessonType]:
     """Fetch a single lesson type by its slug."""
-    return get_lesson_type_by_slug(slug)
-
+    return db_get_lesson_type_by_slug(slug)
 
 def lesson_type_to_dict(lesson_type: LessonType) -> dict:
     return {
