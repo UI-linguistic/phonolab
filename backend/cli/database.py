@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 from cli.cli_runner import cli_runner
-from src.database.lesson import check_lip_shape_section_integrity, seed_vowels101_lip_section_from_file, seed_vowels101_tongue_section_from_file
+from src.database.lesson import check_lip_shape_section_integrity, check_vowels101_length_section_integrity, seed_vowels101_length_section_from_file, seed_vowels101_lip_section_from_file, seed_vowels101_tongue_section_from_file
 from src.app import create_app
 from src.app import Config
 from src.database.phoneme import (
@@ -116,6 +116,27 @@ def main():
     check_minimal_parser.add_argument("--fail-fast", action="store_true")
     check_minimal_parser.add_argument("--silent", action="store_true")
 
+
+    seed_length_parser = subparsers.add_parser(
+        "seed-length",
+        help="Seed the Length section of Vowels 101",
+        description="Insert vowel categories based on vowel length"
+    )
+    seed_length_parser.add_argument(
+        "--json",
+        type=str,
+        default="src/data/length.json",
+        help="Path to length section JSON file"
+    )
+
+    check_length_parser = subparsers.add_parser(
+        "check-length",
+        help="Validate that Length section is seeded correctly",
+        description="Checks number of cells and attached vowels"
+    )
+    check_length_parser.add_argument("--silent", action="store_true")
+
+
     reset_parser = subparsers.add_parser(
         "reset-db",
         help="Delete the entire database file",
@@ -140,6 +161,12 @@ async def async_main(args, parser) -> int:
         return await handle_seed_lip_shape(args)
     elif args.command == "check-lip-shape":
         return await handle_check_lip_shape(args)
+    elif args.command == "seed-length":
+        return await handle_seed_length(args)
+    elif args.command == "check-length":
+        return await handle_check_length(args)
+
+
 
     elif args.command == "reset-db":
         return await handle_reset_db(args)
@@ -214,6 +241,22 @@ async def handle_seed_lip_shape(args):
     return 0
 
 
+async def handle_seed_length(args):
+    app = create_app()
+    json_path = Path(args.json)
+
+    with app.app_context():
+        try:
+            seed_vowels101_length_section_from_file(json_path)
+            cli_success("Length section seeded successfully.")
+        except Exception as e:
+            cli_error("Seeding length section failed", details=str(e))
+            return 1
+
+    return 0
+
+
+
 #
 # Integrity Checks
 #
@@ -248,6 +291,12 @@ async def handle_check_lip_shape(args):
         except Exception as e:
             cli_error("Validation failed", details=str(e))
             return 1
+
+async def handle_check_length(args):
+    app = create_app()
+    with app.app_context():
+        success = check_vowels101_length_section_integrity(verbose=not args.silent)
+        return 0 if success else 1
 
 
 #

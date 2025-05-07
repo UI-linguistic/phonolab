@@ -226,3 +226,98 @@ def check_lip_shape_section_integrity(verbose: bool = True) -> bool:
                 print(f"    - {v.ipa} ({v.id})")
 
     return success
+
+
+def validate_vowels101_length_json(data: dict):
+    """Validate the structure of the Length section JSON file."""
+    if not isinstance(data, dict):
+        raise ValueError("Length JSON must be a dictionary.")
+
+    for field in ["title", "grid"]:
+        if field not in data:
+            raise ValueError(f"Missing required field '{field}' in JSON.")
+
+    if not isinstance(data["grid"], dict):
+        raise ValueError("'grid' must be a dictionary.")
+
+    for key, ipa_list in data["grid"].items():
+        if not isinstance(ipa_list, list):
+            raise ValueError(f"Grid entry for '{key}' must be a list.")
+        for ipa in ipa_list:
+            if not isinstance(ipa, str):
+                raise ValueError(f"IPA value '{ipa}' in '{key}' must be a string.")
+
+
+def seed_vowels101_length_section_from_file(json_path: Path | str = "src/data/vowels101_length.json"):
+    json_path = Path(json_path)
+    if not json_path.exists():
+        raise FileNotFoundError(f"Length section JSON file not found at: {json_path}")
+
+    with json_path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    validate_vowels101_length_json(data)
+
+    all_ipa = set()
+    for ipa_list in data["grid"].values():
+        all_ipa.update(ipa_list)
+
+    missing = [ipa for ipa in all_ipa if not Vowel.query.filter_by(ipa=ipa).first()]
+    if missing:
+        raise ValueError(f"Missing IPA symbols in database: {', '.join(missing)}")
+
+    lesson_type = get_or_create_lesson_type(
+        slug="vowels-101",
+        name="Vowels 101",
+        description="Master those slippery English vowels"
+    )
+
+    section = insert_vowels101_section(name="Length", slug="length", lesson_type_id=lesson_type.id)
+
+    type_map = {
+        "Tense": 0,
+        "Lax": 1,
+        "Neither": 2
+    }
+
+    for length_type, ipa_list in data["grid"].items():
+        col_idx = type_map.get(length_type)
+        if col_idx is None:
+            raise ValueError(f"Unexpected length type: {length_type}")
+        insert_vowel_grid_cell(section_id=section.id, row=0, col=col_idx, vowel_ids=ipa_list)
+
+    db.session.commit()
+    print("Length section seeded successfully.")
+
+
+def check_vowels101_length_section_integrity(verbose: bool = True) -> bool:
+    """
+    Ensures the Length section is seeded correctly.
+    Returns True if valid, False otherwise.
+    """
+    success = True
+    expected_slug = "length"
+    expected_categories = ["Tense", "Lax", "Neither"]
+
+    section = Vowels101Section.query.filter_by(slug=expected_slug).first()
+    if not section:
+        if verbose:
+            print(f"Section with slug '{expected_slug}' not found.")
+        return False
+
+    if verbose:
+        print(f"Found section '{section.name}' (slug='{section.slug}')")
+
+    cells = section.cells
+    if len(cells) != 3:
+        print(f"Expected 3 grid cells (1 row, 3 cols), found {len(cells)}")
+        success = False
+
+    for cell in cells:
+        col_label = expected_categories[cell.col] if cell.col < len(expected_categories) else f"col {cell.col}"
+        if verbose:
+            print(f"Cell col={cell.col} ({col_label}) has {len(cell.vowels)} vowels")
+            for v in cell.vowels:
+                print(f"    - {v.ipa} ({v.id})")
+
+    return success
