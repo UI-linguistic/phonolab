@@ -83,17 +83,34 @@ class MinimalPair(db.Model):
 
 class SeedingStats:
     def __init__(self):
-        self.inserted_vowels = 0
-        self.skipped_vowels = 0
-        self.inserted_words = 0
-        self.skipped_words = 0
+        self.counters = {
+            "inserted_vowels": 0,
+            "skipped_vowels": 0,
+            "inserted_words": 0,
+            "skipped_words": 0,
+            "inserted_pairs": 0,
+            "skipped_pairs": 0
+        }
+
+    def increment(self, key: str):
+        if key not in self.counters:
+            raise KeyError(f"Invalid stat key: '{key}'")
+        self.counters[key] += 1
 
     def log(self):
         print("\n📊 Seeding Summary:")
-        print(f"🟢 Inserted vowels: {self.inserted_vowels}")
-        print(f"🟡 Skipped vowels (already existed): {self.skipped_vowels}")
-        print(f"🟢 Inserted word examples: {self.inserted_words}")
-        print(f"🟡 Skipped words (already existed): {self.skipped_words}")
+        emoji_map = {
+            "inserted": "🟢",
+            "skipped": "🟡"
+        }
+
+        for group in ["vowels", "words", "pairs"]:
+            inserted = self.counters[f"inserted_{group}"]
+            skipped = self.counters[f"skipped_{group}"]
+            if inserted + skipped > 0:
+                print(f"{emoji_map['inserted']} Inserted {group}: {inserted}")
+                print(f"{emoji_map['skipped']} Skipped {group} (already existed): {skipped}")
+
 
 
 # def make_tricky_pair(word1, word2, **kwargs):
