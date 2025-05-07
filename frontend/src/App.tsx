@@ -6,9 +6,9 @@ import { theme } from './styles/theme';
 import HomePage from './pages/HomePage';
 import LearnPage from './pages/LearnPage';
 import LearnPathPage from './pages/LearnPathPage';
-import QuizPage from './pages/QuizPage';
+import QuizPage from './pages/QuizPage/index';
 import QuizInstructionsPage from './pages/QuizInstructionsPage';
-import QuizResultPage from './pages/QuizResultPage';
+import ResultPage from './pages/QuizPage/ResultPage';
 import VowelLessonPage from './pages/VowelLessonPage';
 import Navigation from './components/Navigation';
 import MapVowelSpace from './pages/MapVowelSpace';
@@ -33,7 +33,7 @@ function App() {
           <Route path="/learn/pair-play" element={<PairPlay />} />
           <Route path="/quiz" element={<QuizInstructionsPage />} />
           <Route path="/quiz/:questionId" element={<QuizPage />} />
-          <Route path="/quiz/result" element={<QuizResultPage />} />
+          <Route path="/quiz/result" element={<ResultPage />} />
         </Routes>
       </Router>
     </ThemeProvider>
