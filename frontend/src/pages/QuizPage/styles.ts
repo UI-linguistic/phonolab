@@ -450,4 +450,56 @@ export const HomeButton = styled.button`
   &:hover {
     background: #7f8c8d;
   }
+`;
+
+export const Card = styled.div<{
+  isSelected: boolean;
+  isCorrect: boolean;
+  isWrong: boolean;
+  isTimeUp: boolean;
+  isPlaying?: boolean;
+}>`
+  aspect-ratio: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: ${props => props.isPlaying ? 'scale(1.05)' : 'none'};
+  box-shadow: ${props => props.isPlaying ? '0 4px 12px rgba(0, 0, 0, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
+
+  ${props => props.isSelected && `
+    background: #3498db;
+    color: white;
+  `}
+
+  ${props => props.isTimeUp && props.isCorrect && `
+    background: #2ecc71;
+    color: white;
+  `}
+
+  ${props => props.isTimeUp && props.isWrong && `
+    background: #e74c3c;
+    color: white;
+  `}
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+`;
+
+export const CardNumber = styled.div`
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2c3e50;
 `; 

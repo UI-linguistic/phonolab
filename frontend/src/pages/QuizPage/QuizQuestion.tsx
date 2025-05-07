@@ -224,22 +224,22 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     }
   };
 
-  const handleCardClick = (cardId: number) => {
+  const handleCardClick = (index: number) => {
     if (isTimeUp) return;
     
-    console.log('QuizQuestion: Card clicked:', cardId, 'for question:', question.id);
-    if (optionAudios[cardId]) {
-      optionAudios[cardId].currentTime = 0;
-      optionAudios[cardId].play();
+    // Play the card's audio
+    if (optionAudios[index]) {
+      optionAudios[index].currentTime = 0;
+      optionAudios[index].play();
     }
-
-    setSelectedCards(prev => 
-      prev.includes(cardId) 
-        ? prev.filter(id => id !== cardId)
-        : prev.length < 3 
-          ? [...prev, cardId]
-          : prev
-    );
+    
+    setSelectedCards(prev => {
+      if (prev.includes(index)) {
+        return prev.filter(i => i !== index);
+      } else {
+        return [...prev, index];
+      }
+    });
   };
 
   const handleTargetAudioPlay = () => {
@@ -279,6 +279,36 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     optionAudiosLength: Object.keys(optionAudios).length
   });
 
+  const renderCard = (index: number) => {
+    const isSelected = selectedCards.includes(index);
+    const isCorrect = isTimeUp && question.options_pool.correct_answers.some(
+      correct => correct.word === quizOptions[index].word
+    );
+    const isWrong = isTimeUp && isSelected && !isCorrect;
+    const isPlaying = currentPlayingIndex === index;
+
+    return (
+      <S.Card
+        key={index}
+        onClick={() => !isTimeUp && handleCardClick(index)}
+        isSelected={isSelected}
+        isCorrect={isCorrect}
+        isWrong={isWrong}
+        isTimeUp={isTimeUp}
+        isPlaying={isPlaying}
+      >
+        {isTimeUp ? (
+          <>
+            <S.CardWord>{quizOptions[index].word}</S.CardWord>
+            <S.CardLanguage>{quizOptions[index].language}</S.CardLanguage>
+          </>
+        ) : (
+          <S.CardNumber>{index + 1}</S.CardNumber>
+        )}
+      </S.Card>
+    );
+  };
+
   return (
     <S.Container>
       <S.NavigationHeader>
@@ -315,18 +345,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
 
         {isAudioLoaded && (
           <S.WordCardsGrid>
-            {quizOptions.map((option, index) => (
-              <S.WordCard
-                key={index}
-                $isSelected={selectedCards.includes(index)}
-                $isPlaying={currentPlayingIndex === index}
-                onClick={() => handleCardClick(index)}
-              >
-                <div>{option.word}</div>
-                <div>{option.language}</div>
-                <S.AudioIcon>🔊</S.AudioIcon>
-              </S.WordCard>
-            ))}
+            {quizOptions.map((_, index) => renderCard(index))}
           </S.WordCardsGrid>
         )}
 
