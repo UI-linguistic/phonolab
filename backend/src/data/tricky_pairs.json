@@ -1,62 +1,72 @@
 [
   {
+    "word_a": "feel",
+    "word_b": "fill",
+    "vowel_a": "i",
+    "vowel_b": "ɪ",
+    "audio_a": "/audio/minimal_pairs/feel.mp3",
+    "audio_b": "/audio/minimal_pairs/fill.mp3",
+    "description": "i vs ɪ distinction",
+    "category": "vowel height"
+  },
+  {
     "word_a": "pit",
     "word_b": "pet",
     "vowel_a": "ɪ",
     "vowel_b": "ɛ",
-    "audio_a": "/audio/tricky_pairs/pit.mp3",
-    "audio_b": "/audio/tricky_pairs/pet.mp3",
-    "description": "Minimal pair: /ɪ/ vs /ɛ/ distinction.",
-    "category": "vowel contrast"
-  },
-  {
-    "word_a": "cut",
-    "word_b": "cat",
-    "vowel_a": "ʌ",
-    "vowel_b": "æ",
-    "audio_a": "/audio/tricky_pairs/cut.mp3",
-    "audio_b": "/audio/tricky_pairs/cat.mp3",
-    "description": "Minimal pair: /ʌ/ vs /æ/ distinction.",
-    "category": "vowel contrast"
+    "audio_a": "/audio/minimal_pairs/pit.mp3",
+    "audio_b": "/audio/minimal_pairs/pet.mp3",
+    "description": "ɪ vs ɛ distinction",
+    "category": "vowel height"
   },
   {
     "word_a": "bad",
     "word_b": "bed",
     "vowel_a": "æ",
     "vowel_b": "ɛ",
-    "audio_a": "/audio/tricky_pairs/bad.mp3",
-    "audio_b": "/audio/tricky_pairs/bed.mp3",
-    "description": "Minimal pair: /æ/ vs /ɛ/ distinction.",
-    "category": "vowel contrast"
+    "audio_a": "/audio/minimal_pairs/bad.mp3",
+    "audio_b": "/audio/minimal_pairs/bed.mp3",
+    "description": "æ vs ɛ distinction",
+    "category": "vowel height"
   },
   {
-    "word_a": "hill",
-    "word_b": "he’ll",
-    "vowel_a": "ɪ",
-    "vowel_b": "i",
-    "audio_a": "/audio/tricky_pairs/hill.mp3",
-    "audio_b": "/audio/tricky_pairs/heel.mp3",
-    "description": "Minimal pair: /ɪ/ vs /i/ distinction.",
-    "category": "vowel length"
+    "word_a": "pool",
+    "word_b": "pull",
+    "vowel_a": "u",
+    "vowel_b": "ʊ",
+    "audio_a": "/audio/minimal_pairs/pool.mp3",
+    "audio_b": "/audio/minimal_pairs/pull.mp3",
+    "description": "u vs ʊ distinction",
+    "category": "vowel height"
   },
   {
-    "word_a": "pull",
-    "word_b": "pool",
-    "vowel_a": "ʊ",
-    "vowel_b": "u",
-    "audio_a": "/audio/tricky_pairs/pull.mp3",
-    "audio_b": "/audio/tricky_pairs/pool.mp3",
-    "description": "Minimal pair: /ʊ/ vs /u/ distinction.",
-    "category": "vowel contrast"
+    "word_a": "heal",
+    "word_b": "hill",
+    "vowel_a": "i",
+    "vowel_b": "ɪ",
+    "audio_a": "/audio/minimal_pairs/heal.mp3",
+    "audio_b": "/audio/minimal_pairs/hill.mp3",
+    "description": "i vs ɪ distinction",
+    "category": "vowel height"
   },
   {
-    "word_a": "stock",
-    "word_b": "stalk",
-    "vowel_a": "ɑ",
-    "vowel_b": "ɔ",
-    "audio_a": "/audio/tricky_pairs/stock.mp3",
-    "audio_b": "/audio/tricky_pairs/stalk.mp3",
-    "description": "Minimal pair: /ɑ/ vs /ɔ/ distinction.",
-    "category": "vowel contrast"
+    "word_a": "nut",
+    "word_b": "not",
+    "vowel_a": "ʌ",
+    "vowel_b": "ɑ",
+    "audio_a": "/audio/minimal_pairs/nut.mp3",
+    "audio_b": "/audio/minimal_pairs/not.mp3",
+    "description": "ʌ vs ɑ distinction",
+    "category": "vowel height"
+  },
+  {
+    "word_a": "cap",
+    "word_b": "cup",
+    "vowel_a": "æ",
+    "vowel_b": "ʌ",
+    "audio_a": "/audio/minimal_pairs/cap.mp3",
+    "audio_b": "/audio/minimal_pairs/cup.mp3",
+    "description": "æ vs ʌ distinction",
+    "category": "vowel height"
   }
 ]
