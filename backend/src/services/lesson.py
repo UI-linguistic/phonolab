@@ -1,12 +1,13 @@
 """
 Service functions for lesson-related operations.
 """
+from typing import Optional
 from src.models.lesson import LessonType
 from src.database.lesson import (
     get_all_lesson_types as db_get_all_lesson_types,
     get_lesson_type_by_id as db_get_lesson_type_by_id
 )
-from utils.response import success_response
+from utils.response import not_found_response, success_response
 
 
 def get_all_lesson_types() -> list:
@@ -17,6 +18,11 @@ def get_all_lesson_types() -> list:
 def get_lesson_type_by_id(lesson_type_id: int) -> LessonType:
     """Fetch a single lesson type by its ID."""
     return db_get_lesson_type_by_id(lesson_type_id)
+
+
+def get_lesson_type_by_slug(slug: str) -> Optional[LessonType]:
+    """Fetch a single lesson type by its slug."""
+    return get_lesson_type_by_slug(slug)
 
 
 def lesson_type_to_dict(lesson_type: LessonType) -> dict:
@@ -61,6 +67,15 @@ def format_all_lessons_response(lesson_types: list) -> dict:
 
 
 def format_lesson_by_id_response(lesson_type) -> dict:
+    return success_response(
+        message=f"Lesson '{lesson_type.name}' retrieved successfully",
+        data=lesson_type_to_dict(lesson_type)
+    )
+
+def format_lesson_by_slug_response(lesson_type: LessonType | None):
+    if not lesson_type:
+        return not_found_response(resource_type="Lesson", resource_id="slug")
+
     return success_response(
         message=f"Lesson '{lesson_type.name}' retrieved successfully",
         data=lesson_type_to_dict(lesson_type)

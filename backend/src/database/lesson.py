@@ -17,6 +17,13 @@ def get_lesson_type_by_id(lesson_type_id: int) -> LessonType | None:
     """Returns a single LessonType by its ID, or None if not found."""
     return LessonType.query.get(lesson_type_id)
 
+def get_lesson_type_by_slug(slug: str) -> LessonType | None:
+    """
+    Retrieve a LessonType by its slug.
+    Returns None if not found.
+    """
+    return LessonType.query.filter_by(slug=slug).first()
+
 
 def validate_vowels101_tongue_json(data: dict):
     if not isinstance(data, dict):

@@ -1,10 +1,12 @@
 # src/api/lesson.py
 from flask import Blueprint
 from src.services.lesson import (
+    format_lesson_by_slug_response,
     get_all_lesson_types,
     get_lesson_type_by_id,
     format_all_lessons_response,
-    format_lesson_by_id_response
+    format_lesson_by_id_response,
+    get_lesson_type_by_slug
 )
 from utils.response import not_found_response
 
@@ -24,3 +26,10 @@ def get_lesson_by_id(lesson_id):
     if not lesson:
         return not_found_response("Lesson", lesson_id)
     return format_lesson_by_id_response(lesson)
+
+
+@lesson_bp.route("/<string:slug>", methods=["GET"])
+def get_lesson_by_slug(slug: str):
+    """API endpoint to retrieve a lesson by its slug."""
+    lesson = get_lesson_type_by_slug(slug)
+    return format_lesson_by_slug_response(lesson)
