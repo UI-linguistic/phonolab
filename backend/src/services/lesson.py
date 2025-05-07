@@ -25,6 +25,7 @@ def get_lesson_type_by_slug(slug: str) -> Optional[LessonType]:
     """Fetch a single lesson type by its slug."""
     return db_get_lesson_type_by_slug(slug)
 
+
 def lesson_type_to_dict(lesson_type: LessonType) -> dict:
     return {
         "id": lesson_type.id,
