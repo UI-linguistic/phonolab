@@ -85,38 +85,3 @@ def not_found_response(
         message = f"{resource_type} with identifier '{resource_id}' not found"
 
     return error_response(message=message, status_code=404)
-
-
-#
-# Lesson formatting
-#
-
-def format_lesson_mode_response(lesson_mode) -> Dict:
-    """Format a lesson mode for API response."""
-    return {
-        'id': lesson_mode.id,
-        'name': lesson_mode.name,
-        'slug': lesson_mode.slug,
-        'description': lesson_mode.description
-    }
-
-
-def format_lesson_modes_response(lesson_modes) -> List[Dict]:
-    """Format multiple lesson modes for API response."""
-    return [format_lesson_mode_response(mode) for mode in lesson_modes]
-
-
-def format_lesson_response(lesson) -> Dict:
-    """Format a lesson for API response."""
-    return {
-        'id': lesson.id,
-        'title': lesson.title,
-        'description': lesson.description,
-        'lesson_mode': {
-            'id': lesson.lesson_mode.id,
-            'name': lesson.lesson_mode.name,
-            'slug': lesson.lesson_mode.slug
-        } if lesson.lesson_mode else None,
-        'content': lesson.content,
-        'type': lesson.type
-    }

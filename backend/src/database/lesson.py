@@ -8,6 +8,16 @@ from src.models.phoneme import Vowel
 from src.utils.decorators import safe_db_op
 
 
+def get_all_lesson_types() -> list[LessonType]:
+    """Returns all LessonType entries from the database."""
+    return LessonType.query.all()
+
+
+def get_lesson_type_by_id(lesson_type_id: int) -> LessonType | None:
+    """Returns a single LessonType by its ID, or None if not found."""
+    return LessonType.query.get(lesson_type_id)
+
+
 def validate_vowels101_tongue_json(data: dict):
     if not isinstance(data, dict):
         raise ValueError("Data must be a dictionary.")

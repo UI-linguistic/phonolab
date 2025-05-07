@@ -11,7 +11,7 @@ from src.database.phoneme import (
     seed_all_phonemes_from_file, 
     seed_minimal_pairs_from_file
 )
-from src.utils.cli_format import success_response, error_response
+from src.utils.cli_response import cli_success, cli_error, cli_info, cli_warning
 from src.database.phoneme import check_word_vowel_relationship_integrity
 
 
@@ -130,9 +130,9 @@ async def handle_seed(args):
     with app.app_context():
         try:
             seed_all_phonemes_from_file(json_path)
-            print(success_response("Database seeded successfully."))
+            cli_success("Database seeded successfully.")
         except Exception as e:
-            print(error_response(f"Seeding failed: {e}"))
+            cli_error("Seeding failed", details=str(e))
             return 1
 
     return 0
@@ -145,9 +145,9 @@ async def handle_seed_minimal_pairs(args):
     with app.app_context():
         try:
             seed_minimal_pairs_from_file(json_path)
-            print(success_response("Minimal pairs seeded successfully."))
+            cli_success("Minimal pairs seeded successfully.")
         except Exception as e:
-            print(error_response(f"Failed to seed minimal pairs: {e}"))
+            cli_error("Failed to seed minimal pairs", details=str(e))
             return 1
 
     return 0
@@ -158,9 +158,9 @@ async def handle_seed_tongue(args):
     with app.app_context():
         try:
             seed_vowels101_tongue_section_from_file(args.json)
-            print(success_response("Tongue Position section seeded successfully."))
+            cli_success("Tongue Position section seeded successfully.")
         except Exception as e:
-            print(error_response(f"Failed to seed tongue section: {e}"))
+            cli_error("Failed to seed tongue section", details=str(e))
             return 1
     return 0
 
@@ -192,12 +192,11 @@ async def handle_reset_db(args):
     if os.path.exists(db_path):
         try:
             os.remove(db_path)
-            print(success_response(f"🗑 Deleted database at: {db_path}"))
+            cli_success(f"Deleted database at: {db_path}")
             return 0
         except Exception as e:
-            print(error_response(f"❌ Failed to delete database: {e}"))
+            cli_error("Failed to delete database", details=str(e))
             return 1
     else:
-        print(error_response(f"⚠️ Database not found at: {db_path}"))
+        cli_warning(f"Database not found at: {db_path}")
         return 1
-    
