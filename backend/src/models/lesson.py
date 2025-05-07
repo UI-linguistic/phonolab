@@ -26,6 +26,7 @@ class LessonType(db.Model):
     def __repr__(self):
         return f"<LessonType '{self.name}'>"
 
+
 class Vowels101Section(db.Model):
     __tablename__ = "vowels101_sections"
 
@@ -39,6 +40,7 @@ class Vowels101Section(db.Model):
 
     def __repr__(self):
         return f"<Vowels101Section '{self.name}'>"
+
 
 class VowelGridCell(db.Model):
     __tablename__ = "vowel_grid_cells"

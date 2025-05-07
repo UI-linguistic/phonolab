@@ -1,3 +1,5 @@
+# API Documentation for Phonolab
+
 ## API Overview
 
 API endpoints, their parameters, and expected responses.
@@ -7,92 +9,77 @@ API endpoints, their parameters, and expected responses.
 <details>
 <summary>Lesson endpoints provide access to phonetic lessons and their content.</summary>
 
-### `GET /api/lessons/`
+### `GET /api/lessons/vowels-101`
 
-Retrieves all available lessons.
+Retrieves all sections of the 'vowels-101' lesson.
 
 **Returns:** 
-- Success response with an array of lesson objects:
+- Success response with all sections of the vowels-101 lesson:
 ```json
 {
   "status": "success",
-  "message": "Lessons retrieved successfully",
+  "message": "Sections for lesson 'vowels-101' retrieved successfully",
   "data": {
-    "lessons": [
+    "sections": [
       {
         "id": 1,
-        "name": "Vowels 101",
-        "slug": "vowels-101",
-        "description": "Learn how vowels are categorized by tongue position, lip shape, and length.",
-        "sections": [
+        "name": "Section Name",
+        "slug": "section-slug",
+        "cells": [
           {
             "id": 1,
-            "name": "Section Name",
-            "slug": "section-slug",
-            "cells": [
+            "col": 1,
+            "lip_type": "rounded",
+            "length_type": "long",
+            "vowels": [
               {
                 "id": 1,
-                "col": 1,
-                "lip_type": "rounded",
-                "length_type": "long",
-                "vowels": [
-                  {
-                    "id": 1,
-                    "ipa": "iː",
-                    "audio_url": "/audio/vowels/01-i_close_front_unrounded_vowel.mp3",
-                    "lip_image_url": "/images/lips/unrounded.png",
-                    "tongue_image_url": "/images/tongue/close_front.png"
-                  }
-                ]
+                "ipa": "iː",
+                "audio_url": "/audio/vowels/01-i_close_front_unrounded_vowel.mp3",
+                "lip_image_url": "/images/lips/unrounded.png",
+                "tongue_image_url": "/images/tongue/close_front.png"
               }
             ]
           }
         ]
-      }
+      },
+      // Additional sections...
     ]
   }
 }
 ```
 - Error response if retrieval fails
 
-### `GET /api/lessons/<int:lesson_id>`
+### `GET /api/lessons/vowels-101/<int:section_id>`
 
-Retrieves a specific lesson by its ID.
+Retrieves a specific section from the "Vowels 101" lesson by its ID.
 
 **Parameters:**
-- `lesson_id`: The ID of the lesson to retrieve
+- `section_id`: The ID of the section to retrieve (1, 2, or 3)
 
 **Returns:**
-- Success response with the formatted lesson data:
+- Success response with the section data:
 ```json
 {
   "status": "success",
-  "message": "Lesson 'Vowels 101' retrieved successfully",
+  "message": "Section 1 retrieved successfully",
   "data": {
     "id": 1,
-    "name": "Vowels 101",
-    "slug": "vowels-101",
-    "description": "Learn how vowels are categorized by tongue position, lip shape, and length.",
-    "sections": [
+    "name": "Section Name",
+    "slug": "section-slug",
+    "cells": [
       {
         "id": 1,
-        "name": "Section Name",
-        "slug": "section-slug",
-        "cells": [
+        "col": 1,
+        "lip_type": "rounded",
+        "length_type": "long",
+        "vowels": [
           {
             "id": 1,
-            "col": 1,
-            "lip_type": "rounded",
-            "length_type": "long",
-            "vowels": [
-              {
-                "id": 1,
-                "ipa": "iː",
-                "audio_url": "/audio/vowels/01-i_close_front_unrounded_vowel.mp3",
-                "lip_image_url": "/images/lips/unrounded.png",
-                "tongue_image_url": "/images/tongue/close_front.png"
-              }
-            ]
+            "ipa": "iː",
+            "audio_url": "/audio/vowels/01-i_close_front_unrounded_vowel.mp3",
+            "lip_image_url": "/images/lips/unrounded.png",
+            "tongue_image_url": "/images/tongue/close_front.png"
           }
         ]
       }
@@ -100,67 +87,13 @@ Retrieves a specific lesson by its ID.
   }
 }
 ```
-- 404 error if the lesson is not found:
+- 404 error if the section is not found:
 ```json
 {
   "status": "error",
-  "message": "Lesson with identifier '999' not found"
+  "message": "Section with identifier '999' not found"
 }
 ```
-
-### `GET /api/lessons/<string:slug>`
-
-Retrieves a specific lesson by its slug.
-
-**Parameters:**
-- `slug`: The slug of the lesson to retrieve
-
-**Returns:**
-- Success response with the formatted lesson data:
-```json
-{
-  "status": "success",
-  "message": "Lesson 'Vowels 101' retrieved successfully",
-  "data": {
-    "id": 1,
-    "name": "Vowels 101",
-    "slug": "vowels-101",
-    "description": "Learn how vowels are categorized by tongue position, lip shape, and length.",
-    "sections": [
-      {
-        "id": 1,
-        "name": "Section Name",
-        "slug": "section-slug",
-        "cells": [
-          {
-            "id": 1,
-            "col": 1,
-            "lip_type": "rounded",
-            "length_type": "long",
-            "vowels": [
-              {
-                "id": 1,
-                "ipa": "iː",
-                "audio_url": "/audio/vowels/01-i_close_front_unrounded_vowel.mp3",
-                "lip_image_url": "/images/lips/unrounded.png",
-                "tongue_image_url": "/images/tongue/close_front.png"
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-- 404 error if the lesson is not found:
-```json
-{
-  "status": "error",
-  "message": "Lesson with identifier 'slug' not found"
-}
-```
-
 </details>
 
 ## Response Format
@@ -211,11 +144,11 @@ backend/
 │   │   └── lesson.py
 │   ├── models/
 │   └── utils/
-│       └── response.py
+│       └── format.py
 └── static/
 ```
 
 ---
 
 **Maintainer:** _@dndrade_  
-_Last updated: May 7 2025_
+_Last updated: May 2025_

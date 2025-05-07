@@ -6,6 +6,7 @@ from src.db import db
 from src.models.lesson import LessonType, Vowels101Section, VowelGridCell
 from src.models.phoneme import Vowel
 from src.utils.decorators import safe_db_op
+from sqlalchemy.orm import joinedload
 
 
 def db_get_all_lesson_types() -> list[LessonType]:
@@ -17,12 +18,38 @@ def db_get_lesson_type_by_id(lesson_type_id: int) -> LessonType | None:
     """Returns a single LessonType by its ID, or None if not found."""
     return LessonType.query.get(lesson_type_id)
 
-def db_get_lesson_type_by_slug(slug: str) -> LessonType | None:
+
+def db_get_lesson_by_slug(slug: str):
     """
-    Retrieve a LessonType by its slug.
-    Returns None if not found.
+    Fetches the LessonType by its slug, which will contain the sections.
     """
-    return LessonType.query.filter_by(slug=slug).first()
+    return db.session.query(LessonType).filter(LessonType.slug == slug).first()
+
+
+def db_get_section_by_id(section_id: int):
+    """
+    Fetch a specific section by its ID.
+    """
+    return db.session.query(Vowels101Section).filter(Vowels101Section.id == section_id).first()
+
+
+def db_get_all_sections_for_lesson(slug: str):
+    """
+    Fetch all sections for a lesson identified by the slug.
+    """
+    lesson = db_get_lesson_by_slug(slug)
+    if lesson:
+        return lesson.sections
+    return []
+
+
+def db_get_section_cells(section_id: int):
+    """
+    Fetch all the grid cells for a specific section, including associated vowels.
+    """
+    return db.session.query(VowelGridCell).filter(VowelGridCell.section_id == section_id).options(
+        joinedload(VowelGridCell.vowels)
+    ).all()
 
 
 def validate_vowels101_tongue_json(data: dict):
