@@ -1,244 +1,320 @@
 import argparse
+import os
+from pathlib import Path
+
 from cli.cli_runner import cli_runner
+from src.database.lesson import check_lip_shape_section_integrity, check_vowels101_length_section_integrity, seed_vowels101_length_section_from_file, seed_vowels101_lip_section_from_file, seed_vowels101_tongue_section_from_file
 from src.app import create_app
-from src.db import db
-from src.utils.cli_format import (
-    print_success,
-    print_error,
-    print_info,
-    print_warning,
-    print_header
+from src.app import Config
+from src.database.phoneme import (
+    check_minimal_pair_integrity, 
+    seed_all_phonemes_from_file, 
+    seed_minimal_pairs_from_file
 )
+from src.utils.cli_response import cli_success, cli_error, cli_warning
+from src.database.phoneme import check_word_vowel_relationship_integrity
+
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Database management operations",
+        description="Database seeding and maintenance CLI",
         epilog="Examples:\n"
-               "  db seed                       # Seed all database tables\n"
-               "  db list                       # List entries from all tables\n"
-               "  db clean --confirm            # Remove all data from the database\n"
-               "  db reset --confirm            # Reset the entire database",
+               "  database seed                                # Seed using default JSON\n"
+               "  database seed --json src/data/phonemes.json  # Seed with custom path\n",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
+
+    parser.set_defaults(command=None)
 
     subparsers = parser.add_subparsers(
         dest="command",
         title="commands",
-        description="valid commands",
-        help="Command to execute (use '<command> -h' for more help on a command)"
+        description="Valid commands",
+        help="Command to execute (use '<command> -h' for more help)"
     )
 
     seed_parser = subparsers.add_parser(
         "seed",
-        help="Seed the database with data",
-        description="Seed the database with data from JSON files"
+        help="Seed vowel and word data into the database",
+        description="Seeds vowels and their word examples"
     )
     seed_parser.add_argument(
-        "--target",
-        choices=["all", "phonemes", "lessons", "quizzes"],
-        default="all",
-        help="Which database tables to seed (default: all)"
-    )
-    seed_parser.add_argument(
-        "--keep-existing",
-        action="store_true",
-        help="Don't clear existing data before seeding"
+        "--json",
+        type=str,
+        default="src/data/phonemes.json",
+        help="Path to phoneme JSON file"
     )
 
-    list_parser = subparsers.add_parser(
-        "list",
-        help="List database entries",
-        description="List entries from database tables"
+    seed_minimal_parser = subparsers.add_parser(
+        "seed-minimal-pairs",
+        help="Seed minimal pair entries from a JSON file",
+        description="Insert minimal pairs like 'pit' vs 'pet' from structured data"
     )
-    list_parser.add_argument(
-        "--target",
-        choices=["all", "phonemes", "lessons", "quizzes"],
-        default="all",
-        help="Which database tables to list (default: all)"
+    seed_minimal_parser.add_argument(
+        "--json",
+        type=str,
+        default="src/data/minimal_pairs.json",
+        help="Path to minimal pair JSON file"
     )
 
-    clean_parser = subparsers.add_parser(
-        "clean",
-        help="Clean the database",
-        description="Remove all data from the database while preserving the schema"
+    seed_tongue_parser = subparsers.add_parser(
+        "seed-tongue",
+        help="Seed the Vowels 101 - Tongue Position section",
+        description="Creates the Vowels101Section and VowelGridCells for the tongue position lesson"
     )
-    clean_parser.add_argument(
-        "--confirm",
+    seed_tongue_parser.add_argument(
+        "--json",
+        type=str,
+        default="src/data/vowels101_tongue.json",
+        help="Path to the tongue position JSON grid file"
+    )
+
+    # Lip shape seeding
+    seed_lip_parser = subparsers.add_parser(
+        "seed-lip",
+        help="Seed lip shape section from a JSON file",
+        description="Seeds lip shape grid (rounded vs unrounded)"
+    )
+    seed_lip_parser.add_argument(
+        "--json",
+        type=str,
+        default="src/data/lip_shape.json",
+        help="Path to lip shape JSON file"
+    )
+
+    # Lip shape integrity check
+    check_lip_parser = subparsers.add_parser(
+        "check-lip-shape",
+        help="Check that lip shape section content is valid",
+        description="Verifies that lip shape section contains expected vowels"
+    )
+    check_lip_parser.add_argument("--fail-fast", action="store_true")
+    check_lip_parser.add_argument("--silent", action="store_true")
+
+
+    check_parser = subparsers.add_parser(
+        "check-relations",
+        help="Check that all WordExamples are linked to valid Vowel entries",
+        description="Validates referential integrity between WordExample and Vowel"
+    )
+    check_parser.add_argument(
+        "--fail-fast",
         action="store_true",
-        help="Confirm database clean (required)"
+        help="Stop on first error instead of continuing"
     )
-    clean_parser.add_argument(
-        "--target",
-        choices=["all", "phonemes", "lessons", "quizzes"],
-        default="all",
-        help="Which database tables to clean (default: all)"
+    check_parser.add_argument(
+        "--silent",
+        action="store_true",
+        help="Suppress verbose output"
     )
+
+    check_minimal_parser = subparsers.add_parser(
+        "check-minimal-pairs",
+        help="Check that all MinimalPairs are valid and logically consistent",
+        description="Validate minimal pair entries for internal consistency"
+    )
+    check_minimal_parser.add_argument("--fail-fast", action="store_true")
+    check_minimal_parser.add_argument("--silent", action="store_true")
+
+
+    seed_length_parser = subparsers.add_parser(
+        "seed-length",
+        help="Seed the Length section of Vowels 101",
+        description="Insert vowel categories based on vowel length"
+    )
+    seed_length_parser.add_argument(
+        "--json",
+        type=str,
+        default="src/data/length.json",
+        help="Path to length section JSON file"
+    )
+
+    check_length_parser = subparsers.add_parser(
+        "check-length",
+        help="Validate that Length section is seeded correctly",
+        description="Checks number of cells and attached vowels"
+    )
+    check_length_parser.add_argument("--silent", action="store_true")
+
 
     reset_parser = subparsers.add_parser(
-        "reset",
-        help="Reset the database",
-        description="Reset the database by dropping and recreating all tables"
-    )
-    reset_parser.add_argument(
-        "--confirm",
-        action="store_true",
-        help="Confirm database reset (required)"
+        "reset-db",
+        help="Delete the entire database file",
+        description="⚠ Destroys the SQLite DB file completely. Use with caution."
     )
 
     cli_runner(parser, async_main)
 
-async def async_main(args, parser):
-    if not args.command:
-        parser.print_help()
-        return 0
 
-    app = create_app()
-    with app.app_context():
-        if args.command == "seed":
-            return await handle_seed(args)
-        elif args.command == "list":
-            return await handle_list(args)
-        elif args.command == "clean":
-            return await handle_clean(args)
-        elif args.command == "reset":
-            return await handle_reset(args)
+async def async_main(args, parser) -> int:
+    if args.command == "seed":
+        return await handle_seed(args)
+    elif args.command == "check-relations":
+        return await handle_check_relations(args)
+    elif args.command == "check-minimal-pairs":
+        return await handle_check_minimal_pairs(args)
+    elif args.command == "seed-minimal-pairs":
+        return await handle_seed_minimal_pairs(args)
+    elif args.command == "seed-tongue":
+        return await handle_seed_tongue(args)
+    elif args.command == "seed-lip":
+        return await handle_seed_lip_shape(args)
+    elif args.command == "check-lip-shape":
+        return await handle_check_lip_shape(args)
+    elif args.command == "seed-length":
+        return await handle_seed_length(args)
+    elif args.command == "check-length":
+        return await handle_check_length(args)
+
+
+
+    elif args.command == "reset-db":
+        return await handle_reset_db(args)
 
     parser.print_help()
     return 0
 
+
+#
+# Seeding Operations
+#
+
 async def handle_seed(args):
-    try:
-        print_header("Seeding Database")
+    app = create_app()
+    json_path = Path(args.json)
 
-        from cli.phoneme import handle_seed_from_json
-        from cli.lesson import handle_seed
-        from cli.quiz import handle_seed_all
+    with app.app_context():
+        try:
+            seed_all_phonemes_from_file(json_path)
+            cli_success("Database seeded successfully.")
+        except Exception as e:
+            cli_error("Seeding failed", details=str(e))
+            return 1
 
-        # Seed the requested tables
-        if args.target in ["all", "phonemes"]:
-            print_info("Seeding phonemes...")
-
-            class PhonemeArgs:
-                json = True
-                audio = False
-                json_file = None
-                vowel_dir = None
-                examples_dir = None
-                keep_existing = args.keep_existing
-
-            await handle_seed_from_json(PhonemeArgs())
-
-        if args.target in ["all", "lessons"]:
-            print_info("Seeding lessons...")
-            await handle_seed()
-
-        if args.target in ["all", "quizzes"]:
-            print_info("Seeding quizzes...")
-            await handle_seed_all()
-
-        print_success("Database seeding completed")
-        return 0
-    except Exception as e:
-        print_error(f"Failed to seed database: {str(e)}")
-        return 1
-
-async def handle_list(args):
-    try:
-        print_header("Database Contents")
-
-        from cli.phoneme import handle_list_vowels
-        from cli.lesson import handle_list_lesson
-        from src.models.quiz import QuizItem
-        from src.utils.cli_format import print_quiz_list
-
-        class Args:
-            def __init__(self, **kwargs):
-                for key, value in kwargs.items():
-                    setattr(self, key, value)
-
-        if args.target in ["all", "phonemes"]:
-            print_info("Phonemes:")
-            await handle_list_vowels()
-            print_info("")
-
-        if args.target in ["all", "lessons"]:
-            print_info("Lessons:")
-            lesson_args = Args(stats=False, json=False)
-            await handle_list_lesson(lesson_args)
-            print_info("")
-
-        if args.target in ["all", "quizzes"]:
-            print_info("Quizzes:")
-            app = create_app()
-            with app.app_context():
-                quizzes = QuizItem.query.all()
-                if quizzes:
-                    print_quiz_list(quizzes)
-                else:
-                    print_info("No quizzes found.")
-            print_info("")
-
-        return 0
-    except Exception as e:
-        print_error(f"Failed to list database entries: {str(e)}")
-        import traceback
-        print_error(traceback.format_exc())
-        return 1
+    return 0
 
 
-async def handle_clean(args):
-    if not args.confirm:
-        print_warning("This will delete data from the database.")
-        print_warning("To confirm, run the command with --confirm")
-        return 1
+async def handle_seed_minimal_pairs(args):
+    app = create_app()
+    json_path = Path(args.json)
 
-    try:
-        print_header("Cleaning Database")
+    with app.app_context():
+        try:
+            seed_minimal_pairs_from_file(json_path)
+            cli_success("Minimal pairs seeded successfully.")
+        except Exception as e:
+            cli_error("Failed to seed minimal pairs", details=str(e))
+            return 1
 
-        if args.target in ["all", "quizzes"]:
-            print_info("Cleaning quizzes...")
-            from src.models.quiz import QuizOption, QuizItem
-            QuizOption.query.delete()
-            QuizItem.query.delete()
-            db.session.commit()
-            print_success("Quizzes cleaned")
+    return 0
 
-        if args.target in ["all", "lessons"]:
-            print_info("Cleaning lessons...")
-            from src.models.lesson import LessonInstruction, Lesson
-            LessonInstruction.query.delete()
-            Lesson.query.delete()
-            db.session.commit()
-            print_success("Lessons cleaned")
 
-        if args.target in ["all", "phonemes"]:
-            print_info("Cleaning phonemes...")
-            from src.models.phoneme import WordExample, Vowel
-            WordExample.query.delete()
-            Vowel.query.delete()
-            db.session.commit()
-            print_success("Phonemes cleaned")
+async def handle_seed_tongue(args):
+    app = create_app()
+    with app.app_context():
+        try:
+            seed_vowels101_tongue_section_from_file(args.json)
+            cli_success("Tongue Position section seeded successfully.")
+        except FileNotFoundError as e:
+            cli_error("File not found", details=str(e))
+            return 1
+        except ValueError as ve:
+            cli_error("Validation failed", details=str(ve))
+            return 1
+        except Exception as e:
+            cli_error("Failed to seed tongue section", details=str(e))
+            return 1
+    return 0
 
-        print_success("Database cleaning completed")
-        return 0
-    except Exception as e:
-        print_error(f"Failed to clean database: {str(e)}")
-        db.session.rollback()
-        return 1
 
-async def handle_reset(args):
-    if not args.confirm:
-        print_warning("This will delete ALL data and reset the database schema.")
-        print_warning("To confirm, run the command with --confirm")
-        return 1
+async def handle_seed_lip_shape(args):
+    app = create_app()
+    json_path = Path(args.json)
 
-    try:
-        print_warning("Dropping all tables...")
-        db.drop_all()
-        print_warning("Creating all tables...")
-        db.create_all()
-        print_success("Database reset successfully")
-        return 0
-    except Exception as e:
-        print_error(f"Failed to reset database: {str(e)}")
+    with app.app_context():
+        try:
+            seed_vowels101_lip_section_from_file(json_path)
+            cli_success("Lip Shape section seeded successfully.")
+        except Exception as e:
+            cli_error("Seeding lip shape section failed", details=str(e))
+            return 1
+    return 0
+
+
+async def handle_seed_length(args):
+    app = create_app()
+    json_path = Path(args.json)
+
+    with app.app_context():
+        try:
+            seed_vowels101_length_section_from_file(json_path)
+            cli_success("Length section seeded successfully.")
+        except Exception as e:
+            cli_error("Seeding length section failed", details=str(e))
+            return 1
+
+    return 0
+
+
+
+#
+# Integrity Checks
+#
+
+async def handle_check_relations(args):
+    app = create_app()
+    with app.app_context():
+        result = check_word_vowel_relationship_integrity(
+            verbose=not args.silent,
+            fail_fast=args.fail_fast
+        )
+        return 0 if result else 1
+
+
+async def handle_check_minimal_pairs(args):
+    app = create_app()
+    with app.app_context():
+        result = check_minimal_pair_integrity(
+            verbose=not args.silent,
+            fail_fast=args.fail_fast
+        )
+        return 0 if result else 1
+
+
+async def handle_check_lip_shape(args):
+    app = create_app()
+
+    with app.app_context():
+        try:
+            result = check_lip_shape_section_integrity(verbose=not args.silent)
+            return 0 if result else 1
+        except Exception as e:
+            cli_error("Validation failed", details=str(e))
+            return 1
+
+async def handle_check_length(args):
+    app = create_app()
+    with app.app_context():
+        success = check_vowels101_length_section_integrity(verbose=not args.silent)
+        return 0 if success else 1
+
+
+#
+#  RESET DB
+#
+
+async def handle_reset_db(args):
+    """Deletes the current database file to allow a fresh start."""
+    db_path = os.path.join(Config.INSTANCE_DIR, "phonolab.db")
+
+    if os.path.exists(db_path):
+        try:
+            os.remove(db_path)
+            cli_success(f"Deleted database at: {db_path}")
+            return 0
+        except Exception as e:
+            cli_error("Failed to delete database", details=str(e))
+            return 1
+    else:
+        cli_warning(f"Database not found at: {db_path}")
         return 1

@@ -1,117 +1,120 @@
 # # src/models/phoneme.py
+from sqlalchemy import JSON
 from src.db import db
 
 
 class Vowel(db.Model):
     __tablename__ = "vowels"
 
-    id = db.Column(db.String, primary_key=True)
-    phoneme = db.Column(db.String, nullable=False)
-    name = db.Column(db.String, nullable=False)
-    ipa_example = db.Column(db.String, nullable=False)
-    color_code = db.Column(db.String, nullable=False)
-    audio_url = db.Column(db.String, nullable=False)
-    description = db.Column(db.String, nullable=False)
+    # Vowel identity
+    id = db.Column(db.String(32), primary_key=True)
+    ipa = db.Column(db.String(8), unique=True, nullable=False)
+    pronounced = db.Column(db.String(64), nullable=True)
+    common_spellings = db.Column(JSON)
 
-    # New fields from vowel.json
-    pronounced = db.Column(db.String, nullable=True)
-    common_spellings = db.Column(db.JSON, nullable=True)
-    lips = db.Column(db.String, nullable=True)
-    tongue = db.Column(db.String, nullable=True)
-    example_words = db.Column(db.JSON, nullable=True)
-    mouth_image_url = db.Column(db.String, nullable=True)
+    # Acoustic & articulatory details
+    length = db.Column(db.String(16), nullable=True)
+    lips = db.Column(db.String(64), nullable=True)
+    tongue = db.Column(db.String(64), nullable=True)
+    description = db.Column(db.String(128), nullable=True)
 
-    word_examples = db.relationship(
-        "WordExample",
-        backref="vowel",
-        cascade="all, delete-orphan",
-        lazy=True
+    # Media
+    audio_url = db.Column(JSON)
+    lip_image_url = db.Column(db.String(256), nullable=True)
+    tongue_image_url = db.Column(db.String(256), nullable=True)
+
+
+    # One-to-many: Vowel → WordExample
+    examples = db.relationship(
+        "WordExample", 
+        back_populates="vowel", 
+        cascade="all, delete-orphan"
     )
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "phoneme": self.phoneme,
-            "name": self.name,
-            "ipa_example": self.ipa_example,
-            "color_code": self.color_code,
-            "audio_url": self.audio_url,
-            "description": self.description,
-            "pronounced": self.pronounced,
-            "common_spellings": self.common_spellings,
-            "lips": self.lips,
-            "tongue": self.tongue,
-            "example_words": self.example_words,
-            "mouth_image_url": self.mouth_image_url,
-            "word_examples": [we.to_dict() for we in self.word_examples]
-        }
-
-    def get_lesson_card(self):
-        """
-        Return a dictionary with the lesson card information.
-        """
-        return {
-            "pronounced": self.pronounced,
-            "common_spellings": self.common_spellings,
-            "lips": self.lips,
-            "tongue": self.tongue,
-            "example_words": self.example_words
-        }
+    grid_cells = db.relationship("VowelGridCell", secondary="vowel_cell_map", back_populates="vowels")
 
     def __repr__(self):
-        return f"<Vowel id={self.id} phoneme='{self.phoneme}' name='{self.name}'>"
+        return f"<Vowel id={self.id} ipa='{self.ipa}'>"
 
 
 class WordExample(db.Model):
     __tablename__ = "word_examples"
-
+    
     id = db.Column(db.Integer, primary_key=True)
-    word = db.Column(db.String, nullable=False)
-    audio_url = db.Column(db.String, nullable=False)
-    ipa = db.Column(db.String, nullable=True)
-    example_sentence = db.Column(db.String, nullable=True)
-    vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=False)
+    word = db.Column(db.String(64), unique=True, nullable=False)
+    audio_url = db.Column(JSON)
+    ipa = db.Column(db.String(16))
+    example_sentence = db.Column(db.String(256))
 
-    def to_dict(self):
-        return {
-            "word": self.word,
-            "audio_url": self.audio_url,
-            "ipa": self.ipa,
-            "example_sentence": self.example_sentence
-        }
+    vowel_id = db.Column(db.String(32), db.ForeignKey("vowels.id"), nullable=True)
+    vowel = db.relationship("Vowel", back_populates="examples")
 
     def __repr__(self):
         return f"<WordExample word='{self.word}' vowel_id='{self.vowel_id}'>"
 
 
-# # Phase 2
-# # class ColorMapPosition(db.Model):
-# #     __tablename__ = "color_map_positions"
-# #
-# #     id = db.Column(db.Integer, primary_key=True)
-# #     x = db.Column(db.Float, nullable=False)
-# #     y = db.Column(db.Float, nullable=False)
-# #     region = db.Column(db.String, nullable=False)
-# #     vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"))
-# #
-# #     def __repr__(self):
-# #         return f"<ColorMapPosition x={self.x}, y={self.y}, region='{self.region}'>"
+class MinimalPair(db.Model):
+    __tablename__ = "minimal_pairs"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    # The actual word pair (e.g. "pit" vs "pet")
+    word_a = db.Column(db.String(64), nullable=False)
+    word_b = db.Column(db.String(64), nullable=False)
+
+    # The contrasting vowel sounds (e.g. "ɪ" vs "ɛ")
+    vowel_a = db.Column(db.String(8), nullable=False)
+    vowel_b = db.Column(db.String(8), nullable=False)
+
+    audio_a = db.Column(db.String(256))
+    audio_b = db.Column(db.String(256))
+
+    # Optional 
+    description = db.Column(db.String(256))  # e.g. "ɪ vs ɛ distinction"
+    category = db.Column(db.String(64))      # e.g. "vowel height"
+
+    __table_args__ = (
+        db.UniqueConstraint("word_a", "word_b", name="uq_minimal_pair_wordpair"),
+    )
+
+    def __repr__(self):
+        return f"<MinimalPair '{self.word_a}' vs '{self.word_b}'>"
 
 
-# # class ComparisonPair(db.Model):
-# #     __tablename__ = "comparison_pairs"
-# #
-# #     id = db.Column(db.Integer, primary_key=True)
-# #     contrast_with = db.Column(db.String, nullable=False)
-# #     word_a = db.Column(db.String, nullable=False)
-# #     word_b = db.Column(db.String, nullable=False)
-# #     audio_url_a = db.Column(db.String, nullable=False)
-# #     audio_url_b = db.Column(db.String, nullable=False)
-# #     note = db.Column(db.String, nullable=True)
-# #     vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"))
-# #
-# #     def __repr__(self):
-# #         return (
-# #             f"<ComparisonPair contrast_with='{self.contrast_with}', "
-# #             f"word_a='{self.word_a}', word_b='{self.word_b}'>"
-# #         )
+class SeedingStats:
+    def __init__(self):
+        self.counters = {
+            "inserted_vowels": 0,
+            "skipped_vowels": 0,
+            "inserted_words": 0,
+            "skipped_words": 0,
+            "inserted_pairs": 0,
+            "skipped_pairs": 0
+        }
+
+    def increment(self, key: str):
+        if key not in self.counters:
+            raise KeyError(f"Invalid stat key: '{key}'")
+        self.counters[key] += 1
+
+    def log(self):
+        print("\n📊 Seeding Summary:")
+        emoji_map = {
+            "inserted": "🟢",
+            "skipped": "🟡"
+        }
+
+        for group in ["vowels", "words", "pairs"]:
+            inserted = self.counters[f"inserted_{group}"]
+            skipped = self.counters[f"skipped_{group}"]
+            if inserted + skipped > 0:
+                print(f"{emoji_map['inserted']} Inserted {group}: {inserted}")
+                print(f"{emoji_map['skipped']} Skipped {group} (already existed): {skipped}")
+
+
+
+# def make_tricky_pair(word1, word2, **kwargs):
+#     if word1 == word2:
+#         raise ValueError("Tricky pairs must consist of two distinct words.")
+#     word_a, word_b = sorted([word1, word2])
+#     return TrickyPair(word_a=word_a, word_b=word_b, **kwargs)

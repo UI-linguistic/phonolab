@@ -1,0 +1,49 @@
+{
+    "title": "Tongue Position",
+    "description": "Vowels arranged by tongue height and frontness",
+    "grid": [
+        {
+            "row": "High",
+            "columns": {
+                "Front": [
+                    "i",
+                    "ɪ"
+                ],
+                "Central": [],
+                "Back": [
+                    "ʊ",
+                    "u"
+                ]
+            }
+        },
+        {
+            "row": "Mid",
+            "columns": {
+                "Front": [
+                    "e",
+                    "ɛ"
+                ],
+                "Central": [
+                    "ʌ",
+                    "ə"
+                ],
+                "Back": [
+                    "o",
+                    "ɔ"
+                ]
+            }
+        },
+        {
+            "row": "Low",
+            "columns": {
+                "Front": [
+                    "æ"
+                ],
+                "Central": [],
+                "Back": [
+                    "ɑ"
+                ]
+            }
+        }
+    ]
+}

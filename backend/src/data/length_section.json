@@ -1,0 +1,23 @@
+{
+    "title": "Vowel Length",
+    "description": "Categorize vowels by tense vs lax articulation",
+    "grid": {
+        "Tense": [
+            "i",
+            "e",
+            "u",
+            "o",
+            "ɑ"
+        ],
+        "Lax": [
+            "ɪ",
+            "ɛ",
+            "æ",
+            "ʌ",
+            "ʊ"
+        ],
+        "Neither": [
+            "ə"
+        ]
+    }
+}

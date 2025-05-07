@@ -1,0 +1,62 @@
+[
+  {
+    "word_a": "pit",
+    "word_b": "pet",
+    "vowel_a": "ɪ",
+    "vowel_b": "ɛ",
+    "audio_a": "/audio/tricky_pairs/pit.mp3",
+    "audio_b": "/audio/tricky_pairs/pet.mp3",
+    "description": "Minimal pair: /ɪ/ vs /ɛ/ distinction.",
+    "category": "vowel contrast"
+  },
+  {
+    "word_a": "cut",
+    "word_b": "cat",
+    "vowel_a": "ʌ",
+    "vowel_b": "æ",
+    "audio_a": "/audio/tricky_pairs/cut.mp3",
+    "audio_b": "/audio/word_examples/13_æ_ref_cat.mp3",
+    "description": "Minimal pair: /ʌ/ vs /æ/ distinction.",
+    "category": "vowel contrast"
+  },
+  {
+    "word_a": "bad",
+    "word_b": "bed",
+    "vowel_a": "æ",
+    "vowel_b": "ɛ",
+    "audio_a": "/audio/tricky_pairs/bad.mp3",
+    "audio_b": "/audio/word_examples/10_ɛ_ref_bed.mp3",
+    "description": "Minimal pair: /æ/ vs /ɛ/ distinction.",
+    "category": "vowel contrast"
+  },
+  {
+    "word_a": "hill",
+    "word_b": "he’ll",
+    "vowel_a": "ɪ",
+    "vowel_b": "i",
+    "audio_a": "/audio/tricky_pairs/hill.mp3",
+    "audio_b": "/audio/tricky_pairs/heel.mp3",
+    "description": "Minimal pair: /ɪ/ vs /i/ distinction.",
+    "category": "vowel length"
+  },
+  {
+    "word_a": "pull",
+    "word_b": "pool",
+    "vowel_a": "ʊ",
+    "vowel_b": "u",
+    "audio_a": "/audio/tricky_pairs/pull.mp3",
+    "audio_b": "/audio/tricky_pairs/pool.mp3",
+    "description": "Minimal pair: /ʊ/ vs /u/ distinction.",
+    "category": "vowel contrast"
+  },
+  {
+    "word_a": "stock",
+    "word_b": "stalk",
+    "vowel_a": "ɑ",
+    "vowel_b": "ɔ",
+    "audio_a": "/audio/tricky_pairs/stock.mp3",
+    "audio_b": "/audio/tricky_pairs/stalk.mp3",
+    "description": "Minimal pair: /ɑ/ vs /ɔ/ distinction.",
+    "category": "vowel contrast"
+  }
+]

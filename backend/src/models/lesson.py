@@ -1,47 +1,61 @@
 # src/models/lesson.py
+
 from src.db import db
 
 
-class Lesson(db.Model):
-    __tablename__ = "lessons"
+if "vowel_cell_map" not in db.metadata.tables:
+    vowel_cell_map = db.Table(
+        "vowel_cell_map",
+        db.Column("vowel_id", db.String, db.ForeignKey("vowels.id"), primary_key=True),
+        db.Column("cell_id", db.Integer, db.ForeignKey("vowel_grid_cells.id"), primary_key=True),
+    )
+else:
+    vowel_cell_map = db.metadata.tables["vowel_cell_map"]
+
+
+class LessonType(db.Model):
+    __tablename__ = "lesson_types"
 
     id = db.Column(db.Integer, primary_key=True)
-    vowel_id = db.Column(db.String, db.ForeignKey("vowels.id"), nullable=False, unique=True)
+    name = db.Column(db.String(64), nullable=False, unique=True)
+    slug = db.Column(db.String(64), nullable=False, unique=True)
+    description = db.Column(db.String(256))
 
-    vowel = db.relationship("Vowel", backref=db.backref("lesson", uselist=False, cascade="all, delete-orphan"))
-
-    def to_dict(self):
-        # lesson card
-        lesson_card = {}
-        if self.vowel:
-            lesson_card = {
-                "pronounced": self.vowel.pronounced,
-                "common_spellings": self.vowel.common_spellings,
-                "lips": self.vowel.lips,
-                "tongue": self.vowel.tongue,
-                "example_words": self.vowel.example_words
-            }
-
-        # filtered vowel
-        vowel_dict = None
-        if self.vowel:
-            vowel_dict = {
-                "id": self.vowel.id,
-                "phoneme": self.vowel.phoneme,
-                "name": self.vowel.name,
-                "ipa_example": self.vowel.ipa_example,
-                "color_code": self.vowel.color_code,
-                "audio_url": self.vowel.audio_url,
-                "description": self.vowel.description,
-                "mouth_image_url": self.vowel.mouth_image_url,
-                # "word_examples": [we.to_dict() for we in self.vowel.word_examples]
-            }
-
-        return {
-            "id": self.id,
-            "vowel": vowel_dict,
-            "lesson_card": lesson_card
-        }
+    sections = db.relationship("Vowels101Section", back_populates="lesson_type", cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<Lesson id={self.id} vowel_id={self.vowel_id}>"
+        return f"<LessonType '{self.name}'>"
+
+
+class Vowels101Section(db.Model):
+    __tablename__ = "vowels101_sections"
+
+    id = db.Column(db.Integer, primary_key=True)
+    lesson_type_id = db.Column(db.Integer, db.ForeignKey("lesson_types.id"), nullable=False)
+    name = db.Column(db.String(32), nullable=False)  # e.g. 'tongue', 'lip', 'length'
+    slug = db.Column(db.String(64), nullable=False)
+
+    lesson_type = db.relationship("LessonType", back_populates="sections")
+    cells = db.relationship("VowelGridCell", back_populates="section", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<Vowels101Section '{self.name}'>"
+
+
+class VowelGridCell(db.Model):
+    __tablename__ = "vowel_grid_cells"
+
+    id = db.Column(db.Integer, primary_key=True)
+    section_id = db.Column(db.Integer, db.ForeignKey("vowels101_sections.id"), nullable=False)
+
+    row = db.Column(db.Integer, nullable=False)
+    col = db.Column(db.Integer, nullable=False)
+
+    lip_type = db.Column(db.String(16))     # Optional: 'rounded', 'unrounded'
+    length_type = db.Column(db.String(16))  # Optional: 'tense', 'lax', 'neither'
+
+    section = db.relationship("Vowels101Section", back_populates="cells")
+    vowels = db.relationship("Vowel", secondary=vowel_cell_map, back_populates="grid_cells")
+
+    def __repr__(self):
+        return f"<VowelGridCell section={self.section_id} row={self.row} col={self.col}>"
