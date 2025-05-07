@@ -6,7 +6,7 @@ import logging
 from typing import Dict, Optional, Tuple, Any
 
 from src.config import Config
-from src.utils.error_handling import handle_file_operation, handle_service_errors
+from utils.decorators import handle_file_operation, handle_service_errors
 
 
 @handle_file_operation("load lesson from JSON")

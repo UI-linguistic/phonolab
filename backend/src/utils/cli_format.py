@@ -8,11 +8,24 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 from tabulate import tabulate
+from rich.console import Console
 
 init()
 
 
 console = Console()
+
+def success_response(message: str) -> None:
+    """Print a styled success message."""
+    console.print(f"[bold green]✔ {message}[/bold green]")
+
+def error_response(message: str) -> None:
+    """Print a styled error message."""
+    console.print(f"[bold red]✖ {message}[/bold red]")
+
+def warn_response(message: str) -> None:
+    """Print a styled warning message in yellow."""
+    console.print(f"[bold yellow]⚠ {message}[/bold yellow]")
 
 
 def green(text: str) -> str:

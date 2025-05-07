@@ -1,446 +1,584 @@
 # # src/database/phoneme.py
-import os
 import json
-import logging
-import sqlite3
-from typing import Any, Dict, Optional, Tuple
+from pathlib import Path
+from sqlalchemy.orm.exc import DetachedInstanceError
+from src.models.phoneme import SeedingStats, Vowel, WordExample
+from src.utils.decorators import safe_db_op
+from src.db import db
 
-from src.config import Config
-from src.utils.error_handling import handle_file_operation, handle_service_errors
+
+@safe_db_op(default=None, error_message="Failed to insert vowel")
+def insert_vowel_if_not_exists(vowel_data: dict, stats: SeedingStats | None = None) -> Vowel:
+    """Insert a Vowel only if it doesn't already exist (by ID)."""
+    existing = Vowel.query.filter_by(id=vowel_data["id"]).first()
+    if existing:
+        if stats: stats.skipped_vowels += 1
+        return existing
+
+    vowel = Vowel(
+        id=vowel_data["id"],
+        ipa=vowel_data["ipa"],
+        lips=", ".join(vowel_data.get("lips", [])),
+        tongue=", ".join(vowel_data.get("tongue", [])),
+        pronounced=vowel_data.get("pronounced"),
+        common_spellings=vowel_data.get("common_spellings", []),
+        audio_url=vowel_data.get("audio_url", []),
+        mouth_image_url=vowel_data.get("mouth_image_url"),
+    )
+    db.session.add(vowel)
+    db.session.flush()  # ID must be available
+    if stats: stats.inserted_vowels += 1
+    return vowel
 
 
-@handle_file_operation("load phonemes from JSON")
-def load_phonemes_from_json(json_path: Optional[str] = None) -> Dict:
-    """
-    Load phoneme data from the phonemes.json file.
-    
-    Args:
-        json_path: Optional path to the phonemes.json file. If not provided,
-                  will use the default path from Config.
-    
-    Returns:
-        Dictionary containing the phoneme data from the JSON file
-    """
-    # Use provided path or default from Config
-    phonemes_path = json_path or os.path.join(Config.BASE_DIR, "src", "data", "phonemes.json")
-    
-    logging.info(f"Loading phonemes from {phonemes_path}")
-    
-    with open(phonemes_path, 'r', encoding='utf-8') as f:
+@safe_db_op(default=None, error_message="Failed to insert word example")
+def insert_word_example_if_not_exists(word_data: dict, vowel_id: str | None = None, stats: SeedingStats | None = None) -> WordExample | None:
+    """Insert a WordExample only if it doesn't already exist (by word text)."""
+    existing = WordExample.query.filter_by(word=word_data["word"]).first()
+    if existing:
+        if stats: stats.skipped_words += 1
+        return None
+
+    word = WordExample(
+        word=word_data["word"],
+        ipa=word_data.get("ipa"),
+        audio_url=word_data.get("audio_url", []),
+        example_sentence=word_data.get("example_sentence"),
+        vowel_id=vowel_id,
+    )
+    db.session.add(word)
+    if stats: stats.inserted_words += 1
+    return word
+
+def seed_vowel_with_examples(symbol: str, data: dict, stats: SeedingStats):
+    vowel = insert_vowel_if_not_exists(data, stats)
+    if not vowel:
+        print(f"Skipping vowel '{symbol}' due to insert failure.")
+        return
+
+    for word_data in data.get("word_examples", []):
+        insert_word_example_if_not_exists(word_data, vowel_id=vowel.id, stats=stats)
+
+
+def validate_phoneme_data(phoneme_data: dict):
+    if not isinstance(phoneme_data, dict):
+        raise ValueError("Phoneme data must be a dictionary keyed by IPA symbol.")
+
+    seen_words = set()
+
+    for symbol, data in phoneme_data.items():
+        if not isinstance(data, dict):
+            raise ValueError(f"Entry for symbol '{symbol}' must be a dict.")
+
+        required_vowel_fields = ["id", "ipa"]
+        for field in required_vowel_fields:
+            if field not in data or not isinstance(data[field], str):
+                raise ValueError(f"Missing or invalid field '{field}' in vowel '{symbol}'")
+
+        if "word_examples" in data:
+            word_list = data["word_examples"]
+            if not isinstance(word_list, list):
+                raise ValueError(f"'word_examples' for vowel '{symbol}' must be a list.")
+
+            for word_data in word_list:
+                if not isinstance(word_data, dict):
+                    raise ValueError(f"A word entry under vowel '{symbol}' is not a dict.")
+
+                if "word" not in word_data or not isinstance(word_data["word"], str):
+                    raise ValueError(f"Missing or invalid 'word' in one example under vowel '{symbol}'.")
+
+                if word_data["word"] in seen_words:
+                    raise ValueError(f"Duplicate word '{word_data['word']}' found under vowel '{symbol}'.")
+
+                seen_words.add(word_data["word"])
+
+
+def seed_all_phonemes_from_file(json_path: Path | str = "src/data/phonemes.json"):
+    json_path = Path(json_path)
+    if not json_path.exists():
+        raise FileNotFoundError(f"Phoneme JSON file not found at: {json_path}")
+
+    with json_path.open("r", encoding="utf-8") as f:
         phoneme_data = json.load(f)
-        
-    logging.info(f"Successfully loaded {len(phoneme_data)} phonemes")
-    return phoneme_data
 
-def get_db_connection() -> sqlite3.Connection:
-    """
-    Get a direct SQLite connection to the database.
-    
-    Returns:
-        SQLite connection object
-    """
-    # Extract the SQLite file path from the URI
-    db_uri = Config.SQLALCHEMY_DATABASE_URI
-    if db_uri.startswith('sqlite:///'):
-        db_path = db_uri[10:]  # Remove 'sqlite:///'
-        logging.info(f"Connecting to SQLite database at: {db_path}")
-        return sqlite3.connect(db_path)
-    else:
-        logging.error(f"Unsupported database URI: {db_uri}")
-        raise ValueError(f"Unsupported database URI: {db_uri}")
+    validate_phoneme_data(phoneme_data)
 
-@handle_service_errors("validate vowel data")
-def validate_vowel_data(vowel_data: Dict, ipa: str) -> bool:
-    """
-    Validate that the vowel data contains all required fields.
-    
-    Args:
-        vowel_data: Dictionary containing vowel data
-        ipa: IPA symbol for the vowel (used for error reporting)
-        
-    Returns:
-        True if valid, raises ValueError otherwise
-    """
-    required_fields = ['id', 'ipa']
-    
-    for field in required_fields:
-        if field not in vowel_data:
-            error_msg = f"Missing required field '{field}' for vowel '{ipa}'"
-            logging.error(error_msg)
-            raise ValueError(error_msg)
-    
-    # Validate word examples if present
-    if 'word_examples' in vowel_data:
-        for i, example in enumerate(vowel_data['word_examples']):
-            if 'word' not in example:
-                error_msg = f"Missing 'word' field in word example #{i} for vowel '{ipa}'"
-                logging.error(error_msg)
-                raise ValueError(error_msg)
-    
-    return True
+    stats = SeedingStats()
 
-def ensure_tables_exist(conn: sqlite3.Connection) -> None:
-    """
-    Ensure that the necessary tables exist in the database.
-    
-    Args:
-        conn: SQLite connection object
-    """
-    cursor = conn.cursor()
-    
-    # Create vowels table if it doesn't exist
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS vowels (
-        id TEXT PRIMARY KEY,
-        ipa TEXT NOT NULL,
-        length TEXT,
-        color_code TEXT,
-        description TEXT,
-        pronounced TEXT,
-        common_spellings TEXT,
-        lips TEXT,
-        tongue TEXT,
-        audio_url TEXT,
-        mouth_image_url TEXT
-    )
-    ''')
-    
-    # Create word_examples table if it doesn't exist
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS word_examples (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        word TEXT NOT NULL,
-        audio_url TEXT,
-        ipa TEXT,
-        example_sentence TEXT,
-        vowel_id TEXT NOT NULL,
-        FOREIGN KEY (vowel_id) REFERENCES vowels (id)
-    )
-    ''')
-    
-    # Create tricky_pairs table if it doesn't exist
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS tricky_pairs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        word_a TEXT NOT NULL,
-        word_b TEXT NOT NULL,
-        vowel_a TEXT NOT NULL,
-        vowel_b TEXT NOT NULL,
-        audio_a TEXT,
-        audio_b TEXT,
-        description TEXT,
-        category TEXT,
-        UNIQUE(word_a, word_b)
-    )
-    ''')
-    
-    conn.commit()
-    logging.info("Database tables verified")
+    for symbol, data in phoneme_data.items():
+        try:
+            seed_vowel_with_examples(symbol, data, stats)
+        except Exception as e:
+            print(f"Failed to seed vowel '{symbol}': {e}")
 
-def seed_vowels_sql(conn: sqlite3.Connection, phoneme_data: Dict) -> Tuple[int, int]:
+    db.session.commit()
+    stats.log()
+
+
+def check_word_vowel_relationship_integrity(verbose: bool = False) -> bool:
     """
-    Seed vowels directly using SQL.
-    
-    Args:
-        conn: SQLite connection object
-        phoneme_data: Dictionary containing phoneme data
-        
-    Returns:
-        Tuple of (vowels_committed, vowels_skipped)
+    Verify that every WordExample has a valid vowel relationship.
+    Returns True if all are valid, False if any broken/missing links are found.
     """
-    cursor = conn.cursor()
-    vowels_committed = 0
-    vowels_skipped = 0
-    
-    # Process each vowel
-    for ipa, vowel_data in phoneme_data.items():
-        vowel_id = vowel_data['id']
-        
-        # Check if vowel already exists
-        cursor.execute("SELECT id FROM vowels WHERE id = ?", (vowel_id,))
-        if cursor.fetchone():
-            logging.info(f"Vowel {vowel_id} ({ipa}) already exists, skipping")
-            vowels_skipped += 1
+    broken = []
+
+    all_words = WordExample.query.all()
+    for word in all_words:
+        if not word.vowel_id:
+            broken.append((word.word, "Missing vowel_id"))
             continue
-        
-        # Convert lists to strings for database storage
-        lips = ", ".join(vowel_data.get('lips', [])) if isinstance(vowel_data.get('lips', []), list) else vowel_data.get('lips', '')
-        tongue = ", ".join(vowel_data.get('tongue', [])) if isinstance(vowel_data.get('tongue', []), list) else vowel_data.get('tongue', '')
-        
-        # Convert JSON fields to strings
-        common_spellings = json.dumps(vowel_data.get('common_spellings', []))
-        audio_url = json.dumps(vowel_data.get('audio_url', []))
-        
-        # Insert vowel
-        cursor.execute('''
-        INSERT INTO vowels (
-            id, ipa, lips, tongue, pronounced, common_spellings, audio_url, mouth_image_url
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            vowel_id,
-            vowel_data['ipa'],
-            lips,
-            tongue,
-            vowel_data.get('pronounced'),
-            common_spellings,
-            audio_url,
-            vowel_data.get('mouth_image_url')
-        ))
-        
-        vowels_committed += 1
-    
-    conn.commit()
-    return vowels_committed, vowels_skipped
 
-def seed_word_examples_sql(conn: sqlite3.Connection, phoneme_data: Dict) -> Tuple[int, int]:
-    """
-    Seed word examples directly using SQL.
+        try:
+            if not word.vowel:
+                broken.append((word.word, f"No vowel relation for ID {word.vowel_id}"))
+        except DetachedInstanceError:
+            broken.append((word.word, f"Detached relation for ID {word.vowel_id}"))
+
+    if not broken:
+        print("✅ All WordExamples have valid vowel relationships.")
+        return True
+
+    print(f"❌ Found {len(broken)} WordExamples with invalid vowel links:")
+    if verbose:
+        for word, reason in broken:
+            print(f"   - '{word}': {reason}")
+    return False
+
+
+
+
+# @handle_file_operation("load phonemes from JSON")
+# def load_phonemes_from_json(json_path: Optional[str] = None) -> Dict:
+#     """
+#     Load phoneme data from the phonemes.json file.
     
-    Args:
-        conn: SQLite connection object
-        phoneme_data: Dictionary containing phoneme data
-        
-    Returns:
-        Tuple of (examples_committed, examples_skipped)
-    """
-    cursor = conn.cursor()
-    examples_committed = 0
-    examples_skipped = 0
+#     Args:
+#         json_path: Optional path to the phonemes.json file. If not provided,
+#                   will use the default path from Config.
     
-    # Process each vowel's word examples
-    for ipa, vowel_data in phoneme_data.items():
-        vowel_id = vowel_data['id']
+#     Returns:
+#         Dictionary containing the phoneme data from the JSON file
+#     """
+#     # Use provided path or default from Config
+#     phonemes_path = json_path or os.path.join(Config.BASE_DIR, "src", "data", "phonemes.json")
+    
+#     logging.info(f"Loading phonemes from {phonemes_path}")
+    
+#     with open(phonemes_path, 'r', encoding='utf-8') as f:
+#         phoneme_data = json.load(f)
         
-        # Skip if no word examples
-        if 'word_examples' not in vowel_data or not vowel_data['word_examples']:
-            continue
+#     logging.info(f"Successfully loaded {len(phoneme_data)} phonemes")
+#     return phoneme_data
+
+# def get_db_connection() -> sqlite3.Connection:
+#     """
+#     Get a direct SQLite connection to the database.
+    
+#     Returns:
+#         SQLite connection object
+#     """
+#     # Extract the SQLite file path from the URI
+#     db_uri = Config.SQLALCHEMY_DATABASE_URI
+#     if db_uri.startswith('sqlite:///'):
+#         db_path = db_uri[10:]  # Remove 'sqlite:///'
+#         logging.info(f"Connecting to SQLite database at: {db_path}")
+#         return sqlite3.connect(db_path)
+#     else:
+#         logging.error(f"Unsupported database URI: {db_uri}")
+#         raise ValueError(f"Unsupported database URI: {db_uri}")
+
+# @handle_service_errors("validate vowel data")
+# def validate_vowel_data(vowel_data: Dict, ipa: str) -> bool:
+#     """
+#     Validate that the vowel data contains all required fields.
+    
+#     Args:
+#         vowel_data: Dictionary containing vowel data
+#         ipa: IPA symbol for the vowel (used for error reporting)
         
-        # Process each word example
-        for example in vowel_data['word_examples']:
-            word = example['word']
+#     Returns:
+#         True if valid, raises ValueError otherwise
+#     """
+#     required_fields = ['id', 'ipa']
+    
+#     for field in required_fields:
+#         if field not in vowel_data:
+#             error_msg = f"Missing required field '{field}' for vowel '{ipa}'"
+#             logging.error(error_msg)
+#             raise ValueError(error_msg)
+    
+#     # Validate word examples if present
+#     if 'word_examples' in vowel_data:
+#         for i, example in enumerate(vowel_data['word_examples']):
+#             if 'word' not in example:
+#                 error_msg = f"Missing 'word' field in word example #{i} for vowel '{ipa}'"
+#                 logging.error(error_msg)
+#                 raise ValueError(error_msg)
+    
+#     return True
+
+# def ensure_tables_exist(conn: sqlite3.Connection) -> None:
+#     """
+#     Ensure that the necessary tables exist in the database.
+    
+#     Args:
+#         conn: SQLite connection object
+#     """
+#     cursor = conn.cursor()
+    
+#     # Create vowels table if it doesn't exist
+#     cursor.execute('''
+#     CREATE TABLE IF NOT EXISTS vowels (
+#         id TEXT PRIMARY KEY,
+#         ipa TEXT NOT NULL,
+#         length TEXT,
+#         color_code TEXT,
+#         description TEXT,
+#         pronounced TEXT,
+#         common_spellings TEXT,
+#         lips TEXT,
+#         tongue TEXT,
+#         audio_url TEXT,
+#         mouth_image_url TEXT
+#     )
+#     ''')
+    
+#     # Create word_examples table if it doesn't exist
+#     cursor.execute('''
+#     CREATE TABLE IF NOT EXISTS word_examples (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         word TEXT NOT NULL,
+#         audio_url TEXT,
+#         ipa TEXT,
+#         example_sentence TEXT,
+#         vowel_id TEXT NOT NULL,
+#         FOREIGN KEY (vowel_id) REFERENCES vowels (id)
+#     )
+#     ''')
+    
+#     # Create tricky_pairs table if it doesn't exist
+#     cursor.execute('''
+#     CREATE TABLE IF NOT EXISTS tricky_pairs (
+#         id INTEGER PRIMARY KEY AUTOINCREMENT,
+#         word_a TEXT NOT NULL,
+#         word_b TEXT NOT NULL,
+#         vowel_a TEXT NOT NULL,
+#         vowel_b TEXT NOT NULL,
+#         audio_a TEXT,
+#         audio_b TEXT,
+#         description TEXT,
+#         category TEXT,
+#         UNIQUE(word_a, word_b)
+#     )
+#     ''')
+    
+#     conn.commit()
+#     logging.info("Database tables verified")
+
+# def seed_vowels_sql(conn: sqlite3.Connection, phoneme_data: Dict) -> Tuple[int, int]:
+#     """
+#     Seed vowels directly using SQL.
+    
+#     Args:
+#         conn: SQLite connection object
+#         phoneme_data: Dictionary containing phoneme data
+        
+#     Returns:
+#         Tuple of (vowels_committed, vowels_skipped)
+#     """
+#     cursor = conn.cursor()
+#     vowels_committed = 0
+#     vowels_skipped = 0
+    
+#     # Process each vowel
+#     for ipa, vowel_data in phoneme_data.items():
+#         vowel_id = vowel_data['id']
+        
+#         # Check if vowel already exists
+#         cursor.execute("SELECT id FROM vowels WHERE id = ?", (vowel_id,))
+#         if cursor.fetchone():
+#             logging.info(f"Vowel {vowel_id} ({ipa}) already exists, skipping")
+#             vowels_skipped += 1
+#             continue
+        
+#         # Convert lists to strings for database storage
+#         lips = ", ".join(vowel_data.get('lips', [])) if isinstance(vowel_data.get('lips', []), list) else vowel_data.get('lips', '')
+#         tongue = ", ".join(vowel_data.get('tongue', [])) if isinstance(vowel_data.get('tongue', []), list) else vowel_data.get('tongue', '')
+        
+#         # Convert JSON fields to strings
+#         common_spellings = json.dumps(vowel_data.get('common_spellings', []))
+#         audio_url = json.dumps(vowel_data.get('audio_url', []))
+        
+#         # Insert vowel
+#         cursor.execute('''
+#         INSERT INTO vowels (
+#             id, ipa, lips, tongue, pronounced, common_spellings, audio_url, mouth_image_url
+#         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+#         ''', (
+#             vowel_id,
+#             vowel_data['ipa'],
+#             lips,
+#             tongue,
+#             vowel_data.get('pronounced'),
+#             common_spellings,
+#             audio_url,
+#             vowel_data.get('mouth_image_url')
+#         ))
+        
+#         vowels_committed += 1
+    
+#     conn.commit()
+#     return vowels_committed, vowels_skipped
+
+# def seed_word_examples_sql(conn: sqlite3.Connection, phoneme_data: Dict) -> Tuple[int, int]:
+#     """
+#     Seed word examples directly using SQL.
+    
+#     Args:
+#         conn: SQLite connection object
+#         phoneme_data: Dictionary containing phoneme data
+        
+#     Returns:
+#         Tuple of (examples_committed, examples_skipped)
+#     """
+#     cursor = conn.cursor()
+#     examples_committed = 0
+#     examples_skipped = 0
+    
+#     # Process each vowel's word examples
+#     for ipa, vowel_data in phoneme_data.items():
+#         vowel_id = vowel_data['id']
+        
+#         # Skip if no word examples
+#         if 'word_examples' not in vowel_data or not vowel_data['word_examples']:
+#             continue
+        
+#         # Process each word example
+#         for example in vowel_data['word_examples']:
+#             word = example['word']
             
-            # Check if word example already exists
-            cursor.execute(
-                "SELECT id FROM word_examples WHERE vowel_id = ? AND word = ?", 
-                (vowel_id, word)
-            )
-            if cursor.fetchone():
-                logging.info(f"Word example '{word}' for vowel {vowel_id} already exists, skipping")
-                examples_skipped += 1
-                continue
+#             # Check if word example already exists
+#             cursor.execute(
+#                 "SELECT id FROM word_examples WHERE vowel_id = ? AND word = ?", 
+#                 (vowel_id, word)
+#             )
+#             if cursor.fetchone():
+#                 logging.info(f"Word example '{word}' for vowel {vowel_id} already exists, skipping")
+#                 examples_skipped += 1
+#                 continue
             
-            # Convert JSON fields to strings
-            audio_url = json.dumps(example.get('audio_url', []))
+#             # Convert JSON fields to strings
+#             audio_url = json.dumps(example.get('audio_url', []))
             
-            # Insert word example
-            cursor.execute('''
-            INSERT INTO word_examples (
-                word, audio_url, ipa, vowel_id
-            ) VALUES (?, ?, ?, ?)
-            ''', (
-                word,
-                audio_url,
-                example.get('ipa'),
-                vowel_id
-            ))
+#             # Insert word example
+#             cursor.execute('''
+#             INSERT INTO word_examples (
+#                 word, audio_url, ipa, vowel_id
+#             ) VALUES (?, ?, ?, ?)
+#             ''', (
+#                 word,
+#                 audio_url,
+#                 example.get('ipa'),
+#                 vowel_id
+#             ))
             
-            examples_committed += 1
+#             examples_committed += 1
     
-    conn.commit()
-    return examples_committed, examples_skipped
+#     conn.commit()
+#     return examples_committed, examples_skipped
 
-def verify_relationships_sql(conn: sqlite3.Connection) -> Dict[str, int]:
-    """
-    Verify relationships between vowels and word examples.
+# def verify_relationships_sql(conn: sqlite3.Connection) -> Dict[str, int]:
+#     """
+#     Verify relationships between vowels and word examples.
     
-    Args:
-        conn: SQLite connection object
+#     Args:
+#         conn: SQLite connection object
         
-    Returns:
-        Dictionary with verification results
-    """
-    cursor = conn.cursor()
+#     Returns:
+#         Dictionary with verification results
+#     """
+#     cursor = conn.cursor()
     
-    # Count vowels
-    cursor.execute("SELECT COUNT(*) FROM vowels")
-    vowel_count = cursor.fetchone()[0]
+#     # Count vowels
+#     cursor.execute("SELECT COUNT(*) FROM vowels")
+#     vowel_count = cursor.fetchone()[0]
     
-    # Count word examples
-    cursor.execute("SELECT COUNT(*) FROM word_examples")
-    example_count = cursor.fetchone()[0]
+#     # Count word examples
+#     cursor.execute("SELECT COUNT(*) FROM word_examples")
+#     example_count = cursor.fetchone()[0]
     
-    # Count vowels with word examples
-    cursor.execute("""
-    SELECT COUNT(DISTINCT v.id) 
-    FROM vowels v
-    JOIN word_examples we ON v.id = we.vowel_id
-    """)
-    vowels_with_examples = cursor.fetchone()[0]
+#     # Count vowels with word examples
+#     cursor.execute("""
+#     SELECT COUNT(DISTINCT v.id) 
+#     FROM vowels v
+#     JOIN word_examples we ON v.id = we.vowel_id
+#     """)
+#     vowels_with_examples = cursor.fetchone()[0]
     
-    # Count word examples per vowel
-    cursor.execute("""
-    SELECT v.id, v.ipa, COUNT(we.id)
-    FROM vowels v
-    LEFT JOIN word_examples we ON v.id = we.vowel_id
-    GROUP BY v.id
-    ORDER BY v.id
-    """)
-    examples_per_vowel = {row[0]: row[2] for row in cursor.fetchall()}
+#     # Count word examples per vowel
+#     cursor.execute("""
+#     SELECT v.id, v.ipa, COUNT(we.id)
+#     FROM vowels v
+#     LEFT JOIN word_examples we ON v.id = we.vowel_id
+#     GROUP BY v.id
+#     ORDER BY v.id
+#     """)
+#     examples_per_vowel = {row[0]: row[2] for row in cursor.fetchall()}
     
-    # Check for orphaned word examples
-    cursor.execute("""
-    SELECT COUNT(*) 
-    FROM word_examples we
-    LEFT JOIN vowels v ON we.vowel_id = v.id
-    WHERE v.id IS NULL
-    """)
-    orphaned_examples = cursor.fetchone()[0]
+#     # Check for orphaned word examples
+#     cursor.execute("""
+#     SELECT COUNT(*) 
+#     FROM word_examples we
+#     LEFT JOIN vowels v ON we.vowel_id = v.id
+#     WHERE v.id IS NULL
+#     """)
+#     orphaned_examples = cursor.fetchone()[0]
     
-    return {
-        "vowel_count": vowel_count,
-        "example_count": example_count,
-        "vowels_with_examples": vowels_with_examples,
-        "examples_per_vowel": examples_per_vowel,
-        "orphaned_examples": orphaned_examples
-    }
+#     return {
+#         "vowel_count": vowel_count,
+#         "example_count": example_count,
+#         "vowels_with_examples": vowels_with_examples,
+#         "examples_per_vowel": examples_per_vowel,
+#         "orphaned_examples": orphaned_examples
+#     }
 
-@handle_service_errors("seed phonemes with SQL")
-def seed_phonemes_with_sql(json_path: Optional[str] = None) -> Dict[str, int]:
-    """
-    Process the phonemes.json file and commit vowels and word examples using direct SQL.
+# @handle_service_errors("seed phonemes with SQL")
+# def seed_phonemes_with_sql(json_path: Optional[str] = None) -> Dict[str, int]:
+#     """
+#     Process the phonemes.json file and commit vowels and word examples using direct SQL.
     
-    Args:
-        json_path: Optional path to the phonemes.json file
+#     Args:
+#         json_path: Optional path to the phonemes.json file
         
-    Returns:
-        Dictionary with summary of operations
-    """
-    try:
-        # Load phoneme data from JSON
-        phoneme_data_result, error_msg, error_code = load_phonemes_from_json(json_path)
+#     Returns:
+#         Dictionary with summary of operations
+#     """
+#     try:
+#         # Load phoneme data from JSON
+#         phoneme_data_result, error_msg, error_code = load_phonemes_from_json(json_path)
         
-        if error_msg:
-            return None, error_msg, error_code
+#         if error_msg:
+#             return None, error_msg, error_code
         
-        phoneme_data = phoneme_data_result
+#         phoneme_data = phoneme_data_result
         
-        # Get database connection
-        conn = get_db_connection()
+#         # Get database connection
+#         conn = get_db_connection()
         
-        # Ensure tables exist
-        ensure_tables_exist(conn)
+#         # Ensure tables exist
+#         ensure_tables_exist(conn)
         
-        # Seed vowels
-        logging.info("Seeding vowels...")
-        vowels_committed, vowels_skipped = seed_vowels_sql(conn, phoneme_data)
-        logging.info(f"Committed {vowels_committed} vowels, skipped {vowels_skipped} existing vowels")
+#         # Seed vowels
+#         logging.info("Seeding vowels...")
+#         vowels_committed, vowels_skipped = seed_vowels_sql(conn, phoneme_data)
+#         logging.info(f"Committed {vowels_committed} vowels, skipped {vowels_skipped} existing vowels")
         
-        # Seed word examples
-        logging.info("Seeding word examples...")
-        examples_committed, examples_skipped = seed_word_examples_sql(conn, phoneme_data)
-        logging.info(f"Committed {examples_committed} word examples, skipped {examples_skipped} existing examples")
+#         # Seed word examples
+#         logging.info("Seeding word examples...")
+#         examples_committed, examples_skipped = seed_word_examples_sql(conn, phoneme_data)
+#         logging.info(f"Committed {examples_committed} word examples, skipped {examples_skipped} existing examples")
         
-        # Verify relationships
-        logging.info("Verifying relationships...")
-        verification = verify_relationships_sql(conn)
-        logging.info(f"Verification results: {verification}")
+#         # Verify relationships
+#         logging.info("Verifying relationships...")
+#         verification = verify_relationships_sql(conn)
+#         logging.info(f"Verification results: {verification}")
         
-        # Close connection
-        conn.close()
+#         # Close connection
+#         conn.close()
         
-        return {
-            "vowels_committed": vowels_committed,
-            "vowels_skipped": vowels_skipped,
-            "examples_committed": examples_committed,
-            "examples_skipped": examples_skipped,
-            "total_phonemes": len(phoneme_data),
-            "verification": verification
-        }
+#         return {
+#             "vowels_committed": vowels_committed,
+#             "vowels_skipped": vowels_skipped,
+#             "examples_committed": examples_committed,
+#             "examples_skipped": examples_skipped,
+#             "total_phonemes": len(phoneme_data),
+#             "verification": verification
+#         }
     
-    except Exception as e:
-        logging.exception(f"Error in seed_phonemes_with_sql: {str(e)}")
-        if 'conn' in locals() and conn:
-            conn.close()
-        raise
+#     except Exception as e:
+#         logging.exception(f"Error in seed_phonemes_with_sql: {str(e)}")
+#         if 'conn' in locals() and conn:
+#             conn.close()
+#         raise
 
 
-@handle_service_errors("seed vowels and examples")
-def seed_vowels_and_examples(json_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Seed vowels and word examples from JSON data using direct SQL.
-    This function handles the entire seeding process with detailed logging.
+# @handle_service_errors("seed vowels and examples")
+# def seed_vowels_and_examples(json_path: Optional[str] = None) -> Dict[str, Any]:
+#     """
+#     Seed vowels and word examples from JSON data using direct SQL.
+#     This function handles the entire seeding process with detailed logging.
     
-    Args:
-        json_path: Optional path to the phonemes JSON file
+#     Args:
+#         json_path: Optional path to the phonemes JSON file
         
-    Returns:
-        Dictionary with summary of operations
-    """
-    try:
-        logging.info("Starting vowel seeding process...")
+#     Returns:
+#         Dictionary with summary of operations
+#     """
+#     try:
+#         logging.info("Starting vowel seeding process...")
         
-        # Load phoneme data from JSON
-        phoneme_data_result, error_msg, error_code = load_phonemes_from_json(json_path)
+#         # Load phoneme data from JSON
+#         phoneme_data_result, error_msg, error_code = load_phonemes_from_json(json_path)
         
-        if error_msg:
-            logging.error(f"Error loading phonemes: {error_msg}")
-            return None, error_msg, error_code
+#         if error_msg:
+#             logging.error(f"Error loading phonemes: {error_msg}")
+#             return None, error_msg, error_code
         
-        phoneme_data = phoneme_data_result
+#         phoneme_data = phoneme_data_result
         
-        # Get database connection
-        conn = get_db_connection()
+#         # Get database connection
+#         conn = get_db_connection()
         
-        # Ensure tables exist
-        ensure_tables_exist(conn)
+#         # Ensure tables exist
+#         ensure_tables_exist(conn)
         
-        # Seed vowels
-        logging.info("Seeding vowels...")
-        vowels_committed, vowels_skipped = seed_vowels_sql(conn, phoneme_data)
-        logging.info(f"Vowels: {vowels_committed} committed, {vowels_skipped} skipped")
+#         # Seed vowels
+#         logging.info("Seeding vowels...")
+#         vowels_committed, vowels_skipped = seed_vowels_sql(conn, phoneme_data)
+#         logging.info(f"Vowels: {vowels_committed} committed, {vowels_skipped} skipped")
         
-        # Seed word examples
-        logging.info("Seeding word examples...")
-        examples_committed, examples_skipped = seed_word_examples_sql(conn, phoneme_data)
-        logging.info(f"Word examples: {examples_committed} committed, {examples_skipped} skipped")
+#         # Seed word examples
+#         logging.info("Seeding word examples...")
+#         examples_committed, examples_skipped = seed_word_examples_sql(conn, phoneme_data)
+#         logging.info(f"Word examples: {examples_committed} committed, {examples_skipped} skipped")
         
-        # Verify relationships
-        logging.info("Verifying database relationships...")
-        verification = verify_relationships_sql(conn)
+#         # Verify relationships
+#         logging.info("Verifying database relationships...")
+#         verification = verify_relationships_sql(conn)
         
-        # Log verification details
-        logging.info(f"Total vowels in database: {verification.get('vowel_count', 0)}")
-        logging.info(f"Total word examples in database: {verification.get('example_count', 0)}")
-        logging.info(f"Vowels with examples: {verification.get('vowels_with_examples', 0)}")
+#         # Log verification details
+#         logging.info(f"Total vowels in database: {verification.get('vowel_count', 0)}")
+#         logging.info(f"Total word examples in database: {verification.get('example_count', 0)}")
+#         logging.info(f"Vowels with examples: {verification.get('vowels_with_examples', 0)}")
         
-        if verification.get("orphaned_examples", 0) > 0:
-            logging.warning(f"Found {verification.get('orphaned_examples')} orphaned word examples!")
+#         if verification.get("orphaned_examples", 0) > 0:
+#             logging.warning(f"Found {verification.get('orphaned_examples')} orphaned word examples!")
         
-        # Log examples per vowel
-        examples_per_vowel = verification.get("examples_per_vowel", {})
-        if examples_per_vowel:
-            vowel_counts = ", ".join([f"{v_id}: {count}" for v_id, count in examples_per_vowel.items()])
-            logging.info(f"Examples per vowel: {vowel_counts}")
+#         # Log examples per vowel
+#         examples_per_vowel = verification.get("examples_per_vowel", {})
+#         if examples_per_vowel:
+#             vowel_counts = ", ".join([f"{v_id}: {count}" for v_id, count in examples_per_vowel.items()])
+#             logging.info(f"Examples per vowel: {vowel_counts}")
         
-        # Close connection
-        conn.close()
+#         # Close connection
+#         conn.close()
         
-        logging.info("Vowel seeding completed successfully!")
+#         logging.info("Vowel seeding completed successfully!")
         
-        return {
-            "vowels_committed": vowels_committed,
-            "vowels_skipped": vowels_skipped,
-            "examples_committed": examples_committed,
-            "examples_skipped": examples_skipped,
-            "total_phonemes": len(phoneme_data),
-            "verification": verification
-        }
+#         return {
+#             "vowels_committed": vowels_committed,
+#             "vowels_skipped": vowels_skipped,
+#             "examples_committed": examples_committed,
+#             "examples_skipped": examples_skipped,
+#             "total_phonemes": len(phoneme_data),
+#             "verification": verification
+#         }
     
-    except Exception as e:
-        logging.exception(f"Error in seed_vowels_and_examples: {str(e)}")
-        if 'conn' in locals() and conn:
-            conn.close()
-        raise
+#     except Exception as e:
+#         logging.exception(f"Error in seed_vowels_and_examples: {str(e)}")
+#         if 'conn' in locals() and conn:
+#             conn.close()
+#         raise
 
 
 # import os

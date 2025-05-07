@@ -1,6 +1,4 @@
 # src/api/lesson.py
-# import logging
-
 from flask import Blueprint
 from src.utils.format import (
     success_response,
