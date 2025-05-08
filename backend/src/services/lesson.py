@@ -3,7 +3,7 @@ Service functions for lesson-related operations.
 """
 from src.models.lesson import LessonType
 from src.database.lesson import (
-    db_get_all_sections_for_lesson,
+    db_get_lesson_by_slug,
     db_get_section_by_id,
     db_get_section_cells
 )
@@ -11,18 +11,15 @@ from utils.response import not_found_response, success_response
 
 
 
-def get_all_sections_for_lesson_service(slug: str):
-    """
-    Gets all sections for a given lesson slug, formats, and returns them.
-    """
-    sections = db_get_all_sections_for_lesson(slug)
-    if sections:
-        return success_response(
-            message=f"Sections for lesson '{slug}' retrieved successfully",
-            data=[section_to_dict(section) for section in sections]
-        )
-    return not_found_response(resource_type="Lesson", resource_id=slug)
+def get_lesson_by_slug(slug: str):
+    lesson = db_get_lesson_by_slug(slug)
+    if not lesson:
+        return not_found_response(resource_type="Lesson", resource_id=slug)
 
+    return success_response(
+        message=f"Lesson '{lesson.name}' retrieved successfully",
+        data=lesson_type_to_dict(lesson)
+    )
 
 def get_section_by_id_service(section_id: int):
     """

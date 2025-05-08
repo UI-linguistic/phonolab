@@ -1,144 +1,132 @@
+// src/pages/HomePage.tsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import VowelIllustration from '../images/home_brain-mouth.png';
+import { Heading, Text } from '@components/ui';
+import { LinkButton } from '@components/navigation';
+import PageContainer from '@components/ui/PageContainer';
+import VowelIllustration from '@assets/images/home_brain-mouth.png';
 
-const BG_COLOR = '#F7D9CB';
-
-const Container = styled.div`
+const FullHeight = styled.div`
   min-height: calc(100vh - 64px);
-  width: 100vw;
-  background: ${BG_COLOR};
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+  padding-top: ${({ theme }) => theme.spacing.xlarge};
 `;
 
 const MainContent = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 1200px;
-  gap: 4vw;
-  @media (max-width: 900px) {
-    flex-direction: column;
-    gap: 3rem;
-  }
-`;
+   display: flex;
+   align-items: flex-start;
+   padding-top: 2rem;
+   justify-content: center;
+   gap: 4vw;
+   width: 100%;
+   @media (max-width: 900px) {
+     flex-direction: column;
+     gap: ${({ theme }) => theme.spacing.large};
+   }
+ `;
 
 const Left = styled.div`
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
   min-width: 350px;
   max-width: 500px;
-`;
-
-const Title = styled.h1`
-  font-size: 3.2rem;
-  font-weight: 900;
-  color: #23243a;
-  margin-bottom: 1.2rem;
-  text-align: left;
-  line-height: 1.05;
-`;
-
-const Subtitle = styled.div`
-  font-size: 1.35rem;
-  color: #444;
-  font-weight: 600;
-  margin-bottom: 2.8rem;
-  text-align: left;
-  line-height: 1.3;
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.medium};
 `;
 
 const ButtonStack = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 1.3rem;
+  gap: ${({ theme }) => theme.spacing.medium};
+  margin-top: ${({ theme }) => theme.spacing.medium};
+
+  max-width: 400px;
+  width: 100%;
 `;
 
-const OrangeButton = styled.button`
-  background: #F26522;
-  color: #fff;
-  border: 2px solid #232323;
-  border-radius: 16px;
-  font-size: 1.25rem;
-  font-weight: bold;
-  padding: 1.1rem 2.5rem;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-  margin-bottom: 0.5rem;
-  text-align: left;
-  &:hover {
-    background: #d94e0f;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.13);
-    transform: translateY(-2px);
+const StyledLinkButton = styled(LinkButton)`
+  svg {
+    margin-left: 0.5rem;
+    width: 1rem;
+    height: 1rem;
   }
-`;
-
-const OutlineButton = styled.button`
-  background: ${BG_COLOR};
-  color: #23243a;
-  border: 2px solid #F26522;
-  border-radius: 16px;
-  font-size: 1.25rem;
-  font-weight: bold;
-  padding: 1.1rem 2.5rem;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-  text-align: left;
-  &:hover {
-    background: #ffe5d3;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-    transform: translateY(-2px);
-  }
+  width: 100%;
 `;
 
 const Right = styled.div`
   flex: 1;
+  min-width: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  /* lift it up a bit to mirror LearnMenu */
+  margin-top: 0;
+
+  @media (max-width: 900px) {
+    margin-top: 0;
+  }
+`;
+
+// The “circle” wrapper
+const Circle = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 600px;               /* match your illustration max-width */
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: ${({ theme }) => `${theme.colors.text}33`};  /* 20% grey */
+  border: 2px solid ${({ theme }) => `${theme.colors.black}66`}; /* 40% black */
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 320px;
 `;
 
 const Illustration = styled.img`
-  max-width: 420px;
-  width: 100%;
-  height: auto;
   display: block;
+  width: 90%;      /* slightly smaller to sit inside the circle */
+  height: auto;
 `;
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <Container>
-      <MainContent>
-        <Left>
-          <Title>Start Your Vowel Journey</Title>
-          <Subtitle>
-            Your Brain Knows English.<br />
-            Let's Get Your Mouth On Board.
-          </Subtitle>
-          <ButtonStack>
-            <OrangeButton onClick={() => navigate('/learn')}>Decode Vowel Sounds</OrangeButton>
-            <OutlineButton onClick={() => navigate('/quiz')}>Challenge Yourself</OutlineButton>
-          </ButtonStack>
-        </Left>
-        <Right>
-          <Illustration src={VowelIllustration} alt="Mouth and brain shaking hands" />
-        </Right>
-      </MainContent>
-    </Container>
+    <PageContainer>
+      <FullHeight>
+        <MainContent>
+          <Left>
+            <Heading level={1}>Start Your Vowel Journey</Heading>
+            <Text as="p" size="large">
+              Your brain knows English.
+              <br />
+              Let’s get your mouth on board.
+            </Text>
+
+            <ButtonStack>
+              <StyledLinkButton to="/learn" variant="solid" size="large" active>
+                Decode Vowel Sounds
+              </StyledLinkButton>
+              <StyledLinkButton to="/quiz" variant="outline" size="large">
+                Challenge Yourself
+              </StyledLinkButton>
+            </ButtonStack>
+          </Left>
+
+          <Right>
+            <Circle>
+              <Illustration
+                src={VowelIllustration}
+                alt="Illustration of mouth and brain shaking hands"
+              />
+            </Circle>
+          </Right>
+        </MainContent>
+      </FullHeight>
+    </PageContainer>
   );
 };
 
-export default HomePage; 
+export default HomePage;
