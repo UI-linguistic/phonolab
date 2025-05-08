@@ -106,7 +106,7 @@ const HomePage: React.FC = () => {
             </Text>
 
             <ButtonStack>
-              <StyledLinkButton to="/learn" variant="solid" size="large" active>
+              <StyledLinkButton to="/learn" variant="solid" size="large" active={true}>
                 Decode Vowel Sounds
               </StyledLinkButton>
               <StyledLinkButton to="/quiz" variant="outline" size="large">

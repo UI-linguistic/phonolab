@@ -30,7 +30,7 @@ export const Grid = styled.div`
 `;
 
 // Cell
-export const Cell = styled.div<{ hovered: boolean; selected: boolean }>`
+export const Cell = styled.div<{ hovered?: boolean; selected?: boolean }>`
   border: 1px solid #333;
   padding: 1rem;
   text-align: center;

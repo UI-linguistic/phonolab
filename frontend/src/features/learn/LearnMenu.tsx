@@ -112,7 +112,7 @@ export default function LearnMenu() {
         <MenuColumn>
           <StyledMenuList>
 
-            <LinkButton to="vowels-101" variant="solid" size="large" active>
+            <LinkButton to="vowels-101" variant="solid" size="large" active={true}>
               Vowels 101
             </LinkButton>
             <LinkButton to="map-vowel-space" variant="outline" size="large">

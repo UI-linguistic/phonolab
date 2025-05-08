@@ -6,7 +6,7 @@
  */
 export interface LessonSection {
     id: string;
-    title: string;
+    name: string;
     content: string;
     // you can extend with image URLs, audio URLs, metadata, etc.
 }
@@ -21,7 +21,10 @@ export interface LessonSectionMap {
     length: LessonSection[];
     // if you add more sections, include them here:
     // e.g. diphthongs?: LessonSection[];
+    [key: string]: LessonSection[];
 }
+
+export type SectionKey = keyof LessonSectionMap;
 
 /**
  * The top‑level Lesson type returned by your API.
@@ -29,7 +32,9 @@ export interface LessonSectionMap {
 export interface Lesson {
     id: number;
     slug: string;           // e.g. 'vowels-101'
-    title: string;          // human‑readable title
+    name: string;          // human‑readable title
     sections: LessonSectionMap;
     // you can add other fields (e.g. description, thumbnail) as needed
 }
+
+

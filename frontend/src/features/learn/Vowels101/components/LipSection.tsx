@@ -1,34 +1,45 @@
 // src/features/learn/Vowels101/components/LipSection.tsx
 import React, { useState } from 'react';
 import { SectionContainer } from '../Vowels101.styles';
-import { LessonSection } from '../types';
+import type { LessonSection } from '../types';
 import { VowelGrid } from './VowelGrid';
-import { useAudio } from './useAudio';
 import { ImageDisplay } from './ImageDisplay';
+import { useAudio } from './useAudio';
 
-interface Props { section: LessonSection; }
+interface Props {
+  section: LessonSection;
+}
 
 export const LipSection: React.FC<Props> = ({ section }) => {
-  const [hovered, setHovered] = useState<number | null>(null);
-  const [selected, setSelected] = useState<number | null>(null);
+  const [selectedVowelId, setSelectedVowelId] = useState<number | null>(null);
   const { play } = useAudio();
 
-  const cell = section.cells.find(c => c.id === selected);
-  const lipSrc = cell?.vowels[0]?.lip_image_url;
+  const selectedCell = section.cells.find(cell =>
+    cell.vowels.some(v => v.id === selectedVowelId)
+  );
+  const lipSrc = selectedCell
+    ? selectedCell.vowels.find(v => v.id === selectedVowelId)?.lip_image_url
+    : undefined;
+
+  const handleVowelSelect = (id: number) => {
+    setSelectedVowelId(id);
+    const vowel = section.cells
+      .flatMap(c => c.vowels)
+      .find(v => v.id === id);
+
+    if (vowel?.audio_url) {
+      play(vowel.audio_url);
+    }
+  };
 
   return (
     <SectionContainer>
       <VowelGrid
         cells={section.cells}
-        hoveredId={hovered}
-        selectedId={selected}
-        onHover={(id, enter) => setHovered(enter ? id : null)}
-        onSelect={id => {
-          setSelected(id);
-          const url = section.cells.find(c => c.id === id)?.vowels[0].audio_url;
-          if (url) play(url);
-        }}
+        selectedVowelId={selectedVowelId}
+        onSelectVowel={handleVowelSelect}
       />
+
       <ImageDisplay src={lipSrc} alt="Lip shape" />
     </SectionContainer>
   );
