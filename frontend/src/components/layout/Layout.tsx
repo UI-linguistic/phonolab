@@ -10,24 +10,36 @@ const Page = styled.div`
   flex-direction: column;
   min-height: 100vh;
   background: ${({ theme }) => theme.colors.background};
+
 `;
 
 const Main = styled.main`
+  padding-top: 64px;
+  position: relative;
   flex: 1;                           /* push footer to bottom */
   width: 100%;
-  max-width: 1200px;
   margin: 0 auto;
-  padding: ${({ theme }) => theme.spacing.xlarge};
+  overflow: hidden;
+  padding-left: ${({ theme }) => theme.spacing.xlarge};
+  padding-right: ${({ theme }) => theme.spacing.xlarge};
+  padding-bottom: ${({ theme }) => theme.spacing.medium};
+  box-sizing: border-box;
+  grid-template-rows: auto auto auto auto calc(1fr - 2rem);
+
+
+  outline: 2px dashed rgba(207, 48, 42, 0.6);
 `;
 
+// const Spacing = styled.
+
 export default function Layout() {
-    return (
-        <Page>
-            <Navbar />
-            <Main>
-                <Outlet />
-            </Main>
-            <Footer />
-        </Page>
-    );
+  return (
+    <Page>
+      <Navbar />
+      <Main>
+        <Outlet />
+      </Main>
+      <Footer />
+    </Page>
+  );
 }

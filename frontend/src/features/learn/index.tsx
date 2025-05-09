@@ -14,7 +14,7 @@ export const LearnRoutes = (
     <Route index element={<LearnMenu />} />
 
     {/* /learn/vowels-101 */}
-    <Route path="learn/vowels-101/:sectionSlug?" element={<Vowels101Page />} />
+    <Route path="vowels-101/:sectionSlug?" element={<Vowels101Page />} />
 
     <Route path="map-vowel-space" element={<MapVowelSpacePage />} />
     <Route path="graphemes" element={<GraphemesPage />} />

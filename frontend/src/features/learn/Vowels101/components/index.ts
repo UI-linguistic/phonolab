@@ -7,11 +7,10 @@
 // export { default as TongueSection } from './TongueSection';
 // export { default as LengthSection } from './LengthSection';
 // export { default as FooterNav } from './FooterNav';
-export * from './SectionTabs';
-export * from './TongueSection';
-export * from './LipSection';
-export * from './LengthSection';
-export * from './VowelGrid';
-export * from './VowelCell';
-export * from './ImageDisplay';
-export * from './useAudio';
+export { TongueSection } from './TongueSection';
+export { LipSection } from './LipSection';
+export { LengthSection } from './LengthSection';
+export { SectionNav } from './SectionNav';
+export { BackButtonRow } from './BackButtonRow';
+export { ImageDisplay } from './ImageDisplay';
+export { useAudio } from './useAudio';

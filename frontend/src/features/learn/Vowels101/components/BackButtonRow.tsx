@@ -8,7 +8,7 @@ import BackButton from '@components/navigation/BackButton';
 export function BackButtonRow() {
     return (
         <BackRow>
-            <BackButton to="/learn/vowels-101" />
+            <BackButton to="/learn" />
         </BackRow>
     );
 }

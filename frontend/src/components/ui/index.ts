@@ -4,4 +4,7 @@ export { default as Button } from './Button';
 export type { ButtonProps } from './Button';
 export { default as Heading } from './Heading';
 export { default as Text } from './Text';
-export { default as Grid } from './Grid';  
+export { Grid } from './Grid';
+export { default as TextSection } from './TextSection';
+export { default as Illustration } from './Illustration';
+export { default as MenuLayout } from './MenuLayout';

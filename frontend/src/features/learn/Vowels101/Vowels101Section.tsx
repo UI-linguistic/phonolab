@@ -58,3 +58,27 @@ export const ErrorMessage = styled.div`
   border-radius: 4px;
   background-color: #ffebee;
 `;
+
+
+export const PageTitle = styled.h2`
+  text-align: center;
+  margin: ${({ theme }) => `${theme.spacing.medium} 0`};
+  outline: 2px dashed rgba(0, 200, 100, 0.6);
+`;
+
+export const PageContainer = styled.div`
+  display: grid;
+  grid-template-rows:
+    auto   /* header */
+    auto   /* title */
+    auto   /* back+title row */
+    auto   /* nav */
+    1fr    /* content area */
+  ;
+  height: 100vh;
+  gap: ${({ theme }) => theme.spacing.medium};
+  padding: ${({ theme }) => theme.spacing.medium};
+
+  /* DEBUG: outline the full page container */
+  outline: 2px dashed rgba(128, 0, 128, 0.6);
+`;

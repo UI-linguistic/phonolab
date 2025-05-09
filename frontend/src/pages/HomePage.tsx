@@ -1,132 +1,66 @@
 // src/pages/HomePage.tsx
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { Heading, Text } from '@components/ui';
-import { LinkButton } from '@components/navigation';
-import PageContainer from '@components/ui/PageContainer';
-import VowelIllustration from '@assets/images/home_brain-mouth.png';
+import React from 'react'
+import { SectionTitle, SectionSubtitle } from '@components/ui/LayoutPrimitives'
+import { LinkButton } from '@components/navigation'
+import PageContainer from '@components/ui/PageContainer'
+import MenuLayout from '@components/ui/MenuLayout'
+import { MenuList } from '@components/ui/Menu'
+import { CircleWrapper } from '@components/components.styles'
+import HomeIllustration from '@assets/images/home_brain-mouth.png'
 
-const FullHeight = styled.div`
-  min-height: calc(100vh - 64px);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: ${({ theme }) => theme.spacing.xlarge};
-`;
-
-const MainContent = styled.div`
-   display: flex;
-   align-items: flex-start;
-   padding-top: 2rem;
-   justify-content: center;
-   gap: 4vw;
-   width: 100%;
-   @media (max-width: 900px) {
-     flex-direction: column;
-     gap: ${({ theme }) => theme.spacing.large};
-   }
- `;
-
-const Left = styled.div`
-  flex: 1;
-  min-width: 350px;
-  max-width: 500px;
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.medium};
-`;
-
-const ButtonStack = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.medium};
-  margin-top: ${({ theme }) => theme.spacing.medium};
-
-  max-width: 400px;
-  width: 100%;
-`;
-
-const StyledLinkButton = styled(LinkButton)`
-  svg {
-    margin-left: 0.5rem;
-    width: 1rem;
-    height: 1rem;
-  }
-  width: 100%;
-`;
-
-const Right = styled.div`
-  flex: 1;
-  min-width: 320px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  /* lift it up a bit to mirror LearnMenu */
-  margin-top: 0;
-
-  @media (max-width: 900px) {
-    margin-top: 0;
-  }
-`;
-
-// The “circle” wrapper
-const Circle = styled.div`
-  position: relative;
-  width: 100%;
-  max-width: 600px;               /* match your illustration max-width */
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background-color: ${({ theme }) => `${theme.colors.text}33`};  /* 20% grey */
-  border: 2px solid ${({ theme }) => `${theme.colors.black}66`}; /* 40% black */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const Illustration = styled.img`
-  display: block;
-  width: 90%;      /* slightly smaller to sit inside the circle */
-  height: auto;
-`;
-
-const HomePage: React.FC = () => {
-  const navigate = useNavigate();
-
+export default function HomePage() {
   return (
     <PageContainer>
-      <FullHeight>
-        <MainContent>
-          <Left>
-            <Heading level={1}>Start Your Vowel Journey</Heading>
-            <Text as="p" size="large">
-              Your brain knows English.
-              <br />
-              Let’s get your mouth on board.
-            </Text>
+      <MenuLayout>
+        {/* Left column: text + buttons */}
+        <MenuLayout.Left
+          flex={1}
+          minWidth="300px"
+          maxWidth="500px"
+          justify="center"
+        >
+          <SectionTitle align="left" style={{ marginLeft: '8rem' }}>
+            Start Your Vowel Journey
+          </SectionTitle>
+          <SectionSubtitle align="left" style={{ marginRight: '10rem' }}>
+            Your brain knows English.
+            <br />
+            Let’s get your mouth on board.
+          </SectionSubtitle>
 
-            <ButtonStack>
-              <StyledLinkButton to="/learn" variant="solid" size="large" active={true}>
-                Decode Vowel Sounds
-              </StyledLinkButton>
-              <StyledLinkButton to="/quiz" variant="outline" size="large">
-                Challenge Yourself
-              </StyledLinkButton>
-            </ButtonStack>
-          </Left>
+          <MenuList
+            columns="300px"
+            gap="1.6rem"
+            justifyItems="center"
+            style={{
+              marginTop: '1.6rem',
+              marginRight: '4rem'
+            }}
+          >
+            <LinkButton to="/learn" variant="solid" size="large">
+              Decode Vowel Sounds
+            </LinkButton>
+            <LinkButton to="/quiz" variant="outline" size="large">
+              Challenge Yourself
+            </LinkButton>
+          </MenuList>
+        </MenuLayout.Left>
 
-          <Right>
-            <Circle>
-              <Illustration
-                src={VowelIllustration}
-                alt="Illustration of mouth and brain shaking hands"
-              />
-            </Circle>
-          </Right>
-        </MainContent>
-      </FullHeight>
+        {/* Right column: illustration */}
+        <MenuLayout.Right
+          flex={1}
+          maxWidth="800px"
+          justify="center"
+        >
+          <CircleWrapper sizePx={800}>
+            <img
+              src={HomeIllustration}
+              alt="Brain and mouth"
+              style={{ width: '90%' }}
+            />
+          </CircleWrapper>
+        </MenuLayout.Right>
+      </MenuLayout>
     </PageContainer>
-  );
-};
-
-export default HomePage;
+  )
+}

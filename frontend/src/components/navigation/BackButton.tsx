@@ -9,7 +9,7 @@ const Btn = styled.button`
   border: none;
   color: #333;
   font-family: ${({ theme }) => theme.fonts.main};
-  font-size: 1rem; /
+  font-size: 1rem;
   cursor: pointer;
   padding: ${({ theme }) => theme.spacing.small};
   display: inline-flex;
@@ -21,7 +21,9 @@ const Btn = styled.button`
   }
 `;
 
-interface BackButtonProps {
+
+interface BackButtonProps
+    extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     to?: string;
     label?: string;
 }
@@ -29,13 +31,16 @@ interface BackButtonProps {
 export default function BackButton({
     to,
     label = 'Go back',
+    ...rest
 }: BackButtonProps) {
     const navigate = useNavigate();
+
     return (
         <Btn
             onClick={() => (to ? navigate(to) : navigate(-1))}
             aria-label={label}
             title={label}
+            {...rest}
         >
             <ArrowLeft size={24} strokeWidth={3} />
         </Btn>

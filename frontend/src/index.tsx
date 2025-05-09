@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ThemeProvider } from 'styled-components';
 import GlobalStyle from '@styles/GlobalStyle';
-import { theme } from '@styles/theme';
+import theme from '@styles/theme';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

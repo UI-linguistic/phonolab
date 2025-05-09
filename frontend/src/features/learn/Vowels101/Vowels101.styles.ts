@@ -1,5 +1,14 @@
 // src/features/learn/Vowels101/Vowels101.styles.ts
+/**
+ * Vowels101.styles
+ *
+ * Styled‑components definitions for the Vowels101 lesson:
+ *  - VowelsGrid: grid container for 3×3 layout
+ *  - CellContainer & CellContent: square cells with centered auto‑layout
+ *  - Plus supporting styles for tabs, images, and navigation rows
+ */
 import styled from 'styled-components';
+import { GridMode } from '../../../components/ui/Grid';
 
 // Tabs
 export const Tabs = styled.div`
@@ -22,21 +31,10 @@ export const SectionContainer = styled.div`
   gap: 2rem;
 `;
 
-// Grid
-export const Grid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-`;
-
-// Cell
-export const Cell = styled.div<{ hovered?: boolean; selected?: boolean }>`
-  border: 1px solid #333;
-  padding: 1rem;
-  text-align: center;
-  background: ${({ selected, hovered }) =>
-    selected ? '#e86c2a' : hovered ? '#f5f5f5' : 'transparent'};
-  cursor: pointer;
+// Section container (grid + image)
+export const Pane = styled.div`
+  outline: 1px dashed rgba(128, 0, 128, 0.6);
+  padding: ${({ theme }) => theme.spacing.medium};
 `;
 
 // Image display
@@ -61,11 +59,5 @@ export const BackRow = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
-`;
-
-// Footer navigation row
-export const FooterNavRow = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 2rem;
+  outline: 2px dashed rgba(255, 165, 0, 0.6);
 `;

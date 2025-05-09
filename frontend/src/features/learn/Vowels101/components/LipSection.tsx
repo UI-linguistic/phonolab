@@ -1,46 +1,65 @@
 // src/features/learn/Vowels101/components/LipSection.tsx
-import React, { useState } from 'react';
-import { SectionContainer } from '../Vowels101.styles';
+import React from 'react';
+import styled from 'styled-components';
 import type { LessonSection } from '../types';
-import { VowelGrid } from './VowelGrid';
-import { ImageDisplay } from './ImageDisplay';
-import { useAudio } from './useAudio';
+import { Illustration } from '@components/ui';
 
-interface Props {
-  section: LessonSection;
+interface LipSectionProps {
+  sections: LessonSection[];
 }
 
-export const LipSection: React.FC<Props> = ({ section }) => {
-  const [selectedVowelId, setSelectedVowelId] = useState<number | null>(null);
-  const { play } = useAudio();
+export const LipSection: React.FC<LipSectionProps> = ({ sections }) => (
+  <SectionContainer>
+    {sections.map(sec => (
+      <SectionGroup key={sec.id}>
+        <h3>{sec.name}</h3>
+        <CellsGrid>
+          {sec.cells.map(cell => {
+            // take the first vowel in this cell (if any)
+            const vowel = cell.vowels[0];
+            if (!vowel) return null;
+            return (
+              <Pane key={cell.id}>
+                <Illustration
+                  src={vowel.lip_image_url}
+                  alt={`${sec.name} – cell ${cell.id}`}
+                  shape="circle"
+                  size={150}
+                />
+                <Caption>Cell {cell.row},{cell.col}</Caption>
+              </Pane>
+            );
+          })}
+        </CellsGrid>
+      </SectionGroup>
+    ))}
+  </SectionContainer>
+);
 
-  const selectedCell = section.cells.find(cell =>
-    cell.vowels.some(v => v.id === selectedVowelId)
-  );
-  const lipSrc = selectedCell
-    ? selectedCell.vowels.find(v => v.id === selectedVowelId)?.lip_image_url
-    : undefined;
+const SectionContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.large};
+`;
 
-  const handleVowelSelect = (id: number) => {
-    setSelectedVowelId(id);
-    const vowel = section.cells
-      .flatMap(c => c.vowels)
-      .find(v => v.id === id);
+const SectionGroup = styled.div`
+  outline: 1px dashed rgba(128, 0, 128, 0.6); /* debug */
+  padding: ${({ theme }) => theme.spacing.medium};
+`;
 
-    if (vowel?.audio_url) {
-      play(vowel.audio_url);
-    }
-  };
+const CellsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: ${({ theme }) => theme.spacing.medium};
+  margin-top: ${({ theme }) => theme.spacing.medium};
+`;
 
-  return (
-    <SectionContainer>
-      <VowelGrid
-        cells={section.cells}
-        selectedVowelId={selectedVowelId}
-        onSelectVowel={handleVowelSelect}
-      />
+const Pane = styled.div`
+  text-align: center;
+`;
 
-      <ImageDisplay src={lipSrc} alt="Lip shape" />
-    </SectionContainer>
-  );
-};
+const Caption = styled.div`
+  margin-top: ${({ theme }) => theme.spacing.small};
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.textSubtle};
+`;

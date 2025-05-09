@@ -1,133 +1,100 @@
-import React from 'react';
+// src/features/learn/Vowels101/Vowels101Page.tsx
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
-import { useParams, useNavigate } from 'react-router-dom';
-import { LessonSection } from './types';
-import { SectionTabs } from './components/SectionTabs';
-import { LipSection } from './components/LipSection';
-import { TongueSection } from './components/TongueSection';
-import { useVowels101 } from './hooks/useVowels101';
+
+import PageContainer from '@components/ui/PageContainer';
+import { SectionNav } from './components/SectionNav';
+import { BackButtonRow } from './components/BackButtonRow';
+import { TongueSection, LipSection, LengthSection } from './components';
+
+import { fetchVowels101Lesson } from '../../../api/lessons';
+import {
+    Lesson,
+    LessonSection,
+    ApiResponse,
+    getSectionsByType
+} from './types';
+import { PageTitle } from './Vowels101Section';
+
+const SECTION_LABELS = ['Tongue', 'Lip', 'Length'] as const;
+const SECTION_KEYS = ['tongue', 'lip', 'length'] as const;
+type SectionIndex = 0 | 1 | 2;
 
 export const Vowels101Page: React.FC = () => {
-    const { data: lesson, loading, error } = useVowels101();
-    const { sectionSlug } = useParams<{ sectionSlug?: string }>();
-    const navigate = useNavigate();
+    // Loading & error state
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    React.useEffect(() => {
-        console.log('Vowels101Page: Navigation effect with:', { lesson, sectionSlug });
+    // Lesson data & categorized map
+    const [byType, setByType] = useState<ReturnType<typeof getSectionsByType> | null>(null);
 
-        if (lesson && !sectionSlug) {
-            const tongueSection = lesson.sections.find(
-                (section: LessonSection) =>
-                    section.slug === 'tongue' ||
-                    section.slug.includes('tongue') ||
-                    section.name.toLowerCase().includes('tongue')
-            );
+    // UI state
+    const [activeIndex, setActiveIndex] = useState<SectionIndex>(0);
 
-            console.log('Vowels101Page: Found tongue section:', tongueSection);
+    // Fetch once on mount
+    useEffect(() => {
+        fetchVowels101Lesson()
+            .then((lesson: Lesson) => {
+                const categorized = getSectionsByType(lesson.sections);
+                setByType(categorized);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setError('Failed to load lesson.');
+                setLoading(false);
+            });
+    }, []);
 
-            const defaultSection = tongueSection || lesson.sections[0];
-            console.log('Vowels101Page: Navigating to default section:', defaultSection);
+    // Derive the current section list
+    const activeSections = useMemo<LessonSection[] | null>(() => {
+        if (!byType) return null;
+        return byType[SECTION_KEYS[activeIndex]];
+    }, [byType, activeIndex]);
 
-            navigate(`/learn/vowels-101/${defaultSection.slug}`, { replace: true });
+    // Render the correct section component
+    const renderSection = useCallback(() => {
+        if (!activeSections) return null;
+        switch (activeIndex) {
+            case 0: return <TongueSection sections={activeSections} />;
+            case 1: return <LipSection sections={activeSections} />;
+            case 2: return <LengthSection sections={activeSections} />;
         }
-    }, [lesson, sectionSlug, navigate]);
+    }, [activeIndex, activeSections]);
 
-    const activeSection = lesson?.sections.find(
-        (section: LessonSection) => section.slug === sectionSlug
-    );
-
-    console.log('Vowels101Page: Active section:', activeSection);
-
-    const handleSectionSelect = (slug: string) => {
-        console.log('Vowels101Page: Section selected:', slug);
-        navigate(`/learn/vowels-101/${slug}`);
-    };
-
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
-
-    if (!lesson) {
-        return <div>Lesson not found</div>;
-    }
-    // Determine which section component to render
-    const renderSectionContent = () => {
-        if (!activeSection) return null;
-        console.log('Vowels101Page: Rendering section content for:', activeSection.slug);
-
-        if (activeSection.slug === 'tongue' ||
-            activeSection.slug.includes('tongue') ||
-            activeSection.name.toLowerCase().includes('tongue')) {
-
-            return <TongueSection section={activeSection} />;
-        } else if (activeSection.slug === 'lip' ||
-            activeSection.slug.includes('lip') ||
-            activeSection.name.toLowerCase().includes('lip')) {
-            return <LipSection section={activeSection} />;
-        } else {
-            return <div>Unknown section type: {activeSection.name}</div>;
-        }
-    };
-
+    if (loading) return <PageContainer>Loading…</PageContainer>;
+    if (error) return <PageContainer>Error: {error}</PageContainer>;
 
     return (
         <PageContainer>
-            <Header>
-                <Title>{lesson.name}</Title>
-                <Description>{lesson.description}</Description>
-            </Header>
+            <BackButtonRow />
+            <PageTitle>Vowels are organized in three ways:</PageTitle>
+            <NavRow>
+                <SectionNav
+                    sections={Array.from(SECTION_LABELS)}
+                    activeIndex={activeIndex}
+                    onChange={idx => setActiveIndex(idx as SectionIndex)}
+                />
+            </NavRow>
 
-            {lesson.sections.length > 0 && (
-                <>
-                    {/* Section tabs/buttons */}
-                    <SectionTabs
-                        sections={lesson.sections}
-                        activeSlug={sectionSlug || ''}
-                        onSelect={handleSectionSelect}
-                    />
-
-                    {/* Section content */}
-                    {activeSection && (
-                        <SectionContent>
-                            <SectionTitle>{activeSection.name}</SectionTitle>
-                            {renderSectionContent()}
-                        </SectionContent>
-                    )}
-                </>
-            )}
+            <ContentArea>
+                {renderSection()}
+            </ContentArea>
         </PageContainer>
     );
 };
 
-const PageContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+export default Vowels101Page;
+
+/** ────────────────────────────────────────────────────────────
+ * Styled slots (no debug outlines)
+ * ────────────────────────────────────────────────────────────
+ */
+
+const NavRow = styled.div`
+  margin-bottom: ${({ theme }) => theme.spacing.large};
 `;
 
-const Header = styled.header`
-  margin-bottom: 2rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-`;
-
-const Description = styled.p`
-  font-size: 1.2rem;
-  color: #666;
-`;
-
-const SectionContent = styled.div`
-  margin-top: 2rem;
-`;
-
-const SectionTitle = styled.h2`
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
+const ContentArea = styled.div`
+  outline: 2px dashed rgba(128, 0, 128, 0.6);
 `;
