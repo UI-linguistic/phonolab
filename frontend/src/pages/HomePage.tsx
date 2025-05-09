@@ -52,7 +52,7 @@ export default function HomePage() {
           maxWidth="800px"
           justify="center"
         >
-          <CircleWrapper sizePx={800}>
+          <CircleWrapper sizePx={700}>
             <img
               src={HomeIllustration}
               alt="Brain and mouth"
