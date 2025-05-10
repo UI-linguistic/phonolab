@@ -1,45 +1,61 @@
 // src/components/layout/Layout.tsx
-import React from 'react';
 import { Outlet } from 'react-router-dom';
-import styled from 'styled-components';
+import styled, { DefaultTheme } from 'styled-components';
 import Navbar from './Navbar';
 import Footer from './Footer';
+
+
+interface ContainerProps {
+  fluid?: boolean;
+}
+
 
 const Page = styled.div`
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background: ${({ theme }) => theme.colors.background};
-
 `;
 
 const Main = styled.main`
-  padding-top: 64px;
-  position: relative;
-  flex: 1;                           /* push footer to bottom */
-  width: 100%;
-  margin: 0 auto;
-  overflow: hidden;
-  padding-left: ${({ theme }) => theme.spacing.xlarge};
-  padding-right: ${({ theme }) => theme.spacing.xlarge};
-  padding-bottom: ${({ theme }) => theme.spacing.medium};
-  box-sizing: border-box;
-  grid-template-rows: auto auto auto auto calc(1fr - 2rem);
-
-
-  outline: 2px dashed rgba(207, 48, 42, 0.6);
+  flex: 1;
+  /* push content below navbar plus extra gutter */
+  padding-top: calc(
+    ${({ theme }) => theme.layout.headerHeight} + 
+    ${({ theme }) => theme.spacing.medium}
+  );
 `;
 
-// const Spacing = styled.
+const Container = styled.div<ContainerProps>`
+  width: 100%;
+  ${({ fluid, theme }: ContainerProps & { theme: DefaultTheme }) =>
+    fluid
+      ? ``
+      : `max-width: ${theme.layout.maxContentWidth};`}
+
+  margin: 0 auto;
+  padding: 0 ${({ theme }) => theme.layout.gutter};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    padding: 0 ${({ theme }) => theme.spacing.medium};
+  }
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: 0 ${({ theme }) => theme.spacing.small};
+  }
+`;
 
 export default function Layout() {
   return (
     <Page>
       <Navbar />
       <Main>
-        <Outlet />
+        <Container>
+          <Outlet />
+        </Container>
       </Main>
       <Footer />
     </Page>
   );
 }
+
+export { Container };

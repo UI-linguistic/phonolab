@@ -5,7 +5,7 @@ import VowelShufflePage from "./VowelShuffle/VowelShufflePage";
 import { SpellTellPage } from "./SpellTellPage/SpellTellPage";
 import { PairPlayPage } from "./PairPlay/PairPlayPage";
 import { PhonicTrioPage } from "./PhonicTrio/PhonicTrioPage";
-import VowelShuffleIntro from "./VowelShuffle/VowelShuffleQuizIntro";
+import VowelShuffleQuizIntro from "./VowelShuffle/VowelShuffleQuizIntro";
 
 export const QuizRoutes = [
     // “Test Your Knowledge” menu
@@ -14,14 +14,14 @@ export const QuizRoutes = [
     // 1) Intro / instructions
     <Route
         key="quiz‑shuffle‑intro"
-        path="quiz/vowel‑shuffle"
-        element={<VowelShuffleIntro />}
+        path="quiz/vowel-shuffle"
+        element={<VowelShuffleQuizIntro />}
     />,
 
     // 2) Actual quiz pages, under /quiz/vowel‑shuffle/start
     <Route
         key="quiz‑shuffle‑start"
-        path="quiz/vowel‑shuffle/start"
+        path="quiz/vowel-shuffle/start"
         element={<VowelShufflePage />}
     />,
 

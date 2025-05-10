@@ -37,10 +37,13 @@ declare module 'styled-components' {
       grey: string;
       greyDark: string;
     };
+    // Fonts
     fonts: {
       main: string;
       heading: string;
     };
+
+    // Spacing scale
     spacing: {
       xsmall: string;
       small: string;
@@ -48,51 +51,46 @@ declare module 'styled-components' {
       large: string;
       xlarge: string;
     };
+
+    // Border settings
     borderRadius: string;
     border: {
       default: string;
       subtle: string;
       highlight: string;
     };
-    transitions: {
-      default: string;
-    };
-    breakpoints: {
-      mobile: string;
-      tablet: string;
-      desktop: string;
-    };
-    shadows: {
-      low: string;
-      medium: string;
-      high: string;
-    };
-    layers: {
-      base: number;
-      dropdown: number;
-      modal: number;
-      tooltip: number;
-    };
-    opacity: {
-      low: number;
-      medium: number;
-      high: number;
-    };
     borderWidths: {
       thin: string;
       default: string;
       thick: string;
     };
-    fontSizes: {
-      xs: string; sm: string; md: string; lg: string; xl: string; xxl: string;
-    };
-    lineHeights: {
-      xs: number; sm: number; md: number; lg: number; xl: number; xxl: number;
-    };
+
+    // Typography
+    fontSizes: { xs: string; sm: string; md: string; lg: string; xl: string; xxl: string; };
+    lineHeights: { xs: number; sm: number; md: number; lg: number; xl: number; xxl: number; };
+
+    // Layout dimensions
     layout: {
       gutter: string;
       headerHeight: string;
       footerHeight: string;
+      maxContentWidth: string;
     };
+
+    // Breakpoints for media queries
+    breakpoints: {
+      mobile: string;
+      tablet: string;
+      desktop: string;
+      widescreen: string;
+    };
+
+    // Z‑index layers and shadows
+    layers: { base: number; dropdown: number; modal: number; tooltip: number; };
+    shadows: { low: string; medium: string; high: string; };
+
+    // Utility
+    transitions: { default: string; };
+    opacity: { low: number; medium: number; high: number; };
   }
 }

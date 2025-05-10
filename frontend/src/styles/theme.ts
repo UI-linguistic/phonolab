@@ -2,6 +2,9 @@
 import { DefaultTheme } from 'styled-components';
 
 const theme: DefaultTheme = {
+  // ────────────────────────────────────────────────────────────
+  // Color Palette
+  // ────────────────────────────────────────────────────────────
   colors: {
     primary: '#107E7D',
     secondary: '#FFA726',
@@ -33,6 +36,10 @@ const theme: DefaultTheme = {
     greyDark: '#616161',
   },
 
+  // ────────────────────────────────────────────────────────────
+  // Typography
+  // ────────────────────────────────────────────────────────────
+
   fonts: {
     main: "'Roboto', sans-serif",
     heading: "'Poppins', sans-serif",
@@ -56,34 +63,36 @@ const theme: DefaultTheme = {
     xxl: 1.6,
   },
 
+  // ────────────────────────────────────────────────────────────
+  // Spacing & Layout
+  // ────────────────────────────────────────────────────────────
   spacing: {
     xsmall: '0.4rem',  // 4px
-    small: '0.8rem',  // 8px
+    small: '0.8rem',   // 8px
     medium: '1.6rem',  // 16px
-    large: '2.4rem',  // 24px
+    large: '2.4rem',   // 24px
     xlarge: '3.2rem',  // 32px
   },
-
-  borderRadius: '0.5rem', // 8px
-
+  borderRadius: '0.5rem', // 8px rounded corners
   borderWidths: {
     thin: '1px',
     default: '2px',
     thick: '4px',
   },
-
   border: {
     default: '2px solid #BDBDBD',
     subtle: '1px solid #EEEEEE',
     highlight: '1.8px solid black',
   },
-
   shadows: {
     low: '0 1px 3px rgba(0,0,0,0.12)',
     medium: '0 4px 6px rgba(0,0,0,0.10)',
     high: '0 10px 20px rgba(0,0,0,0.15)',
   },
 
+  // ────────────────────────────────────────────────────────────
+  // Z‑Index Layers
+  // ────────────────────────────────────────────────────────────
   layers: {
     base: 0,
     dropdown: 1000,
@@ -91,26 +100,40 @@ const theme: DefaultTheme = {
     tooltip: 3000,
   },
 
+  // ────────────────────────────────────────────────────────────
+  // Opacity Levels
+  // ────────────────────────────────────────────────────────────
   opacity: {
     low: 0.2,
     medium: 0.5,
     high: 0.8,
   },
 
+  // ────────────────────────────────────────────────────────────
+  // Transitions
+  // ────────────────────────────────────────────────────────────
   transitions: {
     default: '200ms ease-in-out',
   },
 
+  // ────────────────────────────────────────────────────────────
+  // Breakpoints
+  // ────────────────────────────────────────────────────────────
   breakpoints: {
-    mobile: '480px',
-    tablet: '768px',
-    desktop: '1024px',
+    mobile: '480px',   // up to small phones
+    tablet: '768px',   // up to tablets
+    desktop: '1024px',  // up to laptops
+    widescreen: '1600px',  // large monitors
   },
 
+  // ────────────────────────────────────────────────────────────
+  // Global Layout Dimensions
+  // ────────────────────────────────────────────────────────────
   layout: {
-    gutter: '1.6rem',
-    headerHeight: '64px',
-    footerHeight: '64px',
+    gutter: '1.6rem',        // default horizontal padding
+    headerHeight: '64px',    // navbar height
+    footerHeight: '64px',    // footer height
+    maxContentWidth: '75ch' // ~65 characters per line ≈ 680px at 16px font
   },
 };
 
