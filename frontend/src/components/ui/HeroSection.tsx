@@ -1,62 +1,33 @@
-// // src/components/ui/HeroSection.tsx
-// import styled from 'styled-components';
-
-// export const Hero = styled.section<{ full?: boolean }>`
-//   min-height: ${({ full, theme }) =>
-//     full
-//       ? `calc(100vh - ${theme.layout.headerHeight} - ${theme.layout.footerHeight})`
-//       : 'auto'};
-//   display: flex;
-//   align-items: flex-start;
-//   justify-content: center;
-//   padding-top: ${({ theme }) => theme.spacing.xlarge};
-
-//   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
-//     padding-top: ${({ theme }) => theme.spacing.large};
-//   }
-// `;
-
-// export const HeroContent = styled.div`
-//   display: flex;
-//   width: 100%;
-//   gap: 4vw;
-
-//   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
-//     flex-direction: column;
-//     gap: ${({ theme }) => theme.spacing.large};
-//   }
-// `;
-
-// export const HeroColumn = styled.div<{ flex?: number }>`
-//   flex: ${({ flex }) => flex ?? 1};
-
-//   min-width: ${({ flex }) => ((flex ?? 1) > 1 ? '350px' : '320px')};
-//   max-width: ${({ flex }) => ((flex ?? 1) > 1 ? '500px' : 'none')};
-
-//   display: flex;
-//   flex-direction: column;
-//   gap: ${({ theme }) => theme.spacing.medium};
-// `;
-/* File: src/components/layout/HeroSection.tsx */
-import React from 'react';
-import styled from 'styled-components';
+// File: src/components/layout/HeroPresets.tsx
+import React, { useState } from 'react';
+import styled, { useTheme } from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 import {
   TitleContainer,
   SubtitleContainer,
   PageTitle,
-  PageSubtitle
+  PageSubtitle,
 } from '../typography/PageTypography';
-import HomeIllustration from '@assets/images/home_brain-mouth.png'
-import theme from '@styles/theme';
+import {
+  HomeHeroMenuList,
+  LearnMenuList,
+  QuizMenuList,
+} from '../ui/MenuPresets';
+import {
+  HomePageIllustration,
+  LearnMenuIllustration,
+  QuizMenuIllustration,
+  QuizFeedbackBad,
+  QuizFeedbackGood,
+} from '../ui/IllustrationWrappers';
+import { Size } from '../ui/Menu';
 
 // ────────────────────────────────────────────────────────────
-// Hero Section Wrapper (Grid)
+// Generic Hero Layout
 // ────────────────────────────────────────────────────────────
 const HeroSection = styled.section`
-  outline: 2px dashed rgba(255, 87, 34, 0.6); /* debug outline */
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  align-items: center;
   column-gap: ${({ theme }) => theme.spacing.xlarge};
   padding: ${({ theme }) => theme.spacing.large} 0;
 
@@ -66,100 +37,148 @@ const HeroSection = styled.section`
   }
 `;
 
-// ────────────────────────────────────────────────────────────
-// Text Column Container
-// ────────────────────────────────────────────────────────────
 const TextColumn = styled.div`
-  outline: 2px dashed rgba(76, 175, 80, 0.6); /* debug outline */
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.medium};
-  position: relative;
 `;
 
-// ────────────────────────────────────────────────────────────
-// Button Group Container
-// ────────────────────────────────────────────────────────────
-const ButtonGroupContainer = styled.div`
-  outline: 2px dashed rgba(255, 193, 7, 0.6); /* debug outline */
-  display: flex;
-  gap: ${({ theme }) => theme.spacing.medium};
-  flex-wrap: wrap;
-`;
-
-// ────────────────────────────────────────────────────────────
-// Hero Buttons
-// ────────────────────────────────────────────────────────────
-const HeroButton = styled.button<{ variant?: 'solid' | 'outline' }>`
-  font-size: ${({ theme }) => theme.fontSizes.md};
-  padding: ${({ theme }) => theme.spacing.small} ${({ theme }) => theme.spacing.large};
-  border-radius: ${({ theme }) => theme.borderRadius};
-  border: ${({ variant, theme }) =>
-    variant === 'outline' ? `2px solid ${theme.colors.secondary}` : 'none'};
-  background: ${({ variant, theme }) =>
-    variant === 'outline' ? 'transparent' : theme.colors.secondary};
-  color: ${({ variant, theme }) =>
-    variant === 'outline' ? theme.colors.text : theme.colors.white};
-  cursor: pointer;
-  transition: transform ${({ theme }) => theme.transitions.default};
-
-  &:hover {
-    transform: scale(1.05);
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
-    font-size: ${({ theme }) => theme.fontSizes.sm};
-    padding: ${({ theme }) => theme.spacing.xsmall};
-  }
-`;
-
-// ────────────────────────────────────────────────────────────
-// Media Column Container
-// ────────────────────────────────────────────────────────────
 const MediaColumn = styled.div`
-  outline: 2px dashed rgba(255, 87, 34, 0.6); /* debug outline */
   display: flex;
   justify-content: center;
   align-items: center;
-  position: relative;
-
-  img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-  }
 `;
 
-// ────────────────────────────────────────────────────────────
-// Hero Component
-// ────────────────────────────────────────────────────────────
-export default function Hero() {
+interface HeroProps {
+  title: string;
+  subtitle?: string;
+  /**
+   * A Menu list component, should accept activeIndex, onSelect, and size props
+   */
+  menu: React.FC<{ activeIndex?: number; onSelect?: (i: number) => void; size?: Size }>;
+  /** Size token (xs | sm | md | lg) */
+  menuSize?: Size;
+  /** Array of route paths corresponding to each menu item */
+  paths?: string[];
+  /** Illustration component to render on right side */
+  illustration: React.FC;
+  /** When true, centers the title above and removes left margin */
+  centeredTitle?: boolean;
+}
+
+export function HeroTemplate({
+  title,
+  subtitle,
+  menu: MenuComponent,
+  menuSize = 'md' as Size,
+  paths = [],
+  illustration: IllustrationComponent,
+  centeredTitle = false,
+}: HeroProps) {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const [activeIndex, setActiveIndex] = useState(0);
+
   return (
     <HeroSection>
-      <TextColumn>
-        <TitleContainer marginLeft={theme.spacing.small}>
-          <PageTitle>Start Your Vowel Journey</PageTitle>
+      <TextColumn style={centeredTitle ? { textAlign: 'center' } : {}}>
+        <TitleContainer marginLeft={centeredTitle ? '0' : theme.spacing.small}>
+          <PageTitle>{title}</PageTitle>
         </TitleContainer>
 
-        <SubtitleContainer marginLeft={theme.spacing.medium}>
-          <PageSubtitle>
-            Your brain knows English.<br />
-            Let’s get your mouth on board.
-          </PageSubtitle>
-        </SubtitleContainer>
+        {subtitle && (
+          <SubtitleContainer marginLeft={centeredTitle ? '0' : theme.spacing.medium}>
+            <PageSubtitle>{subtitle}</PageSubtitle>
+          </SubtitleContainer>
+        )}
 
-        <ButtonGroupContainer>
-          <HeroButton variant="solid">Decode Vowel Sounds</HeroButton>
-          <HeroButton variant="outline">Challenge Yourself</HeroButton>
-        </ButtonGroupContainer>
+        <MenuComponent
+          size={menuSize}
+          activeIndex={activeIndex}
+          onSelect={(idx: number) => {
+            setActiveIndex(idx);
+            if (paths[idx]) navigate(paths[idx]);
+          }}
+        />
       </TextColumn>
 
       <MediaColumn>
-        <img
-          src={HomeIllustration}
-          alt="Brain and mouth handshake illustration"
-        />
+        <IllustrationComponent />
       </MediaColumn>
     </HeroSection>
   );
 }
+
+// ────────────────────────────────────────────────────────────
+// Variants / Presets
+// ────────────────────────────────────────────────────────────
+
+/** 1) Home Page Hero */
+export function HomeHero() {
+  return (
+    <HeroTemplate
+      title="Start Your Vowel Journey"
+      subtitle="Your brain knows English. Let’s get your mouth on board."
+      menu={HomeHeroMenuList}
+      menuSize="md"
+      paths={["/learn", "/quiz"]}
+      illustration={HomePageIllustration}
+    />
+  );
+}
+
+/** 2) Learn Menu Hero */
+export function LearnHero() {
+  return (
+    <HeroTemplate
+      title="Choose Your Learning Path"
+      subtitle="Master those slippery English vowels that trip up even fluent speakers."
+      menu={LearnMenuList}
+      menuSize="md"
+      paths={[
+        "/learn/vowels-101",
+        "/learn/map-vowel-space",
+        "/learn/graphemes",
+        "/learn/tricky-pairs",
+      ]}
+      illustration={LearnMenuIllustration}
+    />
+  );
+}
+
+/** 3) Quiz Menu Hero */
+export function QuizHero() {
+  return (
+    <HeroTemplate
+      title="Test Your Knowledge"
+      subtitle="Think you’ve mastered English vowels? Let’s see what you’ve got."
+      menu={QuizMenuList}
+      menuSize="md"
+      paths={[
+        "/quiz",
+        "/quiz/vowel-shuffle",
+        "/quiz/spell-tell",
+        "/quiz/pair-play",
+        "/quiz/phonic-trio",
+      ]}
+      illustration={QuizMenuIllustration}
+    />
+  );
+}
+
+/** 4) Quiz Feedback Hero */
+export function QuizFeedbackHero({ feedbackType }: { feedbackType: 'good' | 'bad' }) {
+  return (
+    <HeroTemplate
+      title="Quiz Complete"
+      subtitle={feedbackType === 'good' ? "Great job!" : "Oops, let’s review your mistakes."}
+      menu={() => <></>}              // no menu here
+      menuSize="md"
+      paths={[]}
+      illustration={feedbackType === 'good' ? QuizFeedbackGood : QuizFeedbackBad}
+      centeredTitle
+    />
+  );
+}
+
+export default { HomeHero, LearnHero, QuizHero, QuizFeedbackHero, HeroTemplate };

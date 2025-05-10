@@ -23,8 +23,7 @@ export const LipSection: React.FC<LipSectionProps> = ({ sections }) => (
                 <Illustration
                   src={vowel.lip_image_url}
                   alt={`${sec.name} – cell ${cell.id}`}
-                  shape="circle"
-                  size={150}
+                  size="medium"
                 />
                 <Caption>Cell {cell.row},{cell.col}</Caption>
               </Pane>

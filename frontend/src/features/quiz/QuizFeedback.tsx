@@ -20,3 +20,14 @@ export default function QuizFeedback({
         </div>
     );
 }
+
+
+
+// import React from 'react';
+// import { useParams } from 'react-router-dom';
+// import { QuizFeedbackHero } from '@/components/layout/HeroPresets';
+
+// export default function QuizFeedbackPage() {
+//   const { result } = useParams<{ result: 'good' | 'bad' }>();
+//   return <QuizFeedbackHero feedbackType={result === 'good' ? 'good' : 'bad'} />;
+// }
