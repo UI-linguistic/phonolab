@@ -1,7 +1,6 @@
 // src/features/learn/Vowels101/components/LengthSection.tsx
 import React from 'react';
 import styled from 'styled-components';
-import { TextSection, Illustration } from '@components/ui';
 import type { LessonSection } from '../types';
 
 interface LengthSectionProps {

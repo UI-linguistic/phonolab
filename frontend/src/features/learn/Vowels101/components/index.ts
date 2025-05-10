@@ -10,7 +10,4 @@
 export { TongueSection } from './TongueSection';
 export { LipSection } from './LipSection';
 export { LengthSection } from './LengthSection';
-export { SectionNav } from './SectionNav';
-export { BackButtonRow } from './BackButtonRow';
-export { ImageDisplay } from './ImageDisplay';
 export { useAudio } from './useAudio';

@@ -3,8 +3,6 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 
 import PageContainer from '@components/ui/PageContainer';
-import { SectionNav } from './components/SectionNav';
-import { BackButtonRow } from './components/BackButtonRow';
 import { TongueSection, LipSection, LengthSection } from './components';
 
 import { fetchVowels101Lesson } from '../../../api/lessons';
@@ -15,6 +13,7 @@ import {
     getSectionsByType
 } from './types';
 import { PageTitle } from './Vowels101Section';
+import PageNavButton from '@components/navigation/PageNavButton';
 
 const SECTION_LABELS = ['Tongue', 'Lip', 'Length'] as const;
 const SECTION_KEYS = ['tongue', 'lip', 'length'] as const;
@@ -67,14 +66,14 @@ export const Vowels101Page: React.FC = () => {
 
     return (
         <PageContainer>
-            <BackButtonRow />
+            <PageNavButton direction="left" onClick={() => { }} />
             <PageTitle>Vowels are organized in three ways:</PageTitle>
             <NavRow>
-                <SectionNav
+                {/* <SectionNav
                     sections={Array.from(SECTION_LABELS)}
                     activeIndex={activeIndex}
                     onChange={idx => setActiveIndex(idx as SectionIndex)}
-                />
+                /> */}
             </NavRow>
 
             <ContentArea>

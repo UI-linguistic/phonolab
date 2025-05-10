@@ -3,8 +3,9 @@ import React from 'react';
 import styled from 'styled-components';
 import type { LessonSection, Vowel } from '../types';
 import { Placement } from '@components/ui/Grid';
-import { Grid, TextSection } from '@components/ui';
+import { Grid } from '@components/ui';
 import { useAudio } from './useAudio';
+import { SubtitleContainer } from '@components/typography/PageTypography';
 
 interface TongueSectionProps {
     sections: LessonSection[];
@@ -34,14 +35,14 @@ export const TongueSection: React.FC<TongueSectionProps> = ({ sections }) => {
     return (
         <SectionContainer>
             <Pane>
-                <TextSection>
+                <SubtitleContainer>
                     {sections.map(sec => (
                         <div key={sec.id}>
                             <h3>{sec.name}</h3>
                             <p>Explanation for this tongue section…</p>
                         </div>
                     ))}
-                </TextSection>
+                </SubtitleContainer>
             </Pane>
 
             <Pane>
