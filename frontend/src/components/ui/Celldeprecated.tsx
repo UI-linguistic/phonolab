@@ -1,11 +1,10 @@
-// src/features/learn/Vowels101/Cell.tsx
-/**
- * Cell
- *
- * Represents one square of the 3×3 Vowels grid. In “drag” mode it becomes sortable via dnd‑kit;
- * in “fixed” mode it renders up to two Frame children that play vowel sounds on click.
- * Handles applying drag transforms and wiring up the appropriate event handlers.
- */
+
+
+
+// THIS IS ABOUT TO BE DEPRECATED
+// USE InteractiveCollection.tsx or Cell.tsx FILE INSTEAD
+
+
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';

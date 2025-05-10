@@ -1,4 +1,8 @@
 // src/components/Grid.tsx
+
+// THIS IS ABOUT TO BE DEPRECATED
+// USE InteractiveCollection.tsx FILE INSTEAD
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import {

@@ -61,6 +61,10 @@
 //       );
 //   }
 // }
+
+
+// PENDING UPDATE - ONLY NEEDS COMPONENT PLACEMENT
+
 import { VowelShuffleLayout } from '@components/ui/QuizLayout';
 
 export default function VowelShufflePage() {

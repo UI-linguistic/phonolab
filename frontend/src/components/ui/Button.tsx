@@ -1,4 +1,10 @@
 // src/components/ui/Button.tsx
+
+
+// THIS IS ABOUT TO BE DEPRECATED
+// USE MenuPresets.tsx FILE INSTEAD
+// or NavButton.tsx FILE INSTEAD
+
 import React from 'react';
 import styled, { css } from 'styled-components';
 

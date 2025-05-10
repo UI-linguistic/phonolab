@@ -1,4 +1,29 @@
-// src/components/navigation/LinkButton.tsx
+/**
+ * LinkButton.tsx
+ *
+ * A styled <Link> wrapper that behaves like a button.
+ * Used for navigation within the app with consistent theming, sizing, and visual feedback.
+ *
+ * Features:
+ * - Uses React Router's <Link> for client-side routing
+ * - Variants: 'solid' (filled) and 'outline' (bordered)
+ * - Size options: 'small', 'medium', 'large' with themed padding
+ * - Active state override: treat any link as 'active' even if not current route
+ * - Themed hover styles and rounded borders
+ *
+ * Props (LinkButtonProps):
+ * - to: string | object                 — destination URL or route object
+ * - variant?: 'solid' | 'outline'       — visual style (default: 'outline')
+ * - size?: 'small' | 'medium' | 'large' — size key controlling padding (default: 'medium')
+ * - active?: boolean                    — forcefully mark the button as active
+ * - children: ReactNode                 — button label/content
+ * - ...rest: Omit<LinkProps, 'to'>      — forwards other React Router props
+ *
+ * Example Usage:
+ * <LinkButton to="/learn" size="small">Start Learning</LinkButton>
+ * <LinkButton to="/quiz" variant="solid" active>Quiz</LinkButton>
+ */
+
 import React from 'react'
 import { Link, LinkProps } from 'react-router-dom'
 import styled, { css } from 'styled-components'

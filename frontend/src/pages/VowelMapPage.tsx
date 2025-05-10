@@ -1,3 +1,17 @@
+/*
+
+
+
+
+
+  Semih & Junho's original design
+
+
+
+
+
+*/
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import unroundedLipImg from '../images/PNG/pronounmouthart-03.png';
@@ -469,8 +483,8 @@ const VowelMapPage: React.FC = () => {
             </GridCol>
             {/* Right Mouth */}
             <MouthCol>
-              <img 
-                src={vowelImages[selectedVowel]} 
+              <img
+                src={vowelImages[selectedVowel]}
                 alt={`Tongue position for ${selectedVowel}`}
                 style={{
                   width: '100%',
@@ -567,7 +581,7 @@ const VowelMapPage: React.FC = () => {
                 </div>
                 {/* Arrows */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem', alignItems: 'center', marginTop: '0.2rem' }}>
-                  {[0,1,2,3].map((i) => (
+                  {[0, 1, 2, 3].map((i) => (
                     <svg key={i} width="38" height="18" viewBox="0 0 38 18" style={{ margin: '0.2rem 0' }}>
                       <line x1="2" y1="9" x2="36" y2="9" stroke="#aaa" strokeWidth="2" />
                       <polygon points="36,9 30,5 30,13" fill="#aaa" />

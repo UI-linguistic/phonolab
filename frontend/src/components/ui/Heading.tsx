@@ -1,4 +1,9 @@
 // src/components/ui/Heading.tsx
+
+
+// THIS IS ABOUT TO BE DEPRECATED
+// USE PageTypography.tsx FILE INSTEAD
+
 import React from 'react';
 import styled, { css } from 'styled-components';
 

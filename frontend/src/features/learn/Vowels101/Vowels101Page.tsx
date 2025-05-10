@@ -1,4 +1,8 @@
 // src/features/learn/Vowels101/Vowels101Page.tsx
+
+
+// PENDING UPDATE BUT WORKS WITH BACKEND!
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 
@@ -12,8 +16,8 @@ import {
     ApiResponse,
     getSectionsByType
 } from './types';
-import { PageTitle } from './Vowels101Section';
 import PageNavButton from '@components/navigation/PageNavButton';
+import { PageTitle } from '@components/typography/PageTypography';
 
 const SECTION_LABELS = ['Tongue', 'Lip', 'Length'] as const;
 const SECTION_KEYS = ['tongue', 'lip', 'length'] as const;
@@ -67,7 +71,7 @@ export const Vowels101Page: React.FC = () => {
     return (
         <PageContainer>
             <PageNavButton direction="left" onClick={() => { }} />
-            <PageTitle>Vowels are organized in three ways:</PageTitle>
+            <title>Vowels are organized in three ways:</title>
             <NavRow>
                 {/* <SectionNav
                     sections={Array.from(SECTION_LABELS)}

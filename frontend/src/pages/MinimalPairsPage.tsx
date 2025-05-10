@@ -1,3 +1,17 @@
+/*
+
+
+
+
+
+  Semih & Junho's original design
+
+
+
+
+
+*/
+
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
@@ -205,7 +219,7 @@ const MinimalPairsPage: React.FC = () => {
             {/* First row: IPA/phonetic */}
             <ExampleCard>
               <AudioIcon>
-                <SpeakerIcon  />
+                <SpeakerIcon />
               </AudioIcon>
               <ExampleText>
                 {renderWord(ipa[0], highlight[0], PRIMARY)}

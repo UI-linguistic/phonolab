@@ -1,11 +1,13 @@
-import React from 'react';
 import { QuizHero } from '@components/ui/HeroSection';
 
+
+// 
+// QUIZ MENU PAGE
+//
 export default function QuizMenu() {
   return (
     <>
       <QuizHero />
-      {/* any submenu / content below */}
     </>
   );
 }

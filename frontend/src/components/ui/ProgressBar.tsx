@@ -1,17 +1,39 @@
 /**
  * ProgressBar.tsx
  *
- * A minimalist progress bar with optional numeric display (e.g., "2 / 3").
- * Includes a padded wrapper to center and hug the bar.
+ * Component: <ProgressBar />
+ *
+ * Description:
+ * A simple, theme-aware progress bar component for page modules.
+ * It can operate in two modes:
+ *   1. Bar-only — renders a minimal progress bar
+ *   2. Bar + label — shows numeric progress (e.g., "2 / 3") next to the bar
+ *
+ * The component is visually centered and wrapped in a padded container for layout control.
+ *
+ * Props:
+ * - current: number — current progress step (e.g., 2)
+ * - total: number   — total steps (e.g., 3)
+ * - showLabel?: boolean — whether to show "current / total" label
+ *
+ * Styling:
+ * - Uses theme colors for background, text, and accent fill
+ * - Includes animation on progress change
+ * - Uses a rounded capsule style for the bar container
+ *
+ * Example:
+ * <QuizProgressBar current={2} total={3} />         // bar only
+ * <QuizProgressBar current={2} total={3} showLabel /> // bar + label
  */
+
 
 import React from 'react';
 import styled from 'styled-components';
 
 interface ProgressBarProps {
-    current: number;
-    total: number;
-    showLabel?: boolean;
+  current: number;
+  total: number;
+  showLabel?: boolean;
 }
 
 const ProgressWrapper = styled.div`
@@ -47,16 +69,16 @@ const CountLabel = styled.div`
 `;
 
 export const ProgressBar: React.FC<ProgressBarProps> = ({ current, total, showLabel = false }) => {
-    const progress = Math.min((current / total) * 100, 100);
+  const progress = Math.min((current / total) * 100, 100);
 
-    return (
-        <ProgressWrapper>
-            <BarContainer>
-                <BarFill progress={progress} />
-            </BarContainer>
-            {showLabel && <CountLabel>{`${current} / ${total}`}</CountLabel>}
-        </ProgressWrapper>
-    );
+  return (
+    <ProgressWrapper>
+      <BarContainer>
+        <BarFill progress={progress} />
+      </BarContainer>
+      {showLabel && <CountLabel>{`${current} / ${total}`}</CountLabel>}
+    </ProgressWrapper>
+  );
 };
 
 export default ProgressBar;

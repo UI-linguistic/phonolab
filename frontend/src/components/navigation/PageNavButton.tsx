@@ -1,10 +1,35 @@
 /**
  * PageNavButton.tsx
  *
- * A reusable arrow button component for quiz navigation.
- * Can act as a "Back" or "Next" button with configurable icon direction,
- * optional text label, size variations, theme-based styling, and hover/active states.
+ * A flexible, reusable arrow navigation button component used throughout the quiz and learning modules.
+ *
+ * Features:
+ * - Directional icons: supports "left" or "right" arrow icons using Lucide
+ * - Optional text label: display with icon-only, text-only, or icon + label
+ * - Size variations: 'xs', 'sm', 'md', 'lg' with consistent spacing and padding
+ * - Variant options: 'primary' for filled background, 'ghost' for transparent
+ * - Fully theme-aware: uses theme-provided font, border radius, colors, and transitions
+ * - Focus, hover, and active states: styled for interaction and accessibility
+ *
+ * Props (QuizNavButtonProps):
+ * - direction: 'left' | 'right'         — arrow direction
+ * - label?: string                      — optional text label
+ * - size?: 'xs' | 'sm' | 'md' | 'lg'    — size token (default 'md')
+ * - onClick: () => void                 — click handler
+ * - showOnlyIcon?: boolean             — whether to hide text label
+ * - variant?: 'primary' | 'ghost'       — styling mode (default 'primary')
+ * - ariaLabel?: string                  — accessibility label
+ *
+ * Named Variants:
+ * - IconOnlyBack / IconOnlyNext        — icon-only buttons
+ * - IconTextBack / IconTextNext        — icon with text
+ * - TextOnlyBack / TextOnlyNext        — text-only buttons
+ *
+ * Example:
+ * <IconTextNext label="Next" onClick={handleNext} />
+ * <IconOnlyBack onClick={handleBack} size="xs" />
  */
+
 
 import React from 'react';
 import styled, { css } from 'styled-components';
