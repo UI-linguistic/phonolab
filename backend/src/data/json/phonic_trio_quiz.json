@@ -1,6 +1,5 @@
 {
   "settings": {
-    "syllable_count": 1,
     "options_per_question": 4,
     "questions_per_phoneme": 1
   },
@@ -8,6 +7,7 @@
     {
       "id": 1,
       "target": "/iː/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/01-i_close_front_unrounded_vowel.mp3",
       "samples": [
         { "text": "see",  "IPA": "/siː/", "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/01_i_ref_see.mp3" },
         { "text": "beat", "IPA": "/biːt/", "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/02_i_ref_beat.mp3" },
@@ -31,6 +31,7 @@
     {
       "id": 2,
       "target": "/ɪ/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/02-%C9%AA_near-close_near-front_unrounded_vowel.mp3",
       "samples": [
         { "text": "sit",  "IPA": "/sɪt/", "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/04_%C9%AA_ref_sit.mp33" },
         { "text": "bit",  "IPA": "/bɪt/", "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/05_%C9%AA_ref_bit.mp3" },
@@ -54,6 +55,7 @@
     {
       "id": 3,
       "target": "/e/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/03-e_close-mid_front_unrounded_vowel.mp3",
       "samples": [
         { "text": "say",  "IPA": "/seɪ/","audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/07_e_ref_say.mp3" },
         { "text": "rain", "IPA": "/reɪn/","audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/08_e_ref_rain.mp3" },
@@ -77,6 +79,7 @@
     {
       "id": 4,
       "target": "/ɛ/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/04-%C9%9B_near-close_near-front_unrounded_vowel.mp3.mp3",
       "samples": [
         { "text": "bed",  "IPA": "/bɛd/","audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/10_%C9%9B_ref_bed.mp3"},
         { "text": "get",  "IPA": "/ɡɛt/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/11_%C9%9B_ref_get.mp3"},
@@ -100,6 +103,7 @@
     {
       "id": 5,
       "target": "/æ/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/05-%C3%A6_near-open_front_unrounded_vowel.mp3",
       "samples": [
         { "text": "cat", "IPA": "/kæt/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/13_%C3%A6_ref_cat.mp3"},
         { "text": "bat", "IPA": "/bæt/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/14_%C3%A6_ref_bat.mp3"},
@@ -122,7 +126,8 @@
     },
     {
       "id": 6,
-      "target": "/ɑː/",
+      "target": "/ɑ/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/06-%C9%91_open_back_unrounded_vowel.mp3",
       "samples": [
         { "text": "spa", "IPA":"/spɑː/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/22_%C9%91_ref_spa.mp3"},
         { "text": "bra", "IPA":"/brɑː/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/23_%C9%91_ref_bra.mp3"},
@@ -145,7 +150,8 @@
     },
     {
       "id": 7,
-      "target": "/ɔː/",
+      "target": "/ɔ/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/08-%C9%94_open-mid_back_rounded_vowel.mp3",
       "samples": [
         { "text": "saw", "IPA":"/sɔː/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/25_%C9%94_ref_saw.mp3"},
         { "text": "law", "IPA":"/lɔː/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/26_%C9%94_ref_law.mp3"},
@@ -169,6 +175,7 @@
     {
       "id": 8,
       "target": "/o/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/09-o_close-mid_back_rounded_vowel.mp3",
       "samples": [
         { "text": "go",   "IPA":"/ɡoʊ/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/28_o_ref_go.mp3"},
         { "text": "boat", "IPA":"/boʊt/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/29_o_ref_boat.mp3"},
@@ -191,7 +198,8 @@
     },
     {
       "id": 9,
-      "target": "/uː/",
+      "target": "/u/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/10-u_close_back_rounded_vowel.mp3",
       "samples": [
         { "text": "boot", "IPA":"/buːt/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/34_u_ref_boot.mp3"},
         { "text": "food", "IPA":"/fuːd/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/35_u_ref_food.mp3"},
@@ -215,6 +223,7 @@
     {
       "id": 10,
       "target": "/ʊ/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/11-%CA%8A_near-close_near-back_rounded_vowel.mp3",
       "samples": [
         { "text":"foot","IPA":"/fʊt/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/31_%CA%8A_ref_foot.mp3"},
         { "text":"book","IPA":"/bʊk/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/32_%CA%8A_ref_book.mp3"},
@@ -238,48 +247,65 @@
     },
     {
       "id": 11,
-      "target": "/ʌ/",
-      "samples": [
-        { "text":"strut","IPA":"/strʌt/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/19_%CA%8C_ref_strut.mp3"},
-        { "text":"mud",  "IPA":"/mʌd/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/20_%CA%8C_ref_mud.mp3"},
-        { "text":"cup",  "IPA":"/kʌp/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/21_%CA%8C_ref_cup.mp3"}
-      ],
-      "options_pool": {
-        "correct_answers":[
-          { "language":"Hindi","word":"उत्पत्ति","IPA":"/ʊtpətt̪i/","audio":"https://s3.amazonaws.com/your-bucket/audio_samples/उत्पत्ति.mp3"},
-          { "language":"Turkish","word":"kulüp","IPA":"/ku.lœp/","audio":"https://s3.amazonaws.com/your-bucket/audio_samples/kulüp.mp3"},
-          { "language":"French","word":"un",   "IPA":"/œ̃/","audio":"https://s3.amazonaws.com/your-bucket/audio_samples/un.mp3"}
-        ],
-        "wrong_answers":[
-          { "language":"Korean","word":"버","IPA":"/pʌ/","audio":"https://s3.amazonaws.com/your-bucket/audio_samples/버.mp3"}
-        ]
-      },
-      "feedback": {
-        "correct":"Perfect—the /ʌ/ sound!",
-        "incorrect":"Not that one—/ʌ/ is the “uh” in “strut.”"
-      }
-    },
-    {
-      "id": 12,
       "target": "/ə/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/12-%C9%99_mid-central_vowel.mp3",
       "samples": [
-        { "text": "the",   "IPA":"/ðə/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/16_%C9%99_ref_the.mp3"},
-        { "text": "to",    "IPA":"/tə/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/17_%C9%99_ref_to.mp3"},
-        { "text": "alone","IPA":"/əˈloʊn/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/18_%C9%99_ref_alone.mp3"}
+        { "text": "the",   "IPA":"/ðə/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/37_%C9%99_ref_the.mp3"},
+        { "text": "to",    "IPA":"/tə/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/38_%C9%99_ref_to.mp3"},
+        { "text": "alone","IPA":"/əˈloʊn/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/39_%C9%99_ref_alone.mp3"}
       ],
       "options_pool": {
         "correct_answers": [
-          { "language":"Hindi","word":"कमल","IPA":"/kə.məl/","audio":"https://s3.amazonaws.com/your-bucket/audio_samples/कमल.mp3"},
-          { "language":"Turkish","word":"kupa","IPA":"/ku.pa/","audio":"https://s3.amazonaws.com/your-bucket/audio_samples/kupa.mp3"},
-          { "language":"French","word":"le",   "IPA":"/lə/","audio":"https://s3.amazonaws.com/your-bucket/audio_samples/le.mp3"}
+          { "language":"Hindi","word":"कमल","IPA":"/kə.məl/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/quiz/11_%C9%99_hindi_%E0%A4%95%E0%A4%AE%E0%A4%B2.mp3"},
+          { "language":"French","word":"le",   "IPA":"/lə/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/quiz/11_%C9%99_french_le.mp3"},
+          { "language": "German", "word":"bitte", "IPA": "/bɪt.tə/", "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/quiz/11_%C9%99_german_bitte.mp3"}
         ],
         "wrong_answers": [
-          { "language":"Korean","word":"그","IPA":"/kɯ/","audio":"https://s3.amazonaws.com/your-bucket/audio_samples/그.mp3"}
+          { "language":"Turkish","word":"kupa","IPA":"/ku.pa/","audio":"https://phonetics-media.s3.us-east-1.amazonaws.com/audio/quiz/11_%C9%99_turkish_kupa.mp3"}
         ]
       },
       "feedback": {
         "correct": "Spot on—that’s the schwa (/ə/)!",
         "incorrect": "No—the schwa (/ə/) is that “uh” sound."
+      }
+    },
+    {
+      "id": 12,
+      "target": "/aɪ/",
+      "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/13-a%C9%AA-diphthong_vowel.mp3",
+      "samples": [
+        { "text": "my",   "IPA": "/maɪ/",  "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/31_aɪ_ref_my.mp3" },
+        { "text": "time", "IPA": "/taɪm/","audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/32_aɪ_ref_time.mp3" },
+        { "text": "five", "IPA": "/faɪv/","audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/33_aɪ_ref_five.mp3" }
+      ],
+      "options_pool": {
+        "correct_answers": [
+          {
+            "language": "Hindi",
+            "word": "गाइड",
+            "IPA": "/ɡaɪd/",
+            "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/quiz/12_a%C9%AA_hindi_%E0%A4%97%E0%A4%BE%E0%A4%87%E0%A4%A1.mp3"
+          },
+          {
+            "language": "Turkish",
+            "word": "fayda",
+            "IPA": "/faɪda/",
+            "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/quiz/12_a%C9%AA_turkish_fayda.mp3"
+          },
+          {
+            "language": "Korean",
+            "word": "다이아몬드",
+            "IPA": "/ta.i.a.mon.dʌd/",
+            "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/quiz/12_a%C9%AA_korean_%E1%84%83%E1%85%A1%E1%84%8B%E1%85%B5%E1%84%8B%E1%85%A1%E1%84%86%E1%85%A9%E1%86%AB%E1%84%83%E1%85%B3.mp3"
+          }
+        ],
+        "wrong_answers": [
+          { "language": "French",  "word": "animal", "IPA": "/a.ni.mal/",  "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/quiz/12_a%C9%AA_french_animal.mp3" }
+        ]
+      },
+      "feedback": {
+        "correct": "Exactly—that’s the diphthong /aɪ/, like in “tie”!",
+        "incorrect": "Not quite—this one moves from /a/ to /ɪ/ in one smooth glide."
       }
     }
   ]

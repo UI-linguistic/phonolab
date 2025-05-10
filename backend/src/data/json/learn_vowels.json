@@ -1,0 +1,147 @@
+{
+    "learn": [
+      {
+        "id": 1,
+        "target": "/i/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/01-i_close_front_unrounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/01_i_long_e_mouth.svg",
+        "pronounced": "ee",
+        "common_spellings": ["ee", "ea"],
+        "lips": "wide smile, unrounded",
+        "tongue": "high, front",
+        "example_words": ["see", "beat", "team"]
+      },
+      {
+        "id": 2,
+        "target": "/ɪ/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/02-%C9%AA_near-close_near-front_unrounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/02_%C9%AA_short_i_mouth.svg",
+        "pronounced": "ih",
+        "common_spellings": ["i", "y"],
+        "lips": "slight smile",
+        "tongue": "high, front",
+        "example_words": ["sit", "bit", "ship"]
+      },
+      {
+        "id": 3,
+        "target": "/e/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/03-e_close-mid_front_unrounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/03_e_long_a_mouth.svg",
+        "pronounced": "ay",
+        "common_spellings": ["ai", "ay", "a-e"],
+        "lips": "mildly spread",
+        "tongue": "high-mid, front",
+        "example_words": ["say", "rain", "game"]
+      },
+      {
+        "id": 4,
+        "target": "/ɛ/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/04-%C9%9B_near-close_near-front_unrounded_vowel.mp3.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/04_%C9%9B_short_e_mouth.svg",
+        "pronounced": "eh",
+        "common_spellings": ["e", "ea"],
+        "lips": "relaxed",
+        "tongue": "mid, front",
+        "example_words": ["bed", "get", "head"]
+      },
+      {
+        "id": 5,
+        "target": "/æ/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/05-%C3%A6_near-open_front_unrounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/05_%C3%A6_short_a_mouth.svg",
+        "pronounced": "a",
+        "common_spellings": ["a"],
+        "lips": "open",
+        "tongue": "low-mid, front",
+        "example_words": ["cat", "bat", "ham"]
+      },
+      {
+        "id": 6,
+        "target": "/ɑ/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/06-%C9%91_open_back_unrounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/06_%C9%91_open_a_mouth.svg",
+        "pronounced": "ah",
+        "common_spellings": ["a"],
+        "lips": "open",
+        "tongue": "low, back",
+        "example_words": ["spa", "bra", "car"]
+      },
+      {
+        "id": 7,
+        "target": "/ʌ/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/07-%CA%8C_open-mid_back_unrounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/07_%CA%8C_short_u_mouth.svg",
+        "pronounced": "uh",
+        "common_spellings": ["u", "o"],
+        "lips": "neutral",
+        "tongue": "mid, central",
+        "example_words": ["strut", "mud", "cup"]
+      },
+      {
+        "id": 8,
+        "target": "/ɔ/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/08-%C9%94_open-mid_back_rounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/08_%C9%94_open_o_mouth.svg",
+        "pronounced": "aw",
+        "common_spellings": ["aw", "au", "o"],
+        "lips": "rounded",
+        "tongue": "mid-low, back",
+        "example_words": ["saw", "law", "paw"]
+      },
+      {
+        "id": 9,
+        "target": "/oʊ/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/09-o_close-mid_back_rounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/09_o_long_o_mouth.svg",
+        "pronounced": "oh",
+        "common_spellings": ["o", "oa", "ow"],
+        "lips": "rounded",
+        "tongue": "high-mid, back",
+        "example_words": ["go", "boat", "show"]
+      },
+      {
+        "id": 10,
+        "target": "/u/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/10-u_close_back_rounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/10_u_long_u_mouth.svg",
+        "pronounced": "oo",
+        "common_spellings": ["oo", "u"],
+        "lips": "rounded, puckered",
+        "tongue": "high, back",
+        "example_words": ["boot", "food", "two"]
+      },
+      {
+        "id": 11,
+        "target": "/ʊ/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/11-%CA%8A_near-close_near-back_rounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/11_%CA%8A_short_oo_mouth.svg",
+        "pronounced": "oo",
+        "common_spellings": ["oo"],
+        "lips": "rounded",
+        "tongue": "high, back",
+        "example_words": ["foot", "book", "could"]
+      },
+      {
+        "id": 12,
+        "target": "/ə/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/12-%C9%99_mid-central_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/12_%C9%99_schwa_mouth.svg",
+        "pronounced": "uh",
+        "common_spellings": ["a", "e", "i", "o", "u"],
+        "lips": "neutral",
+        "tongue": "mid, central",
+        "example_words": ["the", "to", "alone"]
+      },
+      {
+        "id": 13,
+        "target": "/aɪ/",
+        "audio_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/13-%C9%AA_near-close_near-front_unrounded_vowel.mp3",
+        "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/13_%C9%AA_short_i_mouth.svg",
+        "pronounced": "eye",
+        "common_spellings": ["i", "igh", "y"],
+        "lips": "spread smile",
+        "tongue": "glides from low front to high front",
+        "example_words": ["my", "time", "five"]
+      }
+    ]
+  }
