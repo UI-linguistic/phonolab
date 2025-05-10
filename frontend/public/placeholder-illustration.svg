@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Brain -->
+  <circle cx="250" cy="150" r="70" fill="#FFA5B9" stroke="#FF69B4" stroke-width="3"/>
+  <path d="M220,120 Q235,100 250,120 T280,120" fill="none" stroke="#FF69B4" stroke-width="3"/>
+  <path d="M220,140 Q235,120 250,140 T280,140" fill="none" stroke="#FF69B4" stroke-width="3"/>
+  
+  <!-- Mouth -->
+  <path d="M120,150 Q150,180 180,150" fill="none" stroke="#FF8C00" stroke-width="3"/>
+  <circle cx="150" cy="150" r="50" fill="none" stroke="#FF8C00" stroke-width="3"/>
+  
+  <!-- Handshake -->
+  <line x1="190" y1="150" x2="210" y2="150" stroke="#333" stroke-width="3"/>
+  <circle cx="200" cy="150" r="5" fill="#333"/>
+</svg> 

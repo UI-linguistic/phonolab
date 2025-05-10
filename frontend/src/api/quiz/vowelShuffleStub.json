@@ -1,0 +1,245 @@
+[
+    {
+        "id": "tongue",
+        "type": "tongue",
+        "title": "Tongue Position",
+        "groups": [
+            [
+                {
+                    "id": "i",
+                    "symbol": "i",
+                    "soundUrl": "/audio/i.mp3"
+                },
+                {
+                    "id": "ɪ",
+                    "symbol": "ɪ",
+                    "soundUrl": "/audio/ɪ.mp3"
+                },
+                {
+                    "id": "e",
+                    "symbol": "e",
+                    "soundUrl": "/audio/e.mp3"
+                },
+                {
+                    "id": "ɛ",
+                    "symbol": "ɛ",
+                    "soundUrl": "/audio/ɛ.mp3"
+                },
+                {
+                    "id": "æ",
+                    "symbol": "æ",
+                    "soundUrl": "/audio/æ.mp3"
+                },
+                {
+                    "id": "ɑ",
+                    "symbol": "ɑ",
+                    "soundUrl": "/audio/ɑ.mp3"
+                },
+                {
+                    "id": "ə",
+                    "symbol": "ə",
+                    "soundUrl": "/audio/ə.mp3"
+                },
+                {
+                    "id": "ʊ",
+                    "symbol": "ʊ",
+                    "soundUrl": "/audio/ʊ.mp3"
+                },
+                {
+                    "id": "u",
+                    "symbol": "u",
+                    "soundUrl": "/audio/u.mp3"
+                }
+            ]
+        ],
+        "correctGroups": [
+            [
+                "i",
+                "ɪ",
+                "e",
+                "ɛ",
+                "æ",
+                "ɑ",
+                "ə",
+                "ʊ",
+                "u"
+            ]
+        ]
+    },
+    {
+        "id": "lip",
+        "type": "lip",
+        "title": "Lip Shape",
+        "groups": [
+            [
+                {
+                    "id": "i",
+                    "symbol": "i",
+                    "soundUrl": "/audio/i.mp3"
+                },
+                {
+                    "id": "ɪ",
+                    "symbol": "ɪ",
+                    "soundUrl": "/audio/ɪ.mp3"
+                },
+                {
+                    "id": "e",
+                    "symbol": "e",
+                    "soundUrl": "/audio/e.mp3"
+                },
+                {
+                    "id": "ɛ",
+                    "symbol": "ɛ",
+                    "soundUrl": "/audio/ɛ.mp3"
+                },
+                {
+                    "id": "æ",
+                    "symbol": "æ",
+                    "soundUrl": "/audio/æ.mp3"
+                },
+                {
+                    "id": "ɑ",
+                    "symbol": "ɑ",
+                    "soundUrl": "/audio/ɑ.mp3"
+                },
+                {
+                    "id": "ə",
+                    "symbol": "ə",
+                    "soundUrl": "/audio/ə.mp3"
+                }
+            ],
+            [
+                {
+                    "id": "u",
+                    "symbol": "u",
+                    "soundUrl": "/audio/u.mp3"
+                },
+                {
+                    "id": "ʊ",
+                    "symbol": "ʊ",
+                    "soundUrl": "/audio/ʊ.mp3"
+                },
+                {
+                    "id": "o",
+                    "symbol": "o",
+                    "soundUrl": "/audio/o.mp3"
+                },
+                {
+                    "id": "ɔ",
+                    "symbol": "ɔ",
+                    "soundUrl": "/audio/ɔ.mp3"
+                }
+            ]
+        ],
+        "correctGroups": [
+            [
+                "i",
+                "ɪ",
+                "e",
+                "ɛ",
+                "æ",
+                "ɑ",
+                "ə"
+            ],
+            [
+                "u",
+                "ʊ",
+                "o",
+                "ɔ"
+            ]
+        ]
+    },
+    {
+        "id": "length",
+        "type": "length",
+        "title": "Length",
+        "groups": [
+            [
+                {
+                    "id": "i",
+                    "symbol": "i",
+                    "soundUrl": "/audio/i.mp3"
+                },
+                {
+                    "id": "e",
+                    "symbol": "e",
+                    "soundUrl": "/audio/e.mp3"
+                },
+                {
+                    "id": "u",
+                    "symbol": "u",
+                    "soundUrl": "/audio/u.mp3"
+                },
+                {
+                    "id": "o",
+                    "symbol": "o",
+                    "soundUrl": "/audio/o.mp3"
+                }
+            ],
+            [
+                {
+                    "id": "ɪ",
+                    "symbol": "ɪ",
+                    "soundUrl": "/audio/ɪ.mp3"
+                },
+                {
+                    "id": "ɛ",
+                    "symbol": "ɛ",
+                    "soundUrl": "/audio/ɛ.mp3"
+                },
+                {
+                    "id": "ʊ",
+                    "symbol": "ʊ",
+                    "soundUrl": "/audio/ʊ.mp3"
+                },
+                {
+                    "id": "ɔ",
+                    "symbol": "ɔ",
+                    "soundUrl": "/audio/ɔ.mp3"
+                }
+            ],
+            [
+                {
+                    "id": "æ",
+                    "symbol": "æ",
+                    "soundUrl": "/audio/æ.mp3"
+                },
+                {
+                    "id": "ɑ",
+                    "symbol": "ɑ",
+                    "soundUrl": "/audio/ɑ.mp3"
+                },
+                {
+                    "id": "ə",
+                    "symbol": "ə",
+                    "soundUrl": "/audio/ə.mp3"
+                },
+                {
+                    "id": "ʌ",
+                    "symbol": "ʌ",
+                    "soundUrl": "/audio/ʌ.mp3"
+                }
+            ]
+        ],
+        "correctGroups": [
+            [
+                "i",
+                "e",
+                "u",
+                "o"
+            ],
+            [
+                "ɪ",
+                "ɛ",
+                "ʊ",
+                "ɔ"
+            ],
+            [
+                "æ",
+                "ɑ",
+                "ə",
+                "ʌ"
+            ]
+        ]
+    }
+]

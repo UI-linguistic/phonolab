@@ -1,8 +1,7 @@
 # src/api/lesson.py
 from flask import Blueprint
 from src.services.lesson import (
-    get_all_sections_for_lesson_service,
-    get_section_by_id_service
+    get_lesson_by_slug
 )
 
 
@@ -23,17 +22,14 @@ lesson_bp = Blueprint("lesson", __name__, url_prefix="/api/lessons")
 #     return format_lesson_by_id_response(lesson)
 
 
+# @lesson_bp.route("/vowels-101", methods=["GET"])
+# def get_all_sections():
+#     """
+#     Endpoint to get all 3 sections of the 'vowels-101' lesson.
+#     """
+#     return get_all_sections_for_lesson_service("vowels-101")
+
+
 @lesson_bp.route("/vowels-101", methods=["GET"])
-def get_all_sections():
-    """
-    Endpoint to get all 3 sections of the 'vowels-101' lesson.
-    """
-    return get_all_sections_for_lesson_service("vowels-101")
-
-
-@lesson_bp.route("/vowels-101/<int:section_id>", methods=["GET"])
-def get_section(section_id):
-    """
-    Endpoint to get a specific section (1, 2, or 3) by ID.
-    """
-    return get_section_by_id_service(section_id)
+def get_vowels101():
+    return get_lesson_by_slug("vowels-101")

@@ -1,6 +1,7 @@
 # src/app.py
 import os
 from flask import Flask
+from flask_cors import CORS
 from flask_migrate import Migrate
 from src.config import Config
 from src.db import db
@@ -8,7 +9,6 @@ from src.cache import cache
 
 
 migrate = Migrate()
-
 
 def create_app():
     """App factory pattern for creating Flask app instances."""
