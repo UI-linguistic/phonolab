@@ -6,17 +6,17 @@ import styled, { css, DefaultTheme } from 'styled-components';
 type ColorKey = keyof DefaultTheme['colors'];
 
 export interface TitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
-    /** Theme color key, defaults to `text` */
-    color?: ColorKey;
-    /** Text alignment */
-    align?: 'left' | 'center' | 'right';
+  /** Theme color key, defaults to `text` */
+  color?: ColorKey;
+  /** Text alignment */
+  align?: 'left' | 'center' | 'right';
 }
 
 export interface SubtitleProps extends React.HTMLAttributes<HTMLParagraphElement> {
-    /** Theme color key, defaults to `textSubtle` */
-    color?: ColorKey;
-    /** Text alignment */
-    align?: 'left' | 'center' | 'right';
+  /** Theme color key, defaults to `textSubtle` */
+  color?: ColorKey;
+  /** Text alignment */
+  align?: 'left' | 'center' | 'right';
 }
 
 // ────────────────────────────────────────────────────────────
@@ -46,6 +46,13 @@ export const PageTitle = styled.h1<TitleProps>`
   font-size: ${({ theme }) => theme.fontSizes.xxl};
   line-height: ${({ theme }) => theme.lineHeights.lg};
   color: ${({ theme, color }) => theme.colors[color ?? 'text']};
+
+  /* never wrap text */
+  white-space: nowrap;
+
+  /* optional: show an ellipsis if it does overflow */
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 PageTitle.displayName = 'PageTitle';
 

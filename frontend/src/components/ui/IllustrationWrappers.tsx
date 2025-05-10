@@ -1,6 +1,6 @@
 // File: src/components/ui/IllustrationWrappers.tsx
 import React from 'react';
-import styled, { css } from 'styled-components';
+import styled, { css, DefaultTheme } from 'styled-components';
 import HomeIllustration from '@assets/images/home_brain-mouth.png';
 import LearnIllustration from '@assets/images/learn_brain-mouth.png';
 import QuizIllustration from '@assets/images/quiz_brain-mouth.png';
@@ -24,76 +24,84 @@ interface IllustrationProps {
 // Size token map
 // ---------------------------
 const sizeTokens: Record<IllustrationSize, { dimension: string }> = {
-  small: { dimension: '200px' },
-  medium: { dimension: '350px' },
-  large: { dimension: '500px' },
+  small: { dimension: '300px' },
+  medium: { dimension: '600px' },
+  large: { dimension: '800px' },
 };
 
 // ---------------------------
 // Styled wrapper
 // ---------------------------
-const Wrapper = styled.div<{ variant: IllustrationVariant; size: IllustrationSize }>`
+const Wrapper = styled.div<{
+  variant: IllustrationVariant;
+  size: IllustrationSize;
+  theme: DefaultTheme;
+}>`
   display: flex;
   justify-content: center;
   align-items: center;
 
-  img {
-    width: ${({ size }) => sizeTokens[size].dimension};
-    height: auto;
-    display: block;
+  /* fixed diameter, overridable by the size token */
+  width: ${({ size }) => sizeTokens[size].dimension};
+  height: ${({ size }) => sizeTokens[size].dimension};
+  box-sizing: border-box;
 
-    ${({ variant, theme }) =>
-    variant === 'circle' && css`
-        border-radius: 50%;
-        background: ${theme.colors.circleBg};
-        border: 2px solid ${theme.colors.black};
-        padding: ${theme.spacing.small};
-      `}
+  ${({ variant, theme }) =>
+    variant === 'circle'
+      ? css`
+          border-radius: 50%;
+          background: ${theme.colors.circleBg}33; /* 20% alpha */
+          border: 2px solid ${theme.colors.black};
+          padding: ${theme.spacing.small};
+        `
+      : ''}
+
+  /* shrink on smaller viewports */
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    width: ${({ size }) =>
+    `min(${sizeTokens[size].dimension}, 80vw)`};
+    height: ${({ size }) =>
+    `min(${sizeTokens[size].dimension}, 80vw)`};
+  }
+
+  img {
+    /* let the image fill up to 90% of its container */
+    max-width: 90%;
+    max-height: 90%;
+    display: block;
   }
 `;
 
 /**
  * Generic Illustration component
  *
- * Props:
- * - src, alt
- * - variant: 'circle' for circled image, 'plain' for no wrapper
- * - size: 'small' | 'medium' | 'large'
+ * - variant: 'circle' wraps in a circle, 'plain' is no extra styling
+ * - size: determines wrapper diameter
  */
 export const Illustration: React.FC<IllustrationProps> = ({
   src,
   alt,
   variant = 'plain',
   size = 'medium',
-}) => {
-  return (
-    <Wrapper variant={variant} size={size}>
-      <img src={src} alt={alt} />
-    </Wrapper>
-  );
-};
-
-
+}) => (
+  <Wrapper variant={variant} size={size}>
+    <img src={src} alt={alt} />
+  </Wrapper>
+);
 
 // ---------------------------
 // Named presets for pages
 // ---------------------------
 
-/**
- * Home page hero illustration (large, no circle)
- */
 export const HomePageIllustration: React.FC = () => (
   <Illustration
     src={HomeIllustration}
     alt="Brain and mouth handshake illustration"
     variant="plain"
-    size="large"
+    size="medium"
   />
 );
 
-/**
- * Learn menu illustration (medium, circle)
- */
 export const LearnMenuIllustration: React.FC = () => (
   <Illustration
     src={LearnIllustration}
@@ -103,9 +111,6 @@ export const LearnMenuIllustration: React.FC = () => (
   />
 );
 
-/**
- * Quiz menu illustration (medium, circle)
- */
 export const QuizMenuIllustration: React.FC = () => (
   <Illustration
     src={QuizIllustration}
@@ -115,9 +120,6 @@ export const QuizMenuIllustration: React.FC = () => (
   />
 );
 
-/**
- * Quiz feedback bad score (large, plain)
- */
 export const QuizFeedbackBad: React.FC = () => (
   <Illustration
     src={FeedbackBadIllustration}
@@ -127,9 +129,6 @@ export const QuizFeedbackBad: React.FC = () => (
   />
 );
 
-/**
- * Quiz feedback good score (large, plain)
- */
 export const QuizFeedbackGood: React.FC = () => (
   <Illustration
     src={FeedbackGoodIllustration}

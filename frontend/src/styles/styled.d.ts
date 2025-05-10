@@ -51,6 +51,11 @@ declare module 'styled-components' {
       large: string;
       xlarge: string;
     };
+    heroGaps: {
+      tight: string;
+      normal: string;
+      wide: string;
+    },
 
     // Border settings
     borderRadius: string;

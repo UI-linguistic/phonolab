@@ -27,7 +27,7 @@ const sizeStyles = {
     fontSize: '1.2rem',
     padding: '0.8rem 1.2rem',
     gap: '1.2rem',
-    width: '262px',   // fixed width for medium
+    width: '300px',   // fixed width for medium
     height: '50px',
   },
   lg: {
@@ -83,10 +83,12 @@ const ItemButton = styled.button<{
 
   font-family: ${({ theme }) => theme.fonts.main};
   font-size: ${({ size }) => sizeStyles[size].fontSize};
+
   /* apply uniform width/height */
   width: ${({ size }) => sizeStyles[size].width};
-  height: ${({ size }) => sizeStyles[size].height};
-  /* horizontal padding is optional extra inside fixed width/height */
+  min-width: ${({ size }) => sizeStyles[size].width};
+  min-height: ${({ size }) => sizeStyles[size].height};
+  
   padding: ${({ size }) => sizeStyles[size].padding};
 
   border-radius: ${({ theme }) => theme.borderRadius};

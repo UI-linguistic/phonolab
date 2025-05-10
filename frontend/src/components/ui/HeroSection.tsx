@@ -22,13 +22,25 @@ import {
 } from '../ui/IllustrationWrappers';
 import { Size } from '../ui/Menu';
 
+type HeroSectionProps = {
+  /** choose one of theme.heroGaps keys */
+  gapScale?: keyof import('../../styles/theme').HeroGaps;
+  /** override maximum width, defaults to full container */
+  maxWidth?: string;
+};
+
 // ────────────────────────────────────────────────────────────
 // Generic Hero Layout
 // ────────────────────────────────────────────────────────────
-const HeroSection = styled.section`
+export const HeroSection = styled.section<HeroSectionProps>`
+  outline: 2px dashed rgba(207, 48, 42, 0.6);
+  max-width: ${({ maxWidth = '100%' }) => maxWidth};
+  margin: 0 auto;
+
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  column-gap: ${({ theme }) => theme.spacing.xlarge};
+  /* two columns, left gets 1.2fr, right 1fr for extra space on text */
+  grid-template-columns: 1.2fr 1fr;
+  column-gap: ${({ theme, gapScale = 'normal' }) => theme.heroGaps[gapScale]};
   padding: ${({ theme }) => theme.spacing.large} 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
@@ -36,6 +48,8 @@ const HeroSection = styled.section`
     row-gap: ${({ theme }) => theme.spacing.large};
   }
 `;
+
+
 
 const TextColumn = styled.div`
   display: flex;
@@ -49,20 +63,13 @@ const MediaColumn = styled.div`
   align-items: center;
 `;
 
-interface HeroProps {
+interface HeroProps extends HeroSectionProps {
   title: string;
   subtitle?: string;
-  /**
-   * A Menu list component, should accept activeIndex, onSelect, and size props
-   */
   menu: React.FC<{ activeIndex?: number; onSelect?: (i: number) => void; size?: Size }>;
-  /** Size token (xs | sm | md | lg) */
   menuSize?: Size;
-  /** Array of route paths corresponding to each menu item */
   paths?: string[];
-  /** Illustration component to render on right side */
   illustration: React.FC;
-  /** When true, centers the title above and removes left margin */
   centeredTitle?: boolean;
 }
 
@@ -74,13 +81,15 @@ export function HeroTemplate({
   paths = [],
   illustration: IllustrationComponent,
   centeredTitle = false,
+  gapScale = 'normal',
+  maxWidth,
 }: HeroProps) {
   const theme = useTheme();
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <HeroSection>
+    <HeroSection gapScale={gapScale} maxWidth={maxWidth}>
       <TextColumn style={centeredTitle ? { textAlign: 'center' } : {}}>
         <TitleContainer marginLeft={centeredTitle ? '0' : theme.spacing.small}>
           <PageTitle>{title}</PageTitle>
@@ -113,22 +122,21 @@ export function HeroTemplate({
 // Variants / Presets
 // ────────────────────────────────────────────────────────────
 
-/** 1) Home Page Hero */
-export function HomeHero() {
+export function HomeHero(props: HeroSectionProps) {
   return (
     <HeroTemplate
       title="Start Your Vowel Journey"
-      subtitle="Your brain knows English. Let’s get your mouth on board."
+      subtitle="Your brain knows English. Let's get your mouth on board."
       menu={HomeHeroMenuList}
       menuSize="md"
-      paths={["/learn", "/quiz"]}
+      paths={['/learn', '/quiz']}
       illustration={HomePageIllustration}
+      {...props}
     />
   );
 }
 
-/** 2) Learn Menu Hero */
-export function LearnHero() {
+export function LearnHero(props: HeroSectionProps) {
   return (
     <HeroTemplate
       title="Choose Your Learning Path"
@@ -136,47 +144,55 @@ export function LearnHero() {
       menu={LearnMenuList}
       menuSize="md"
       paths={[
-        "/learn/vowels-101",
-        "/learn/map-vowel-space",
-        "/learn/graphemes",
-        "/learn/tricky-pairs",
+        '/learn/vowels-101',
+        '/learn/map-vowel-space',
+        '/learn/graphemes',
+        '/learn/tricky-pairs',
       ]}
       illustration={LearnMenuIllustration}
+      {...props}
     />
   );
 }
 
-/** 3) Quiz Menu Hero */
-export function QuizHero() {
+export function QuizHero(props: HeroSectionProps) {
   return (
     <HeroTemplate
       title="Test Your Knowledge"
-      subtitle="Think you’ve mastered English vowels? Let’s see what you’ve got."
+      subtitle="Think you've mastered English vowels? Let's see what you've got."
       menu={QuizMenuList}
       menuSize="md"
       paths={[
-        "/quiz",
-        "/quiz/vowel-shuffle",
-        "/quiz/spell-tell",
-        "/quiz/pair-play",
-        "/quiz/phonic-trio",
+        '/quiz',
+        '/quiz/vowel-shuffle',
+        '/quiz/spell-tell',
+        '/quiz/pair-play',
+        '/quiz/phonic-trio',
       ]}
       illustration={QuizMenuIllustration}
+      {...props}
     />
   );
 }
 
-/** 4) Quiz Feedback Hero */
 export function QuizFeedbackHero({ feedbackType }: { feedbackType: 'good' | 'bad' }) {
   return (
     <HeroTemplate
       title="Quiz Complete"
-      subtitle={feedbackType === 'good' ? "Great job!" : "Oops, let’s review your mistakes."}
-      menu={() => <></>}              // no menu here
+      subtitle={
+        feedbackType === 'good'
+          ? 'Great job!'
+          : "Oops, let's review your mistakes."
+      }
+      menu={() => <></>}
       menuSize="md"
       paths={[]}
-      illustration={feedbackType === 'good' ? QuizFeedbackGood : QuizFeedbackBad}
+      illustration={
+        feedbackType === 'good' ? QuizFeedbackGood : QuizFeedbackBad
+      }
       centeredTitle
+      gapScale="normal"
+      maxWidth="1200px"
     />
   );
 }

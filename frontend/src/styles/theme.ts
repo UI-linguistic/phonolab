@@ -1,6 +1,12 @@
 // src/styles/theme.ts
 import { DefaultTheme } from 'styled-components';
 
+export type HeroGaps = {
+  tight: string;
+  normal: string;
+  wide: string;
+};
+
 const theme: DefaultTheme = {
   // ────────────────────────────────────────────────────────────
   // Color Palette
@@ -28,7 +34,7 @@ const theme: DefaultTheme = {
     background: '#EFD9CE',
     text: '#212121',
     textSubtle: '#757575',
-    circleBg: '#F5F5F5',
+    circleBg: '#000000',
     white: '#FFFFFF',
     black: '#000000',
     greyLight: '#EEEEEE',
@@ -72,6 +78,11 @@ const theme: DefaultTheme = {
     medium: '1.6rem',  // 16px
     large: '2.4rem',   // 24px
     xlarge: '3.2rem',  // 32px
+  },
+  heroGaps: {
+    tight: '1.6rem',    // ~theme.spacing.medium
+    normal: '3.2rem',   // ~theme.spacing.xlarge (your current default)
+    wide: '4.8rem',     // something extra‑spacious
   },
   borderRadius: '0.5rem', // 8px rounded corners
   borderWidths: {
@@ -133,7 +144,7 @@ const theme: DefaultTheme = {
     gutter: '1.6rem',        // default horizontal padding
     headerHeight: '64px',    // navbar height
     footerHeight: '64px',    // footer height
-    maxContentWidth: '75ch' // ~65 characters per line ≈ 680px at 16px font
+    maxContentWidth: '85ch' // ~65 characters per line ≈ 680px at 16px font
   },
 };
 
