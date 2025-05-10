@@ -1,25 +1,23 @@
 // src/features/learn/Graphemes/GraphemesPage.tsx
-import React from 'react';
-import styled from 'styled-components';
-import { Heading, Text } from '@components/ui';
-import { BackButton } from '@components/navigation';
+import LayoutPresets from '@components/ui/LearnLayout';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.large};
-`;
+const { GetYourGraphemesLayout } = LayoutPresets;
 
-export function GraphemesPage() {
+// ────────────────────────────────────────────────────────────
+// 1) GetYourGraphemesPage
+//    A three‑row layout for explaining graphemes.
+// ────────────────────────────────────────────────────────────
+export default function GetYourGraphemesPage() {
     return (
-        <Container>
-            <BackButton to="/learn" />
-            <Heading level={2}> Get Your Graphemes Right </Heading>
-            <Text>
-                This lesson is coming soon! Here you’ll learn which graphemes map
-                to each vowel sound.Stay tuned.
-            </Text>
-            {/* TODO: fetch and render graphemes data via useLessons or a dedicated hook */}
-        </Container>
+        <GetYourGraphemesLayout
+            title="Get Your Graphemes Right"
+            subtitle="English vowels are not just five letters and sounds..."
+            showBackButton={true}
+        >
+            {/* Row placeholders */}
+            <div>Graphemes Explanation Component</div>
+            <div>Examples Component</div>
+            <div>Interactive Component</div>
+        </GetYourGraphemesLayout>
     );
 }

@@ -1,2 +1,2 @@
 // src/features/learn/TrickyPairs/index.ts
-export { TrickyPairsPage } from './TrickyPairsPage';
+export { default as TrickyPairsPage } from './TrickyPairsPage';

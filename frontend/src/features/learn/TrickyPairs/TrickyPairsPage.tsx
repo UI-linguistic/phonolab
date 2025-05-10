@@ -1,25 +1,20 @@
 // src/features/learn/TrickyPairs/TrickyPairsPage.tsx
-import React from 'react';
-import styled from 'styled-components';
-import { Heading, Text } from '@components/ui';
-import { BackButton } from '@components/navigation';
+import { TackleMinimalPairsLayout } from '@components/ui/LearnLayout';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.large};
-`;
 
-export function TrickyPairsPage() {
+{/* <BackButton to="/learn" /> */ }
+export default function TackleMinimalPairsPage() {
     return (
-        <Container>
-            <BackButton to="/learn" />
-            <Heading level={2}>Tackle Tricky Pairs</Heading>
-            <Text>
-                Here you’ll practice minimal pairs and get instant feedback.
-                Content loading soon!
-            </Text>
-            {/* TODO: implement useFetchLessons or a dedicated hook for minimal‑pairs data */}
-        </Container>
+        <TackleMinimalPairsLayout
+            title="Tackle Minimal Pairs"
+            subtitle="Minimal pairs differ by only one phoneme."
+            showBackButton={true}
+        >
+            {/* Column 1 placeholder */}
+            <div>Audio/Description Component</div>
+
+            {/* Column 2 placeholder */}
+            <div>Minimal Pairs Selection Component</div>
+        </TackleMinimalPairsLayout>
     );
 }

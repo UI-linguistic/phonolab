@@ -12,6 +12,7 @@ const theme: DefaultTheme = {
   // Color Palette
   // ────────────────────────────────────────────────────────────
   colors: {
+    backgroundAccent: '#EFD9CE',
     primary: '#107E7D',
     secondary: '#FFA726',
     tertiary: '#63535B',

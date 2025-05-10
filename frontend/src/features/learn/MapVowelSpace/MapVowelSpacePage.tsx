@@ -1,25 +1,23 @@
 // src/features/learn/MapVowelSpace/MapVowelSpacePage.tsx
-import React from 'react';
-import styled from 'styled-components';
-import { Heading, Text } from '@components/ui';
-import { BackButton } from '@components/navigation';
+import LayoutPresets from '@components/ui/LearnLayout';
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.large};
-`;
+const { MapVowelSpaceLayout } = LayoutPresets;
 
-export function MapVowelSpacePage() {
+// ────────────────────────────────────────────────────────────
+// 1) MapVowelSpacePage
+//    A three‑column layout for mapping vowel space.
+// ────────────────────────────────────────────────────────────
+export default function MapVowelSpacePage() {
     return (
-        <Container>
-            <BackButton to="/learn" />
-            <Heading level={2}>Map the Vowel Space</Heading>
-            <Text>
-                This lesson will show you how each vowel sits in the phonetic space.
-                We’ll fetch the coordinates and plot them here soon.
-            </Text>
-            {/* TODO: use a hook to fetch and render vowel‑space data */}
-        </Container>
+        <MapVowelSpaceLayout
+            title="Map the Vowel Space"
+            subtitle="Vowels exist on a spectrum—like colors in your mouth!"
+            showBackButton={true}
+        >
+            {/* Column placeholders */}
+            <div>Vowel Grid Component</div>
+            <div>Vowel Spectrum Component</div>
+            <div>Additional Diagram Component</div>
+        </MapVowelSpaceLayout>
     );
 }

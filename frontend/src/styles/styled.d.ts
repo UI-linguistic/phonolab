@@ -4,6 +4,7 @@ import 'styled-components';
 declare module 'styled-components' {
   export interface DefaultTheme {
     colors: {
+      backgroundAccent: Interpolation<FastOmit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, never>>;
       primary: string;
       secondary: string;
       tertiary: string;

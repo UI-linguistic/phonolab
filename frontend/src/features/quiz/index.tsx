@@ -2,9 +2,9 @@
 import { Route } from "react-router-dom";
 import QuizMenu from "./QuizMenu";
 import VowelShufflePage from "./VowelShuffle/VowelShufflePage";
-import { SpellTellPage } from "./SpellTellPage/SpellTellPage";
-import { PairPlayPage } from "./PairPlay/PairPlayPage";
-import { PhonicTrioPage } from "./PhonicTrio/PhonicTrioPage";
+import { SpellTellPage } from "./SpellTellPage";
+import { PairPlayPage } from "./PairPlay";
+import { PhonicTrioPage } from "./PhonicTrio";
 import VowelShuffleQuizIntro from "./VowelShuffle/VowelShuffleQuizIntro";
 
 export const QuizRoutes = [
@@ -26,7 +26,8 @@ export const QuizRoutes = [
     />,
 
     // all the “coming soon” placeholders:
-    <Route key="quiz‑spelltell" path="quiz/spell‑tell" element={<SpellTellPage />} />,
-    <Route key="quiz‑pairplay" path="quiz/pair‑play" element={<PairPlayPage />} />,
-    <Route key="quiz‑phonic" path="quiz/phonic‑trio" element={<PhonicTrioPage />} />,
+    <Route key="quiz-spelltell" path="quiz/spell-tell" element={<SpellTellPage />} />,
+    <Route key="quiz-pairplay" path="quiz/pair-play" element={<PairPlayPage />} />,
+    <Route key="quiz-phonic" path="quiz/phonic-trio" element={<PhonicTrioPage />} />,
+
 ];

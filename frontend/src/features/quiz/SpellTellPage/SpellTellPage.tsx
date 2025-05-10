@@ -1,19 +1,11 @@
 // src/features/quiz/SpellTell/SpellTellPage.tsx
-import React from 'react';
-import styled from 'styled-components';
-import { Heading, Text } from '@components/ui';
-import { BackButton } from '@components/navigation';
+import { SpellAndTellLayout } from '@components/ui/QuizLayout';
 
-const Container = styled.div`
-  display: flex; flex-direction: column; gap: ${({ theme }) => theme.spacing.large};
-`;
-
-export function SpellTellPage() {
+export default function SpellTellPage() {
     return (
-        <Container>
-            <BackButton to="/quiz" />
-            <Heading level={2}>Spell & Tell</Heading>
-            <Text>Type the spelling of the vowel sound you hear. Coming soon!</Text>
-        </Container>
+        <SpellAndTellLayout title="Spell & Tell" quizStageLabel="Word Match Round">
+            <div>Prompt Box</div>
+            <div>Letter/Spelling Grid</div>
+        </SpellAndTellLayout>
     );
 }

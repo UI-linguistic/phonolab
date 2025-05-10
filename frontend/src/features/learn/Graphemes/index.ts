@@ -1,2 +1,2 @@
 // src/features/learn/Graphemes/index.ts
-export { GraphemesPage } from './GraphemesPage';
+export { default as GraphemesPage } from './GraphemesPage';
