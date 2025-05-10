@@ -1,4 +1,47 @@
-// InteractiveCollection.tsx
+/**
+ * InteractiveCollection.tsx
+ *
+ * Extends Collection with full DnDKit drag‑and‑drop support:
+ *
+ * Modes (`mode` prop):
+ *  - single:   Drag a single item into a designated drop zone
+ *  - group:    Drag the entire set of items as one unit into a drop zone
+ *  - reorder:  Reorder items in place (column, row, or grid)
+ *
+ * Key behaviors:
+ *  • Wraps in <DndContext> with collisionDetection=closestCenter
+ *  • In ‘single’ or ‘group’ mode:
+ *      – Uses useDraggable to make either the one item or the entire Collection draggable
+ *      – Accepts one drop target via `dropZoneId` and fires `onDrop`
+ *  • In ‘reorder’ mode:
+ *      – Uses SortableContext + useSortable on each item
+ *      – Fires `onReorder` with the new array order after drag end
+ *  • Requires a `getItemId` callback to map data → stable IDs/keys for DnDKit
+ *
+ * Props:
+ *  • items:        T[]                            — array of data items
+ *  • getItemId:    (item) ⇒ string                — returns unique ID for each item
+ *  • renderItem:   (item, index) ⇒ ReactNode      — UI for each item (no ID/key needed)
+ *  • layout:       CollectionLayout              — passes directly to Collection
+ *  • mode:         'single'|'group'|'reorder'      — DnD behavior
+ *  • dropZoneId:   string                         — the droppable target ID
+ *  • onDrop:       (T \| T[]) ⇒ void             — called when drop completes
+ *  • onReorder?:   (newItems: T[]) ⇒ void         — called after reorder in ‘reorder’ mode
+ *
+ * Usage example:
+ *  <InteractiveCollection
+ *    items={phonemes}
+ *    getItemId={p => p.id}
+ *    renderItem={(p) => <PhonemeBox label={p.symbol} />}
+ *    layout={{ type:'column', gap:8, flexFill:true }}
+ *    mode="reorder"
+ *    dropZoneId="trash-bin"
+ *    onDrop={() => {}}
+ *    onReorder={setPhonemes}
+ *  />
+ */
+
+
 import React from 'react';
 import {
     DndContext,
@@ -19,31 +62,37 @@ import { Collection, CollectionLayout } from './Collection';
 
 export type InteractionMode = 'single' | 'group' | 'reorder';
 
+
 export interface InteractiveCollectionProps<T> {
     /** Your data items */
     items: T[];
 
-    /** How to render each item */
-    renderItem: (item: T, index: number) => React.ReactElement & { props: { id: string } };
+    /** Gives the stable key / drag ID for each item */
+    getItemId: (item: T) => string;
 
-    /** Layout of the collection: column/row/grid */
+    /** Renders each item’s content */
+    renderItem: (item: T, index: number) => React.ReactNode;
+
+    /** Layout: column / row / grid */
     layout: CollectionLayout;
 
-    /** single | group | reorder */
+    /** Interaction mode: single | group | reorder */
     mode: InteractionMode;
 
-    /** ID to identify the drop zone you want to accept items */
+    /** ID of the droppable zone to accept items or the group */
     dropZoneId: string;
 
-    /** Called when an item or group is dropped into the drop zone */
-    onDrop: (data: T | T[]) => void;
+    /** Called when a single item or the group is dropped into that zone */
+    onDrop: (dropped: T | T[]) => void;
 
-    /** Called when reordering in “reorder” mode */
+    /** Called when items are reordered (only in `reorder` mode) */
     onReorder?: (newItems: T[]) => void;
 }
 
-export function InteractiveCollection<T extends { id: string }>({
+
+export function InteractiveCollection<T>({
     items,
+    getItemId,
     renderItem,
     layout,
     mode,
@@ -51,80 +100,62 @@ export function InteractiveCollection<T extends { id: string }>({
     onDrop,
     onReorder,
 }: InteractiveCollectionProps<T>) {
-    // 1) Handlers for drag end
+    // drag‑end handler uses getItemId instead of element.props.id
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
+        const activeId = active.id as string;
+        const overId = over?.id as string;
 
-        // CASE: single item dropped into dropZone
-        if (mode === 'single' && items.length === 1) {
-            if (over?.id === dropZoneId) {
-                onDrop(items[0]);
-            }
+        // single‑item
+        if (mode === 'single' && items.length === 1 && overId === dropZoneId) {
+            onDrop(items[0]);
         }
 
-        // CASE: group dropped into dropZone
-        if (mode === 'group' && items.length > 1) {
-            if (over?.id === dropZoneId) {
-                onDrop(items);
-            }
+        // group
+        if (mode === 'group' && items.length > 1 && overId === dropZoneId) {
+            onDrop(items);
         }
 
-        // CASE: reordering within the same list
-        if (mode === 'reorder' && over && active.id !== over.id) {
-            const oldIndex = items.findIndex(i => i.id === active.id);
-            const newIndex = items.findIndex(i => i.id === over.id);
-            if (oldIndex !== -1 && newIndex !== -1 && onReorder) {
-                onReorder(arrayMove(items, oldIndex, newIndex));
-            }
+        // reorder
+        if (mode === 'reorder' && overId && activeId !== overId && onReorder) {
+            const oldIndex = items.findIndex(i => getItemId(i) === activeId);
+            const newIndex = items.findIndex(i => getItemId(i) === overId);
+            onReorder(arrayMove(items, oldIndex, newIndex));
         }
     };
 
-    // 2) Wrap everything in DndContext
     return (
-        <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-        >
-            {/* 3) Your drop zone */}
-            <DropZone id={dropZoneId}>
-                {/* You can render a highlight or background here */}
-            </DropZone>
+        <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
+            <DropZone id={dropZoneId} />
 
-            {/* 4) Render depending on mode */}
             {mode === 'reorder' ? (
-                <SortableContext
-                    items={items.map(i => i.id)}
-                    strategy={verticalListSortingStrategy}
-                >
+                <SortableContext items={items.map(getItemId)} strategy={verticalListSortingStrategy}>
                     <Collection
                         items={items}
                         layout={layout}
-                        renderItem={(item, idx) => (
-                            <SortableItem key={item.id} id={item.id}>
-                                {renderItem(item, idx)}
+                        renderItem={(item, i) => (
+                            <SortableItem key={getItemId(item)} id={getItemId(item)}>
+                                {renderItem(item, i)}
                             </SortableItem>
                         )}
                     />
                 </SortableContext>
+
             ) : mode === 'group' ? (
                 <DraggableContainer id="group-root">
-                    <Collection
-                        items={items}
-                        layout={layout}
-                        renderItem={renderItem}
-                    />
+                    <Collection items={items} layout={layout} renderItem={renderItem} />
                 </DraggableContainer>
+
             ) : (
-                // mode === 'single'
-                items.length === 1 && (
-                    <DraggableContainer id={items[0].id}>
-                        {renderItem(items[0], 0)}
-                    </DraggableContainer>
-                )
+                // single
+                <DraggableContainer id={getItemId(items[0])}>
+                    {renderItem(items[0], 0)}
+                </DraggableContainer>
             )}
         </DndContext>
     );
 }
+
 
 //
 // Helper: DraggableContainer wraps any ReactNode in useDraggable

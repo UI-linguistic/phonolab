@@ -9,3 +9,8 @@ export { default as TextSection } from './TextSection';
 export { default as Illustration } from './Illustration';
 export { default as MenuLayout } from './MenuLayout';
 export { default as FeatureLayout } from './FeatureLayout';
+export { InstructionBox } from './InstructionTextBox';
+export { PhonemeBox } from './PhonemeBox';
+export { InteractiveCollection } from './InteractiveCollection';
+export { Collection } from './Collection';
+export { Cell } from './Cell';
