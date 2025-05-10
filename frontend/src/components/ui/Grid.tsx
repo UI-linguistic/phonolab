@@ -7,7 +7,7 @@ import {
     DragEndEvent
 } from '@dnd-kit/core';
 import { SortableContext, arrayMove } from '@dnd-kit/sortable';
-import { Cell } from './Cell';
+import { Cell } from './Celldeprecated';
 import { Vowel } from '../../features/learn/Vowels101/types';
 
 
