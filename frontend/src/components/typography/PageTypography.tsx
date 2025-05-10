@@ -1,4 +1,51 @@
-// File: src/components/typography/PageTypography.tsx
+/**
+ * PageTypography.tsx
+ *
+ * Provides styled heading and paragraph components for page titles and subtitles,
+ * plus wrapper containers to control their horizontal placement.
+ *
+ * Features:
+ *  - TitleContainer / SubtitleContainer:
+ *      • Simple <div> wrappers that accept a `marginLeft` prop for offsetting
+ *      • Use case: indent headings/subtitles consistently without inline styles
+ *
+ *  - <PageTitle>:
+ *      • Renders an <h1> with:
+ *          – theme.fonts.heading
+ *          – theme.fontSizes.xxl + theme.lineHeights.lg
+ *          – color from theme.colors (default `text`)
+ *          – white-space: nowrap + text-overflow ellipsis to prevent mid‑line wraps
+ *      • Props:
+ *          – color?: keyof theme.colors (defaults to `text`)
+ *          – align?: 'left'|'center'|'right' (defaults to left)
+ *
+ *  - <PageSubtitle>:
+ *      • Renders a <p> with:
+ *          – theme.fonts.main
+ *          – theme.fontSizes.md + theme.lineHeights.md
+ *          – color from theme.colors (default `textSubtle`)
+ *          – margin-top: theme.spacing.small for spacing below title
+ *      • Props:
+ *          – color?: keyof theme.colors (defaults to `textSubtle`)
+ *          – align?: 'left'|'center'|'right' (defaults to left)
+ *
+ * Shared Base Styles:
+ *  - text-align and margin reset via `baseStyles` fragment
+ *
+ * Usage Example:
+ *  <TitleContainer marginLeft="2rem">
+ *    <PageTitle color="primary" align="center">
+ *      Welcome to Hooked on Phonetics™
+ *    </PageTitle>
+ *  </TitleContainer>
+ *
+ *  <SubtitleContainer marginLeft="2rem">
+ *    <PageSubtitle color="secondaryAccent">
+ *      Let’s get your mouth on board.
+ *    </PageSubtitle>
+ *  </SubtitleContainer>
+ */
+
 import React from 'react';
 import styled, { css, DefaultTheme } from 'styled-components';
 

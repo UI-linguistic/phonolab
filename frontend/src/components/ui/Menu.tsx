@@ -1,4 +1,61 @@
-// File: src/components/ui/Menu.tsx
+/**
+ * Menu.tsx
+ *
+ * Provides two core UI list components for menus and actions:
+ *
+ * 1. MenuList
+ *    – Renders a list of buttons in either horizontal or vertical orientation.
+ *    – Auto‑centers buttons and spaces them evenly.
+ *    – Supports four size tokens ('xs' | 'sm' | 'md' | 'lg') controlling:
+ *        • fontSize
+ *        • padding
+ *        • gap between buttons
+ *        • min-width and min-height for uniform sizing
+ *    – Active button is styled with solid background & black border; inactive are outlined.
+ *    – Modern lift effect on hover (translateY + scale + shadow).
+ *
+ *    Props:
+ *      • items:        string[]                       — button labels
+ *      • orientation?: 'horizontal' | 'vertical'     — layout direction (default 'vertical')
+ *      • size?:        Size                          — token for sizing (default 'md')
+ *      • activeIndex?: number                        — index of the active button (default 0)
+ *      • onSelect?:    (index: number) ⇒ void       — called when a button is clicked
+ *
+ *    Usage:
+ *      <MenuList
+ *        items={['One','Two','Three']}
+ *        orientation="row"
+ *        size="sm"
+ *        activeIndex={1}
+ *        onSelect={i => console.log('clicked', i)}
+ *      />
+ *
+ * 2. ActionList
+ *    – Renders a vertical stack of Submit/Reset style buttons.
+ *    – Buttons share the same size tokens as MenuList.
+ *    – Submit uses the theme.accent background; Reset uses theme.secondary.
+ *    – No border‑radius; black border; opacity change on click.
+ *
+ *    Props:
+ *      • actions:      { label: string; type: 'submit'|'reset'; onClick:()=>void }[]
+ *      • size?:        Size                          — token for sizing (default 'md')
+ *
+ *    Usage:
+ *      <ActionList
+ *        actions={[
+ *          { label: 'Submit', type: 'submit', onClick: handleSubmit },
+ *          { label: 'Reset',  type: 'reset',  onClick: handleReset }
+ *        ]}
+ *        size="lg"
+ *      />
+ *
+ * Size Tokens (sizeStyles):
+ *   xs: { fontSize: '0.8rem', padding: '0.4rem 0.8rem', gap: '0.4rem', width: '150px', height: '40px' }
+ *   sm: { fontSize: '1rem',   padding: '0.6rem 1rem',   gap: '0.8rem', width: '200px', height: '45px' }
+ *   md: { fontSize: '1.2rem', padding: '0.8rem 1.2rem', gap: '1.2rem', width: '300px', height: '50px' }
+ *   lg: { fontSize: '1.4rem', padding: '1rem 1.6rem',   gap: '1.6rem', width: '320px', height: '60px' }
+ */
+
 import React from 'react';
 import styled, { css } from 'styled-components';
 

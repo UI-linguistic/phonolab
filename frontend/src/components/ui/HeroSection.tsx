@@ -1,4 +1,41 @@
-// File: src/components/layout/HeroPresets.tsx
+/**
+ * HeroSection.tsx
+ *
+ * Defines a responsive two‑column Hero layout with text on the left and illustration on the right.
+ * Includes four named presets for Home, LearnMenu, QuizMenu, and QuizFeedback pages.
+ *
+ * Features:
+ *  - CSS Grid 1.2fr / 1fr split for text vs. media
+ *  - Configurable `gapScale` (theme.heroGaps: tight/normal/wide) drives both:
+ *     • `column-gap` between columns
+ *     • horizontal padding on container edges
+ *  - Optional `maxWidth` prop to cap overall width and center via margin: auto
+ *  - Vertical padding via theme.spacing.large
+ *  - Tablet breakpoint switches to single‑column with row‑gap
+ *  - Debug outline always visible with dashed border
+ *
+ * HeroTemplate Props:
+ *  • title          string                                   — main heading text
+ *  • subtitle?      string                                   — optional subheading
+ *  • menu           React.FC<{ activeIndex?, onSelect?, size? }> — a Menu component
+ *  • menuSize?      'xs' | 'sm' | 'md' | 'lg'                — sizing token for menu buttons
+ *  • paths?         string[]                                 — client‑side routes for each menu item
+ *  • illustration   React.FC                                 — any Illustration preset component
+ *  • centeredTitle? boolean                                  — center title & subtitle above grid
+ *  • gapScale?      keyof theme.heroGaps                     — controls gutter & padding
+ *  • maxWidth?      string                                   — override container max‑width
+ *
+ * Presets:
+ *  • HomeHero        – 2‑item menu, plain illustration
+ *  • LearnHero       – 4‑item menu, circled illustration
+ *  • QuizHero        – 4‑item menu, circled illustration
+ *  • QuizFeedbackHero– no menu, centered title, feedback illustration
+ *
+ * Usage:
+ *  import { HomeHero } from './HeroSection';
+ *  <HomeHero gapScale="normal" maxWidth="85ch" />
+ */
+
 import React, { useState } from 'react';
 import styled, { useTheme } from 'styled-components';
 import { useNavigate } from 'react-router-dom';

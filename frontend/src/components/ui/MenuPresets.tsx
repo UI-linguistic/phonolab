@@ -1,4 +1,54 @@
-// File: src/components/ui/MenuPresets.tsx
+/**
+ * MenuPresets.tsx
+ *
+ * Pre‑configured, named wrappers around MenuList and ActionList for common UI patterns:
+ *
+ * 1. SubmitResetGroup
+ *    – A two‑button vertical action list for form submit/reset.
+ *    – Always uses 'md' size unless overridden.
+ *    – Submit: theme.accent background; Reset: theme.secondary background.
+ *
+ *    Props:
+ *      • onSubmit: () ⇒ void    — callback for Submit
+ *      • onReset:  () ⇒ void    — callback for Reset
+ *      • size?:    Size         — optional size override (xs|sm|md|lg)
+ *
+ *    Usage:
+ *      <SubmitResetGroup onSubmit={…} onReset={…} size="sm" />
+ *
+ * 2. QuizMenuList
+ *    – Vertical menu of four quiz options.
+ *    – Default: first item active, size 'md'.
+ *
+ *    Props:
+ *      • activeIndex?: number   — which option is active
+ *      • onSelect?:  (i)=>void  — click handler
+ *      • size?:       Size      — optional size override
+ *
+ *    Usage:
+ *      <QuizMenuList activeIndex={0} onSelect={…} />
+ *
+ * 3. LearnMenuList
+ *    – Vertical menu of four learning modules.
+ *    – Same API as QuizMenuList.
+ *
+ *    Usage:
+ *      <LearnMenuList activeIndex={2} onSelect={…} />
+ *
+ * 4. HomeHeroMenuList
+ *    – Vertical menu with two hero‑page actions.
+ *    – Same API, two items only.
+ *
+ *    Usage:
+ *      <HomeHeroMenuList activeIndex={1} onSelect={…} />
+ *
+ * Export:
+ *   Default export is an object { SubmitResetGroup, QuizMenuList, LearnMenuList, HomeHeroMenuList }
+ *   so you can import presets as:
+ *     import MenuPresets from './MenuPresets';
+ *     const { QuizMenuList, HomeHeroMenuList } = MenuPresets;
+ */
+
 import React from 'react';
 import { MenuList, ActionList } from './Menu';
 

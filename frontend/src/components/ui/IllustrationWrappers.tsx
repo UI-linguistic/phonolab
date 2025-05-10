@@ -1,4 +1,42 @@
-// File: src/components/ui/IllustrationWrappers.tsx
+/**
+ * IllustrationWrappers.tsx
+ *
+ * Provides a flexible Illustration component and named presets for page graphics.
+ *
+ * Features:
+ *  - Generic <Illustration> wrapper that:
+ *     • Accepts any image src/alt
+ *     • Supports two variants: “plain” (no extra styling) or “circle” (circular mask, background, border)
+ *     • Uses three size tokens (“small”/“medium”/“large”) to set fixed diameter, with responsive fallback (80vw max)
+ *     • Constrains inner <img> to 90% of its container for neat padding
+ *  - Named presets for common pages:
+ *     • HomePageIllustration   – plain, medium
+ *     • LearnMenuIllustration  – circle, medium
+ *     • QuizMenuIllustration   – circle, medium
+ *     • QuizFeedbackBad        – plain, large
+ *     • QuizFeedbackGood       – plain, large
+ *
+ * Configuration:
+ *  • sizeTokens: map IllustrationSize → dimension (px)
+ *  • theme.breakpoints.tablet: switches wrapping behavior
+ *  • theme.colors.circleBg: circle background color
+ *  • theme.spacing.small: circle padding
+ *
+ * Usage:
+ *  // generic
+ *  <Illustration
+ *    src="/assets/foo.png"
+ *    alt="Description"
+ *    variant="circle"
+ *    size="small"
+ *  />
+ *
+ *  // preset
+ *  import { HomePageIllustration } from './IllustrationWrappers';
+ *  <HomePageIllustration />
+ */
+
+
 import React from 'react';
 import styled, { css, DefaultTheme } from 'styled-components';
 import HomeIllustration from '@assets/images/home_brain-mouth.png';
