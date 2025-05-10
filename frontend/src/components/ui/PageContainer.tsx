@@ -1,7 +1,7 @@
 // src/components/ui/PageContainer.tsx
 
 // THIS IS ABOUT TO BE DEPRECATED
-// USE LEARNLAYOUT FILE INSTEAD
+// USE LEARNLAYOUT.tsx FILE INSTEAD
 
 import styled from 'styled-components';
 
