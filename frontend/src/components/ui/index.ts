@@ -12,3 +12,4 @@ export { default as MenuPresets } from './MenuPresets';
 export { default as LayoutPresets } from './LearnLayout';
 export { default as QuizLayout } from './QuizLayout';
 export { ProgressBar } from './ProgressBar';
+export { CellBox } from './CellBox';

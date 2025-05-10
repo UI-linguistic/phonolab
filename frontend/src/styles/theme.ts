@@ -1,4 +1,3 @@
-// src/styles/theme.ts
 import { DefaultTheme } from 'styled-components';
 
 export type HeroGaps = {

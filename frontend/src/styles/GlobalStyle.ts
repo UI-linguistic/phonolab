@@ -1,14 +1,13 @@
-// src/styles/GlobalStyle.ts
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
   /*────────────────────────────────────────────────────────────
-   1. Import Fonts (unchanged)
+   1. Import Fonts
   ────────────────────────────────────────────────────────────*/
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap');
 
   /*────────────────────────────────────────────────────────────
-   2. Reset & Box‑Sizing (unchanged)
+   2. Reset & Box‑Sizing
   ────────────────────────────────────────────────────────────*/
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
@@ -16,7 +15,6 @@ const GlobalStyle = createGlobalStyle`
    3. ROOT & ACCESSIBILITY
   ────────────────────────────────────────────────────────────*/
   html {
-    /* base = 10px for small, fluid up to 16px on large */
     font-size: clamp(10px, 2.2vw, 16px);
     scroll-behavior: smooth;
   }
@@ -26,18 +24,15 @@ const GlobalStyle = createGlobalStyle`
     background: ${({ theme }) => theme.colors.background};
     color: ${({ theme }) => theme.colors.text};
     line-height: ${({ theme }) => theme.lineHeights.md};
-    font-size: 1.6rem; /* 16px at root=10px, scales with clamp */
+    font-size: 1.6rem;
   }
 
-  /* smaller on phones for extra tight viewports */
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
     html {
       font-size: clamp(9px, 3vw, 14px);
     }
   }
-  // html, body, #root { height:100%; }
 
-  /* Skip-to-content link for keyboard users */
   .skip-link {
     position:absolute; top:-3rem; left:1rem;
     background: ${({ theme }) => theme.colors.primary};
@@ -74,10 +69,17 @@ const GlobalStyle = createGlobalStyle`
   /*────────────────────────────────────────────────────────────
    5. Links & Buttons
   ────────────────────────────────────────────────────────────*/
-  a { color:inherit; text-decoration:none; transition: color ${({ theme }) => theme.transitions.default}; }
+  a {
+    color:inherit;
+    text-decoration:none;
+    transition: color ${({ theme }) => theme.transitions.default};
+  }
   a:hover { color: ${({ theme }) => theme.colors.accent}; }
+
   button, input, select, textarea {
-    font:inherit; cursor:pointer; border:none;
+    font:inherit;
+    cursor:pointer;
+    border:none;
     border-radius: ${({ theme }) => theme.borderRadius};
   }
 
@@ -87,8 +89,8 @@ const GlobalStyle = createGlobalStyle`
  :focus {
    outline: ${({ theme }) => theme.borderWidths.thin} solid ${({ theme }) => theme.colors.accent};
    outline-offset: ${({ theme }) => theme.spacing.xsmall};
-+ }
-  
+ }
+
   ::selection {
     background: ${({ theme }) => theme.colors.accent};
     color: ${({ theme }) => theme.colors.white};
@@ -97,17 +99,14 @@ const GlobalStyle = createGlobalStyle`
   /*────────────────────────────────────────────────────────────
    7. Responsive Tweaks (use theme.breakpoints)
   ────────────────────────────────────────────────────────────*/
- /* Desktop adjustments (<=1024px) */
   @media (max-width: ${({ theme }) => theme.breakpoints.desktop}) {
     html { font-size: clamp(10px, 2vw, 16px); }
   }
-  /* Tablet adjustments (<=768px) */
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     body { font-size: ${({ theme }) => theme.fontSizes.sm}; }
     h1 { font-size: ${({ theme }) => theme.fontSizes.xl}; }
     main { padding: ${({ theme }) => theme.spacing.medium}; }
   }
-  /* Mobile adjustments (<=480px) */
   @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
     body { font-size: ${({ theme }) => theme.fontSizes.xs}; }
     h1 { font-size: ${({ theme }) => theme.fontSizes.lg}; }
@@ -117,21 +116,24 @@ const GlobalStyle = createGlobalStyle`
     }
   }
 
- /*────────────────────────────────────────────────────────────
+  /*────────────────────────────────────────────────────────────
    8. Custom Utilities
   ────────────────────────────────────────────────────────────*/
   .container {
     width:100%;
-    max-width: min(1200px, 85ch); /* limit line length on wide screens */
+    max-width: min(1200px, 85ch);
     margin:0 auto;
     padding:0 ${({ theme }) => theme.layout.gutter};
-    outline:2px dashed rgba(207,48,42,0.6); /* debug only */
   }
   @media (prefers-reduced-motion: no-preference) {
-    @keyframes app-logo-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
-    .App-logo { animation: app-logo-spin infinite 20s linear; }
+    @keyframes app-logo-spin {
+      from { transform: rotate(0); }
+      to { transform: rotate(360deg); }
+    }
+    .App-logo {
+      animation: app-logo-spin infinite 20s linear;
+    }
   }
-
 `;
 
 export default GlobalStyle;

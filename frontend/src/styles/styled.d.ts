@@ -1,33 +1,27 @@
-// src/styles/styled.d.ts
 import 'styled-components';
 
 declare module 'styled-components' {
   export interface DefaultTheme {
     colors: {
-      backgroundAccent: Interpolation<FastOmit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, never>>;
+      backgroundAccent: string;
       primary: string;
       secondary: string;
       tertiary: string;
 
-      // cell hover variants
       cellHoverPrimary: string;
       cellHoverSecondary: string;
 
-      // cell active variants
       cellActivePrimary: string;
       cellActiveSecondary: string;
 
-      // frame hover variants
       frameHoverPrimary: string;
       frameHoverSecondary: string;
 
-      // frame active variants
       frameActivePrimary: string;
       frameActiveSecondary: string;
 
-      // ...other colors...
       accent: string;
-      secondaryAccent
+      secondaryAccent: string;
       background: string;
       text: string;
       textSubtle: string;
@@ -38,13 +32,29 @@ declare module 'styled-components' {
       grey: string;
       greyDark: string;
     };
-    // Fonts
+
     fonts: {
       main: string;
       heading: string;
     };
 
-    // Spacing scale
+    fontSizes: {
+      xs: string;
+      sm: string;
+      md: string;
+      lg: string;
+      xl: string;
+      xxl: string;
+    };
+    lineHeights: {
+      xs: number;
+      sm: number;
+      md: number;
+      lg: number;
+      xl: number;
+      xxl: number;
+    };
+
     spacing: {
       xsmall: string;
       small: string;
@@ -56,34 +66,42 @@ declare module 'styled-components' {
       tight: string;
       normal: string;
       wide: string;
-    },
-
-    // Border settings
-    borderRadius: string;
-    border: {
-      default: string;
-      subtle: string;
-      highlight: string;
     };
+
+    borderRadius: string;
     borderWidths: {
       thin: string;
       default: string;
       thick: string;
     };
-
-    // Typography
-    fontSizes: { xs: string; sm: string; md: string; lg: string; xl: string; xxl: string; };
-    lineHeights: { xs: number; sm: number; md: number; lg: number; xl: number; xxl: number; };
-
-    // Layout dimensions
-    layout: {
-      gutter: string;
-      headerHeight: string;
-      footerHeight: string;
-      maxContentWidth: string;
+    border: {
+      default: string;
+      subtle: string;
+      highlight: string;
     };
 
-    // Breakpoints for media queries
+    shadows: {
+      low: string;
+      medium: string;
+      high: string;
+    };
+    layers: {
+      base: number;
+      dropdown: number;
+      modal: number;
+      tooltip: number;
+    };
+
+    opacity: {
+      low: number;
+      medium: number;
+      high: number;
+    };
+
+    transitions: {
+      default: string;
+    };
+
     breakpoints: {
       mobile: string;
       tablet: string;
@@ -91,12 +109,11 @@ declare module 'styled-components' {
       widescreen: string;
     };
 
-    // Z‑index layers and shadows
-    layers: { base: number; dropdown: number; modal: number; tooltip: number; };
-    shadows: { low: string; medium: string; high: string; };
-
-    // Utility
-    transitions: { default: string; };
-    opacity: { low: number; medium: number; high: number; };
+    layout: {
+      gutter: string;
+      headerHeight: string;
+      footerHeight: string;
+      maxContentWidth: string;
+    };
   }
 }
