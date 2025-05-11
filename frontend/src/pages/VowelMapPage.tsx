@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import unroundedLipImg from '../images/PNG/pronounmouthart-03.png';
 import roundedLipImg from '../images/PNG/pronounmouthart-02.png';
+import { useNavigate } from 'react-router-dom';
+
 
 // Import all vowel images
 const vowelImages: { [key: string]: string } = {
@@ -32,9 +34,40 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
 `;
+//when arrow exsits
+// const BackButtonRow = styled.div`
+//   padding: 1.5rem 2.5rem 0.5rem 2.5rem;
+//   display: flex;
+//   justify-content: flex-end; // Changed from space-between to flex-end
+//   align-items: center;
+// `;
 
+// // The TrickyPairButton stays the same
+// const TrickyPairButton = styled.button`
+//   background: #EFD9CE;
+//   color: #23243a;
+//   border: 2px solid #232323;
+//   border-radius: 16px;
+//   font-size: 1.1rem;
+//   font-weight: bold;
+//   padding: 0.5rem 1.5rem;
+//   cursor: pointer;
+//   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+//   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  
+//   &:hover {
+//     background: #e5c9b9;
+//     box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+//     transform: translateY(-1px);
+//   }
+// `;
+
+// when back arrow exist
 const BackButtonRow = styled.div`
   padding: 1.5rem 2.5rem 0.5rem 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const BackArrow = styled.div`
@@ -42,6 +75,27 @@ const BackArrow = styled.div`
   color: #d3cfc7;
   user-select: none;
 `;
+
+// Add new styled component for the Tricky Pair button
+const TrickyPairButton = styled.button`
+  background: #EFD9CE;
+  color: #23243a;
+  border: 2px solid #F05D23;
+  border-radius: 16px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  
+  &:hover {
+    background: #e5c9b9;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+  }
+`;
+
 
 const Main = styled.main`
   flex: 1;
@@ -360,7 +414,7 @@ const VowelMapPage: React.FC = () => {
   const [selectedVowel, setSelectedVowel] = useState('i');
   const [lipShape, setLipShape] = useState<'unrounded' | 'rounded'>('unrounded');
   const [activeTab, setActiveTab] = useState<'tongue' | 'lip' | 'length'>('lip');
-
+  const navigate = useNavigate();
   // Play sound for a given vowel symbol
   const playVowelSound = (vowel: string) => {
     const url = vowelAudioMap[vowel];
@@ -377,7 +431,13 @@ const VowelMapPage: React.FC = () => {
   return (
     <Container>
       <BackButtonRow>
-        <BackArrow>&larr;</BackArrow>
+        <BackArrow onClick={() => navigate('/learn')}>
+          &larr;
+        </BackArrow>
+
+        <TrickyPairButton onClick={() => navigate('/learn/tricky-pairs')}>
+          Next Learning Page
+        </TrickyPairButton>
       </BackButtonRow>
       <Main>
         <Heading>Vowels are organized in three ways:</Heading>

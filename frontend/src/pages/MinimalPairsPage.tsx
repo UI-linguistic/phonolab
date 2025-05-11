@@ -18,6 +18,9 @@ const Container = styled.div`
 
 const BackButtonRow = styled.div`
   padding: 1rem;
+  /* Added for clarity: ensures the row itself doesn't stretch the child if not intended */
+  display: flex; /* Optional: if you want to control alignment of BackArrow precisely */
+  align-items: flex-start; /* Optional: aligns BackArrow to the start of the row */
 `;
 
 const BackArrow = styled.div`
@@ -25,7 +28,16 @@ const BackArrow = styled.div`
   color: rgba(0, 0, 0, 0.3);
   user-select: none;
   cursor: pointer;
+  width: fit-content; /* This is the key change */
+  /* Alternatively, you could use: */
+  /* display: inline-block; */
+  margin-left: 25px;
+  margin-top: 5px;
+  &:hover { /* Optional: visual feedback for the clickable arrow */
+    color: rgba(0, 0, 0, 0.6);
+  }
 `;
+
 
 const Main = styled.main`
   flex: 1;
@@ -141,7 +153,7 @@ const minimalPairs: MinimalPair[] = [
   {
     ipa: ['fɪl', 'fil'],
     spell: ['fill', 'feel'],
-    sounds: ['/audio/fill.mp3', '/audio/feel.mp3'],
+    sounds: ['/audio/words/04-mp-fill.mp3', '/audio/words/04-mp-feel.mp3'],
     highlight: ['ɪ', ''],
     highlightSpell: ['', 'ee'],
   }
@@ -188,7 +200,9 @@ const MinimalPairsPage: React.FC = () => {
   return (
     <Container>
       <BackButtonRow>
-        <BackArrow>←</BackArrow>
+        <BackArrow onClick={() => navigate('/learn')}>
+          &larr;
+        </BackArrow>
       </BackButtonRow>
       <Main>
         <Heading>Tricky Minimal Pairs</Heading>
@@ -204,14 +218,14 @@ const MinimalPairsPage: React.FC = () => {
           <ExamplesGrid>
             {/* First row: IPA/phonetic */}
             <ExampleCard>
-              <AudioIcon>
+              <AudioIcon onClick={() => playSound(sounds[0])}>
                 <SpeakerIcon  />
               </AudioIcon>
               <ExampleText>
                 {renderWord(ipa[0], highlight[0], PRIMARY)}
               </ExampleText>
             </ExampleCard>
-            <ExampleCard color="#333">
+            <ExampleCard color="#333" onClick={() => playSound(sounds[1])}>
               <AudioIcon>
                 <SpeakerIcon dark />
               </AudioIcon>

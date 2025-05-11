@@ -149,13 +149,10 @@ const LearnPathPage: React.FC = () => {
     <Container>
       <MainContent>
         <Left>
-          <BackArrow>&larr;</BackArrow>
           <Title>Choose Your Learning Path</Title>
           <Subtitle>Master those slippery English vowels that<br/>trip up even fluent speakers.</Subtitle>
           <ButtonStack>
             <OrangeButton onClick={() => navigate('/learn/vowels-101/1')}>Vowels 101</OrangeButton>
-            <OutlineButton onClick={() => navigate('/learn/map-vowel-space')}>Map the Vowel Space</OutlineButton>
-            <OutlineButton onClick={() => navigate('/learn/mouth-right/1')}>Get Your Mouth Right</OutlineButton>
             <OutlineButton onClick={() => navigate('/learn/tricky-pairs')}>Tackle Tricky Pairs</OutlineButton>
           </ButtonStack>
         </Left>
