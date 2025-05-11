@@ -46,7 +46,7 @@
  */
 
 import React from 'react';
-import styled from 'styled-components';
+import styled, { useTheme } from 'styled-components';
 import { PageTitle, PageSubtitle } from '../typography/PageTypography';
 
 interface LearnLayoutProps {
@@ -103,10 +103,10 @@ const SectionTabsWrapper = styled.div`
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
-const ContentWrapper = styled.div<{ variant?: LearnLayoutProps['variant'] }>`
+const ContentWrapper = styled.div<{ $variant?: LearnLayoutProps['variant'] }>`
   display: grid;
-  ${({ variant }) => {
-        switch (variant) {
+  ${({ $variant }) => {
+        switch ($variant) {
             case 'twoColumns':
                 return 'grid-template-columns: 1fr 1fr; gap: 2rem;';
             case 'threeColumns':
@@ -126,6 +126,8 @@ const SlotWrapper = styled.div<{ direction: 'row' | 'column' }>`
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
   padding: ${({ theme }) => theme.spacing.small};
 `;
+
+
 
 const LearnLayout: React.FC<LearnLayoutProps> = ({
     title,
@@ -166,7 +168,7 @@ const LearnLayout: React.FC<LearnLayoutProps> = ({
                 </SectionTabsWrapper>
             )}
 
-            <ContentWrapper variant={variant}>
+            <ContentWrapper $variant={variant}>
                 {contentArray.map((child, idx) => (
                     <SlotWrapper key={idx} direction={slotDirections[idx] || 'column'}>
                         {child}

@@ -1,0 +1,374 @@
+{
+  "title": "Vowels 101",
+  "description": "Learn how vowels are categorized by tongue position, lip shape, and length.",
+  "lesson_mode_slug": "vowels-101",
+  "content": {
+    "tongue_position": {
+      "title": "Tongue Position",
+      "caption": "Explore how vowels are produced with different tongue heights and placements.",
+      "grid": [
+        [
+          [
+            {
+              "ipa": "i",
+              "id": "v1",
+              "pronounced": "ee",
+              "audio_url": [
+                "/audio/vowels/1-i_close_front_unrounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/01-i_close_front_unrounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/01_i_long_e_mouth.svg"
+            },
+            {
+              "ipa": "ɪ",
+              "id": "v2",
+              "pronounced": "ih",
+              "audio_url": [
+                "/audio/vowels/2-ɪ_near-close_near-front_unrounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/02-%C9%AA_near-close_near-front_unrounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/02_%C9%AA_short_i_mouth.svg"
+            }
+          ],
+          [],
+          [
+            {
+              "ipa": "u",
+              "id": "v10",
+              "pronounced": "oo",
+              "audio_url": [
+                "/audio/vowels/10-u_close_back_rounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/10-u_close_back_rounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/10_u_long_u_mouth.svg"
+            },
+            {
+              "ipa": "ʊ",
+              "id": "v11",
+              "pronounced": "oo",
+              "audio_url": [
+                "/audio/vowels/11-ʊ_near-close_near-back_rounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/11-%CA%8A_near-close_near-back_rounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/11_%CA%8A_short_oo_mouth.svg"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "ipa": "e",
+              "id": "v3",
+              "pronounced": "ay",
+              "audio_url": [
+                "/audio/vowels/3-e_close-mid_front_unrounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/03-e_close-mid_front_unrounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/03_e_long_a_mouth.svg"
+            },
+            {
+              "ipa": "ɛ",
+              "id": "v4",
+              "pronounced": "eh",
+              "audio_url": [
+                "/audio/vowels/4-ɛ_near-close_near-front_unrounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/04-%C9%9B_near-close_near-front_unrounded_vowel.mp3.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/04_%C9%9B_short_e_mouth.svg"
+            }
+          ],
+          [
+            {
+              "ipa": "ʌ",
+              "id": "v7",
+              "pronounced": "uh",
+              "audio_url": [
+                "/audio/vowels/7-ʌ_open-mid_back_unrounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/07-%CA%8C_open-mid_back_unrounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/07_%CA%8C_short_u_mouth.svg"
+            },
+            {
+              "ipa": "ə",
+              "id": "v12",
+              "pronounced": "uh",
+              "audio_url": [
+                "/audio/vowels/12-ə_mid-central_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/12-%C9%99_mid-central_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/12_%C9%99_schwa_mouth.svg"
+            }
+          ],
+          [
+            {
+              "ipa": "ɔ",
+              "id": "v8",
+              "pronounced": "aw",
+              "audio_url": [
+                "/audio/vowels/8-ɔ_open-mid_back_rounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/08-%C9%94_open-mid_back_rounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/08_%C9%94_open_o_mouth.svg"
+            },
+            {
+              "ipa": "o",
+              "id": "v9",
+              "pronounced": "oh",
+              "audio_url": [
+                "/audio/vowels/9-o_close-mid_back_rounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/09-o_close-mid_back_rounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/09_o_long_o_mouth.svg"
+            }
+          ]
+        ],
+        [
+          [
+            {
+              "ipa": "æ",
+              "id": "v5",
+              "pronounced": "a",
+              "audio_url": [
+                "/audio/vowels/5-æ_near-open_front_unrounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/05-%C3%A6_near-open_front_unrounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/05_%C3%A6_short_a_mouth.svg"
+            }
+          ],
+          [],
+          [
+            {
+              "ipa": "ɑ",
+              "id": "v6",
+              "pronounced": "ah",
+              "audio_url": [
+                "/audio/vowels/6-ɑ_open_back_unrounded_vowel.mp3",
+                "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/06-%C9%91_open_back_unrounded_vowel.mp3"
+              ],
+              "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/06_%C9%91_open_a_mouth.svg"
+            }
+          ]
+        ]
+      ]
+    },
+    "lip_shape": {
+      "title": "Lip Shape",
+      "caption": "Click a lip to highlight the matching vowels and hear their sounds.",
+      "lip_shape_table": [
+        [
+          {
+            "id": "v1",
+            "ipa": "i",
+            "audio_url": [
+              "/audio/vowels/1-i_close_front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/01-i_close_front_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v2",
+            "ipa": "ɪ",
+            "audio_url": [
+              "/audio/vowels/2-ɪ_near-close_near-front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/02-%C9%AA_near-close_near-front_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v3",
+            "ipa": "e",
+            "audio_url": [
+              "/audio/vowels/3-e_close-mid_front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/03-e_close-mid_front_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v4",
+            "ipa": "ɛ",
+            "audio_url": [
+              "/audio/vowels/4-ɛ_near-close_near-front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/04-%C9%9B_near-close_near-front_unrounded_vowel.mp3.mp3"
+            ]
+          }
+        ],
+        [
+          {
+            "id": "v5",
+            "ipa": "æ",
+            "audio_url": [
+              "/audio/vowels/5-æ_near-open_front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/05-%C3%A6_near-open_front_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v6",
+            "ipa": "ɑ",
+            "audio_url": [
+              "/audio/vowels/6-ɑ_open_back_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/06-%C9%91_open_back_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v12",
+            "ipa": "ə",
+            "audio_url": [
+              "/audio/vowels/12-ə_mid-central_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/12-%C9%99_mid-central_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v7",
+            "ipa": "ʌ",
+            "audio_url": [
+              "/audio/vowels/7-ʌ_open-mid_back_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/07-%CA%8C_open-mid_back_unrounded_vowel.mp3"
+            ]
+          }
+        ],
+        [
+          {
+            "id": "v8",
+            "ipa": "ɔ",
+            "audio_url": [
+              "/audio/vowels/8-ɔ_open-mid_back_rounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/08-%C9%94_open-mid_back_rounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v9",
+            "ipa": "o",
+            "audio_url": [
+              "/audio/vowels/9-o_close-mid_back_rounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/09-o_close-mid_back_rounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v11",
+            "ipa": "ʊ",
+            "audio_url": [
+              "/audio/vowels/11-ʊ_near-close_near-back_rounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/11-%CA%8A_near-close_near-back_rounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v10",
+            "ipa": "u",
+            "audio_url": [
+              "/audio/vowels/10-u_close_back_rounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/10-u_close_back_rounded_vowel.mp3"
+            ]
+          }
+        ]
+      ],
+      "lip_shape_images": {
+        "unrounded": "/static/images/lips/unrounded.png",
+        "rounded": "/static/images/lips/rounded.png"
+      }
+    },
+    "length": {
+      "title": "Length",
+      "caption": "Click to hear the sound! Grouped by tense (long), lax (short), or neutral.",
+      "columns": {
+        "tense": [],
+        "lax": [],
+        "neutral": [
+          {
+            "id": "v1",
+            "ipa": "i",
+            "audio_url": [
+              "/audio/vowels/1-i_close_front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/01-i_close_front_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v2",
+            "ipa": "ɪ",
+            "audio_url": [
+              "/audio/vowels/2-ɪ_near-close_near-front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/02-%C9%AA_near-close_near-front_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v3",
+            "ipa": "e",
+            "audio_url": [
+              "/audio/vowels/3-e_close-mid_front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/03-e_close-mid_front_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v4",
+            "ipa": "ɛ",
+            "audio_url": [
+              "/audio/vowels/4-ɛ_near-close_near-front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/04-%C9%9B_near-close_near-front_unrounded_vowel.mp3.mp3"
+            ]
+          },
+          {
+            "id": "v5",
+            "ipa": "æ",
+            "audio_url": [
+              "/audio/vowels/5-æ_near-open_front_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/05-%C3%A6_near-open_front_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v6",
+            "ipa": "ɑ",
+            "audio_url": [
+              "/audio/vowels/6-ɑ_open_back_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/06-%C9%91_open_back_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v7",
+            "ipa": "ʌ",
+            "audio_url": [
+              "/audio/vowels/7-ʌ_open-mid_back_unrounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/07-%CA%8C_open-mid_back_unrounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v8",
+            "ipa": "ɔ",
+            "audio_url": [
+              "/audio/vowels/8-ɔ_open-mid_back_rounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/08-%C9%94_open-mid_back_rounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v9",
+            "ipa": "o",
+            "audio_url": [
+              "/audio/vowels/9-o_close-mid_back_rounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/09-o_close-mid_back_rounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v10",
+            "ipa": "u",
+            "audio_url": [
+              "/audio/vowels/10-u_close_back_rounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/10-u_close_back_rounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v11",
+            "ipa": "ʊ",
+            "audio_url": [
+              "/audio/vowels/11-ʊ_near-close_near-back_rounded_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/11-%CA%8A_near-close_near-back_rounded_vowel.mp3"
+            ]
+          },
+          {
+            "id": "v12",
+            "ipa": "ə",
+            "audio_url": [
+              "/audio/vowels/12-ə_mid-central_vowel.mp3",
+              "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/12-%C9%99_mid-central_vowel.mp3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "type": "vowel_lesson"
+}

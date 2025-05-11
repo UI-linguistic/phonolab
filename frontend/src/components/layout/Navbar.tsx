@@ -110,6 +110,23 @@ export default function Navbar() {
           <MenuItem to="/learn">Learn</MenuItem>
           <MenuItem to="/quiz">Quiz</MenuItem>
         </Menu>
+        {/* Debug toggle button, only in development mode */}
+        {process.env.NODE_ENV === 'development' && (
+          <button
+            style={{
+              marginLeft: 16,
+              padding: '0.3rem 0.8rem',
+              background: debugOutline ? '#ffeb3b' : '#eee',
+              border: '2px solid #333',
+              borderRadius: 8,
+              cursor: 'pointer',
+              fontWeight: 'bold',
+            }}
+            onClick={() => setDebugOutline(!debugOutline)}
+          >
+            {debugOutline ? 'Hide Outlines' : 'Show Outlines'}
+          </button>
+        )}
         {/* empty placeholder for grid alignment */}
         <div />
       </NavInner>

@@ -27,37 +27,17 @@
  * ```
  */
 
-import { Paper, useMantineTheme, MantineTheme, useMantineColorScheme } from '@mantine/core';
-import { createStyles } from '@mantine/emotion';
+import { Paper, useMantineTheme } from '@mantine/core';
 import { useHover } from '@mantine/hooks';
 import React, { ReactNode } from 'react';
-import styled from 'styled-components';
-
-const useStyles = createStyles((theme: MantineTheme, { active, colorScheme }: { active: boolean; colorScheme: 'light' | 'dark' | 'auto' }) => ({
-    cell: {
-        padding: theme.spacing.md,
-        border: `2px solid ${active ? theme.colors.primary[6] : theme.colors.gray[4]}`,
-        borderRadius: theme.radius.sm,
-        backgroundColor: active
-            ? theme.colors.primary[0]
-            : colorScheme === 'dark' || colorScheme === 'auto'
-                ? theme.colors.dark[6]
-                : theme.white,
-        transition: 'background 150ms, border-color 150ms',
-        '&:hover': {
-            backgroundColor: theme.colors.gray[0],
-        },
-        cursor: 'pointer',
-        userSelect: 'none',
-    },
-}));
+import styles from './Cell.module.css';
 
 export interface CellProps {
     children: ReactNode;
     active?: boolean;
     onClick?: () => void;
     audioSrc?: string;
-    sx?: any;              // override styles
+    sx?: React.CSSProperties; // override styles
     className?: string;    // override classes
 }
 
@@ -70,35 +50,34 @@ export function Cell({
     className,
 }: CellProps) {
     const theme = useMantineTheme();
-    const { colorScheme } = useMantineColorScheme();
-    const { classes, cx } = useStyles({ active, colorScheme });
-    const { ref } = useHover();
+    const { hovered, ref } = useHover();
 
     const handleClick = () => {
         if (audioSrc) new Audio(audioSrc).play();
         onClick?.();
     };
 
+    // Compose class names
+    const cellClass = [
+        styles.cell,
+        active ? styles.cellActive : '',
+        hovered ? styles.cellHover : '',
+        className || '',
+    ].join(' ');
+
     return (
         <Paper
             ref={ref}
             withBorder
             onClick={handleClick}
-            className={cx(classes.cell, className)}
-            styles={{ root: sx }}
+            className={cellClass}
+            style={sx}
         >
             {children}
         </Paper>
     );
 }
 
-export const MediaCell = styled(Cell)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 220px;
-  gap: 1.2rem;
-  background: ${({ theme }) => theme.colors.backgroundAccent};
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-`;
+export function MediaCell(props: CellProps) {
+    return <Cell {...props} className={styles.mediaCell} />;
+}

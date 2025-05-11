@@ -1,25 +1,15 @@
 import React, { useState } from 'react';
-import { Vowels101Layout } from '@components/ui/LearnLayout';
 import { Vowels101TonguePositionLearnGrid } from '@components/display/GridPresets';
 import { Cell, MediaCell } from '@components/display';
 import { Vowel } from '@api/types';
 // import your media and instruction components as needed
 
-export default function Vowels101Page() {
-    const [activeTab, setActiveTab] = useState(0); // 0: Tongue, 1: Lip, 2: Length
+export default function TongueSection() {
     const [selectedPhoneme, setSelectedPhoneme] = useState<Vowel | null>(null);
 
-    // You can swap out the grid and media area based on activeTab
-    // For now, let's focus on Tongue Position (activeTab === 0)
-
+    // For now, just focus on Tongue Position
     return (
-        <Vowels101Layout
-            title="Vowels are organized in three ways:"
-            showBackButton
-            activeTabIndex={activeTab}
-            onTabSelect={setActiveTab}
-            slotDirections={['column', 'column', 'column']}
-        >
+        <>
             {/* Column 1: Instructions */}
             <div>
                 <Cell>
@@ -57,6 +47,6 @@ export default function Vowels101Page() {
                     <div>Select a vowel to see details</div>
                 )}
             </MediaCell>
-        </Vowels101Layout>
+        </>
     );
 }

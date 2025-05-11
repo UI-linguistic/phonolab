@@ -169,4 +169,18 @@ export const API_CONFIG: Record<string, APIEndpointConfig> = {
     },
 };
 
+/**
+ * Utility to load a lesson fallback (e.g., vowels-101_preview.json)
+ * Handles both API envelope and raw object formats
+ */
+export async function loadLessonFallback(importer: () => Promise<any>) {
+    const mod = await importer();
+    // If wrapped in API envelope, extract .data
+    if (mod.default && mod.default.data) {
+        return mod.default.data;
+    }
+    // If raw object, just return it
+    return mod.default || mod;
+}
+
 export default API_CONFIG;

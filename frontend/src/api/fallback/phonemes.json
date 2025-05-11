@@ -1,0 +1,557 @@
+{
+  "i": {
+    "id": "v1",
+    "ipa": "i",
+    "lips": [
+      "unrounded",
+      "wide smile"
+    ],
+    "tongue": [
+      "close",
+      "front",
+      "high"
+    ],
+    "audio_url": [
+      "/audio/vowels/1-i_close_front_unrounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/01-i_close_front_unrounded_vowel.mp3"
+    ],
+    "pronounced": "ee",
+    "common_spellings": [
+      "ee",
+      "ea"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/01_i_long_e_mouth.svg",
+    "word_examples": [
+      {
+        "word": "see",
+        "ipa": "i",
+        "audio_url": [
+          "/audio/word_examples/01_i_ref_see.mp3"
+        ]
+      },
+      {
+        "word": "beat",
+        "ipa": "i",
+        "audio_url": [
+          "/audio/word_examples/02_i_ref_beat.mp3"
+        ]
+      },
+      {
+        "word": "team",
+        "ipa": "i",
+        "audio_url": [
+          "/audio/word_examples/03_i_ref_team.mp3"
+        ]
+      }
+    ]
+  },
+  "ɪ": {
+    "id": "v2",
+    "ipa": "ɪ",
+    "lips": [
+      "unrounded",
+      "slight smile"
+    ],
+    "tongue": [
+      "near close",
+      "near front",
+      "high",
+      "front"
+    ],
+    "audio_url": [
+      "/audio/vowels/2-ɪ_near-close_near-front_unrounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/02-%C9%AA_near-close_near-front_unrounded_vowel.mp3"
+    ],
+    "pronounced": "ih",
+    "common_spellings": [
+      "i",
+      "y"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/02_%C9%AA_short_i_mouth.svg",
+    "word_examples": [
+      {
+        "word": "sit",
+        "ipa": "ɪ",
+        "audio_url": [
+          "/audio/word_examples/04_ɪ_ref_sit.mp3"
+        ]
+      },
+      {
+        "word": "bit",
+        "ipa": "ɪ",
+        "audio_url": [
+          "/audio/word_examples/05_ɪ_ref_bit.mp3"
+        ]
+      },
+      {
+        "word": "ship",
+        "ipa": "ɪ",
+        "audio_url": [
+          "/audio/word_examples/06_ɪ_ref_ship.mp3"
+        ]
+      }
+    ]
+  },
+  "e": {
+    "id": "v3",
+    "ipa": "e",
+    "lips": [
+      "unrounded",
+      "mildly spread"
+    ],
+    "tongue": [
+      "close mid",
+      "front",
+      "high-mid"
+    ],
+    "audio_url": [
+      "/audio/vowels/3-e_close-mid_front_unrounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/03-e_close-mid_front_unrounded_vowel.mp3"
+    ],
+    "pronounced": "ay",
+    "common_spellings": [
+      "ai",
+      "ay",
+      "a-e"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/03_e_long_a_mouth.svg",
+    "word_examples": [
+      {
+        "word": "say",
+        "ipa": "e",
+        "audio_url": [
+          "/audio/word_examples/07_e_ref_say.mp3"
+        ]
+      },
+      {
+        "word": "rain",
+        "ipa": "e",
+        "audio_url": [
+          "/audio/word_examples/08_e_ref_rain.mp3"
+        ]
+      },
+      {
+        "word": "game",
+        "ipa": "e",
+        "audio_url": [
+          "/audio/word_examples/09_e_ref_game.mp3"
+        ]
+      }
+    ]
+  },
+  "ɛ": {
+    "id": "v4",
+    "ipa": "ɛ",
+    "lips": [
+      "unrounded",
+      "relaxed"
+    ],
+    "tongue": [
+      "near close",
+      "near front",
+      "mid",
+      "front"
+    ],
+    "audio_url": [
+      "/audio/vowels/4-ɛ_near-close_near-front_unrounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/04-%C9%9B_near-close_near-front_unrounded_vowel.mp3.mp3"
+    ],
+    "pronounced": "eh",
+    "common_spellings": [
+      "e",
+      "ea"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/04_%C9%9B_short_e_mouth.svg",
+    "word_examples": [
+      {
+        "word": "bed",
+        "ipa": "ɛ",
+        "audio_url": [
+          "/audio/word_examples/10_ɛ_ref_bed.mp3"
+        ]
+      },
+      {
+        "word": "get",
+        "ipa": "ɛ",
+        "audio_url": [
+          "/audio/word_examples/11_ɛ_ref_get.mp3"
+        ]
+      },
+      {
+        "word": "head",
+        "ipa": "ɛ",
+        "audio_url": [
+          "/audio/word_examples/12_ɛ_ref_head.mp3"
+        ]
+      }
+    ]
+  },
+  "æ": {
+    "id": "v5",
+    "ipa": "æ",
+    "lips": [
+      "unrounded",
+      "low"
+    ],
+    "tongue": [
+      "near open",
+      "front",
+      "low-mid"
+    ],
+    "audio_url": [
+      "/audio/vowels/5-æ_near-open_front_unrounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/05-%C3%A6_near-open_front_unrounded_vowel.mp3"
+    ],
+    "pronounced": "a",
+    "common_spellings": [
+      "a"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/05_%C3%A6_short_a_mouth.svg",
+    "word_examples": [
+      {
+        "word": "cat",
+        "ipa": "æ",
+        "audio_url": [
+          "/audio/word_examples/13_æ_ref_cat.mp3"
+        ]
+      },
+      {
+        "word": "bat",
+        "ipa": "æ",
+        "audio_url": [
+          "/audio/word_examples/14_æ_ref_bat.mp3"
+        ]
+      },
+      {
+        "word": "ham",
+        "ipa": "æ",
+        "audio_url": [
+          "/audio/word_examples/15_æ_ref_ham.mp3"
+        ]
+      }
+    ]
+  },
+  "ɑ": {
+    "id": "v6",
+    "ipa": "ɑ",
+    "lips": [
+      "unrounded",
+      "low"
+    ],
+    "tongue": [
+      "open",
+      "back",
+      "low"
+    ],
+    "audio_url": [
+      "/audio/vowels/6-ɑ_open_back_unrounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/06-%C9%91_open_back_unrounded_vowel.mp3"
+    ],
+    "pronounced": "ah",
+    "common_spellings": [
+      "a"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/06_%C9%91_open_a_mouth.svg",
+    "word_examples": [
+      {
+        "word": "spa",
+        "ipa": "ɑ",
+        "audio_url": [
+          "/audio/word_examples/22_ɑ_ref_spa.mp3"
+        ]
+      },
+      {
+        "word": "bra",
+        "ipa": "ɑ",
+        "audio_url": [
+          "/audio/word_examples/23_ɑ_ref_bra.mp3"
+        ]
+      },
+      {
+        "word": "car",
+        "ipa": "ɑ",
+        "audio_url": [
+          "/audio/word_examples/24_ɑ_ref_car.mp3"
+        ]
+      }
+    ]
+  },
+  "ʌ": {
+    "id": "v7",
+    "ipa": "ʌ",
+    "lips": [
+      "unrounded",
+      "neutral"
+    ],
+    "tongue": [
+      "open mid",
+      "back",
+      "mid",
+      "central"
+    ],
+    "audio_url": [
+      "/audio/vowels/7-ʌ_open-mid_back_unrounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/07-%CA%8C_open-mid_back_unrounded_vowel.mp3"
+    ],
+    "pronounced": "uh",
+    "common_spellings": [
+      "u",
+      "o"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/07_%CA%8C_short_u_mouth.svg",
+    "word_examples": [
+      {
+        "word": "strut",
+        "ipa": "ʌ",
+        "audio_url": [
+          "/audio/word_examples/19_ʌ_ref_strut.mp3"
+        ]
+      },
+      {
+        "word": "mud",
+        "ipa": "ʌ",
+        "audio_url": [
+          "/audio/word_examples/20_ʌ_ref_mud.mp3"
+        ]
+      },
+      {
+        "word": "cup",
+        "ipa": "ʌ",
+        "audio_url": [
+          "/audio/word_examples/21_ʌ_ref_cup.mp3"
+        ]
+      }
+    ]
+  },
+  "ɔ": {
+    "id": "v8",
+    "ipa": "ɔ",
+    "lips": [
+      "rounded"
+    ],
+    "tongue": [
+      "open mid",
+      "back",
+      "mid-low"
+    ],
+    "audio_url": [
+      "/audio/vowels/8-ɔ_open-mid_back_rounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/08-%C9%94_open-mid_back_rounded_vowel.mp3"
+    ],
+    "pronounced": "aw",
+    "common_spellings": [
+      "aw",
+      "au",
+      "o"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/08_%C9%94_open_o_mouth.svg",
+    "word_examples": [
+      {
+        "word": "saw",
+        "ipa": "ɔ",
+        "audio_url": [
+          "/audio/word_examples/25_ɔ_ref_saw.mp3"
+        ]
+      },
+      {
+        "word": "law",
+        "ipa": "ɔ",
+        "audio_url": [
+          "/audio/word_examples/26_ɔ_ref_law.mp3"
+        ]
+      },
+      {
+        "word": "paw",
+        "ipa": "ɔ",
+        "audio_url": [
+          "/audio/word_examples/27_ɔ_ref_paw.mp3"
+        ]
+      }
+    ]
+  },
+  "o": {
+    "id": "v9",
+    "ipa": "o",
+    "lips": [
+      "rounded"
+    ],
+    "tongue": [
+      "close mid",
+      "back",
+      "high-mid"
+    ],
+    "audio_url": [
+      "/audio/vowels/9-o_close-mid_back_rounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/09-o_close-mid_back_rounded_vowel.mp3"
+    ],
+    "pronounced": "oh",
+    "common_spellings": [
+      "o",
+      "oa",
+      "ow"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/09_o_long_o_mouth.svg",
+    "word_examples": [
+      {
+        "word": "go",
+        "ipa": "o",
+        "audio_url": [
+          "/audio/word_examples/28_o_ref_go.mp3"
+        ]
+      },
+      {
+        "word": "boat",
+        "ipa": "o",
+        "audio_url": [
+          "/audio/word_examples/29_o_ref_boat.mp3"
+        ]
+      },
+      {
+        "word": "show",
+        "ipa": "o",
+        "audio_url": [
+          "/audio/word_examples/30_o_ref_show.mp3"
+        ]
+      }
+    ]
+  },
+  "u": {
+    "id": "v10",
+    "ipa": "u",
+    "lips": [
+      "rounded",
+      "puckered"
+    ],
+    "tongue": [
+      "close",
+      "back",
+      "high"
+    ],
+    "audio_url": [
+      "/audio/vowels/10-u_close_back_rounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/10-u_close_back_rounded_vowel.mp3"
+    ],
+    "pronounced": "oo",
+    "common_spellings": [
+      "oo",
+      "u"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/10_u_long_u_mouth.svg",
+    "word_examples": [
+      {
+        "word": "boot",
+        "ipa": "u",
+        "audio_url": [
+          "/audio/word_examples/34_u_ref_boot.mp3"
+        ]
+      },
+      {
+        "word": "food",
+        "ipa": "u",
+        "audio_url": [
+          "/audio/word_examples/35_u_ref_food.mp3"
+        ]
+      },
+      {
+        "word": "two",
+        "ipa": "u",
+        "audio_url": [
+          "/audio/word_examples/36_u_ref_two.mp3"
+        ]
+      }
+    ]
+  },
+  "ʊ": {
+    "id": "v11",
+    "ipa": "ʊ",
+    "lips": [
+      "rounded"
+    ],
+    "tongue": [
+      "near close",
+      "near back",
+      "high",
+      "back"
+    ],
+    "audio_url": [
+      "/audio/vowels/11-ʊ_near-close_near-back_rounded_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/11-%CA%8A_near-close_near-back_rounded_vowel.mp3"
+    ],
+    "pronounced": "oo",
+    "common_spellings": [
+      "oo"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/11_%CA%8A_short_oo_mouth.svg",
+    "word_examples": [
+      {
+        "word": "foot",
+        "ipa": "ʊ",
+        "audio_url": [
+          "/audio/word_examples/31_ʊ_ref_foot.mp3"
+        ]
+      },
+      {
+        "word": "book",
+        "ipa": "ʊ",
+        "audio_url": [
+          "/audio/word_examples/32_ʊ_ref_book.mp3"
+        ]
+      },
+      {
+        "word": "could",
+        "ipa": "ʊ",
+        "audio_url": [
+          "/audio/word_examples/33_ʊ_ref_could.mp3"
+        ]
+      }
+    ]
+  },
+  "ə": {
+    "id": "v12",
+    "ipa": "ə",
+    "lips": [
+      "neutral"
+    ],
+    "tongue": [
+      "mid central",
+      "mid",
+      "central"
+    ],
+    "audio_url": [
+      "/audio/vowels/12-ə_mid-central_vowel.mp3",
+      "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/12-%C9%99_mid-central_vowel.mp3"
+    ],
+    "pronounced": "uh",
+    "common_spellings": [
+      "a",
+      "e",
+      "i",
+      "o",
+      "u"
+    ],
+    "mouth_image_url": "https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/12_%C9%99_schwa_mouth.svg",
+    "word_examples": [
+      {
+        "word": "the",
+        "ipa": "ə",
+        "audio_url": [
+          "/audio/word_examples/16_ə_ref_the.mp3"
+        ]
+      },
+      {
+        "word": "to",
+        "ipa": "ə",
+        "audio_url": [
+          "/audio/word_examples/17_ə_ref_to.mp3"
+        ]
+      },
+      {
+        "word": "alone",
+        "ipa": "ə",
+        "audio_url": [
+          "/audio/word_examples/18_ə_ref_alone.mp3"
+        ]
+      }
+    ]
+  }
+}

@@ -70,30 +70,39 @@ function extractSections(importer: () => Promise<any>) {
  * - Wraps each cell's phoneme objects in InteractiveObject frames
  * - Supports zero, one, or multiple vowels per cell
  */
-const learnMapper = (cell: VowelGridCell): GridItem => ({
-    id: String(cell.id),
-    content: (
-        <Box
-            style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-            }}
-        >
-            {cell.vowels.map((v) => (
-                <InteractiveObject
-                    key={v.id}
-                    id={String(v.id)}
-                    label={v.ipa}
-                    audioUrls={[v.audio_url, ...(v.fallback_audio_url ? [v.fallback_audio_url] : [])]}
-                />
-            ))}
-        </Box>
-    ),
-});
+const learnMapper = (cell: VowelGridCell | undefined | null): GridItem => {
+    // If cell is empty (undefined, null, or does not have vowels), render a blank cell
+    if (!cell || !Array.isArray(cell.vowels)) {
+        return {
+            id: Math.random().toString(36), // unique id for React
+            content: <div />
+        };
+    }
+    return {
+        id: String(cell.id),
+        content: (
+            <Box
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                }}
+            >
+                {cell.vowels.map((v) => (
+                    <InteractiveObject
+                        key={v.id}
+                        id={String(v.id)}
+                        label={v.ipa}
+                        audioUrls={[v.audio_url, ...(v.fallback_audio_url ? [v.fallback_audio_url] : [])]}
+                    />
+                ))}
+            </Box>
+        ),
+    };
+};
 
 /**
  * Quiz mode mapper:
