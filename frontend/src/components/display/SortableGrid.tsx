@@ -1,14 +1,58 @@
-// src/components/SortableGrid.tsx
+/**
+ * SortableGrid.tsx
+ * 
+ * A grid where you can drag and drop items to reorder them.
+ * 
+ * What It Does:
+ * • Shows items in a grid layout
+ * • Lets you drag items to new positions
+ * • Updates order automatically
+ * • Works with any content
+ * 
+ * Props You Can Use:
+ * • items: Array of {id, content} objects
+ * • onSort: Function to run when order changes
+ * • cols: Number of columns (1-4)
+ * • spacing: "sm" or "md" for gaps
+ * 
+ * Usage Example:
+ * ```tsx
+ * const items = [
+ *   { id: '1', content: <VowelCard /> },
+ *   { id: '2', content: <VowelCard /> }
+ * ];
+ * 
+ * <SortableGrid
+ *   items={items}
+ *   onSort={(newOrder) => console.log('New order:', newOrder)}
+ *   cols={2}
+ *   spacing="md"
+ * />
+ * ```
+ */
+
+// React and core dependencies
 import React from 'react';
+
+// DND Kit components
 import {
-    DndContext, useSensor, useSensors, PointerSensor,
+    DndContext,
+    useSensor,
+    useSensors,
+    PointerSensor,
 } from '@dnd-kit/core';
 import {
-    SortableContext, rectSortingStrategy, arrayMove,
+    SortableContext,
+    rectSortingStrategy,
+    arrayMove,
 } from '@dnd-kit/sortable';
+
+// Mantine UI components
 import { SimpleGrid } from '@mantine/core';
-import { Cell } from './Cell';
-import { SortableItem } from './SortableItem'; // see below
+
+// Local components
+import { Cell } from '@components/display/Cell';
+import { SortableItem } from '@components/display/SortableItem';
 
 interface Item { id: string; label: string; }
 

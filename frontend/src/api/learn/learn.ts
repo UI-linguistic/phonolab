@@ -1,10 +1,12 @@
 // src/api/lessons.ts
-import { ApiResponse, Lesson } from '@features/learn/Vowels101/types';
+
 import axios from 'axios';
+import { LessonSection } from '@api/types';
+import { ApiResponse } from '@api/types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:5001';
 
-export const fetchVowels101Lesson = async (): Promise<Lesson> => {
+export const fetchVowels101Lesson = async (): Promise<{ sections: LessonSection[] }> => {
     try {
         const response = await axios.get<ApiResponse>(
             `${API_BASE_URL}/api/lessons/vowels-101`
@@ -18,7 +20,7 @@ export const fetchVowels101Lesson = async (): Promise<Lesson> => {
 
 export const fetchVowels101Section = async (
     sectionId: number
-): Promise<Lesson> => {
+): Promise<{ sections: LessonSection[] }> => {
     try {
         const response = await axios.get<ApiResponse>(
             `${API_BASE_URL}/api/lessons/vowels-101/${sectionId}`

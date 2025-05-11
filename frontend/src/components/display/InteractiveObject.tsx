@@ -1,12 +1,36 @@
-// src/components/InteractiveObject.tsx
+/**
+ * InteractiveObject.tsx
+ * 
+ * A clickable object that plays audio when clicked.
+ * 
+ * What It Does:
+ * • Shows a label (like "æ" or "ɪ")
+ * • Plays audio when clicked
+ * • Has a nice hover effect
+ * • Works with multiple audio sources
+ * 
+ * Props You Can Use:
+ * • id: Unique identifier
+ * • label: Text to display
+ * • audioUrls: Array of audio URLs to try
+ * 
+ * Usage Example:
+ * ```tsx
+ * <InteractiveObject
+ *   id="vowel-1"
+ *   label="æ"
+ *   audioUrls={[
+ *     "/audio/ae.mp3",
+ *     "/audio/ae-fallback.mp3"
+ *   ]}
+ * />
+ * ```
+ */
 
-/*────────────────────────────────────────────────────────────
-  Component: InteractiveObject
-  - Multiple clickable objects inside a Cell
-  - Tracks hover & active state independently
-  - Plays audio on click
-───────────────────────────────────────────────────────────*/
+// React and core dependencies
 import React, { useState } from 'react';
+
+// Mantine UI components and hooks
 import { Box, useMantineTheme } from '@mantine/core';
 import { useHover } from '@mantine/hooks';
 

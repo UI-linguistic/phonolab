@@ -1,4 +1,5 @@
-import { Lesson } from '../../features/learn/Vowels101/types';
+import { Lesson } from "./types";
+
 
 export async function fetchVowels101Lesson(): Promise<Lesson> {
     const response = await fetch('/api/lesson/vowels101');

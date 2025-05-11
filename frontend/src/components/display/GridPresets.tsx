@@ -1,3 +1,40 @@
+/**
+ * GridPresets.tsx
+ * 
+ * A collection of ready-to-use grid layouts for different learning activities.
+ * 
+ * Quick Guide:
+ * 1. Learn Grids (Static Mode):
+ *    • Vowels101TonguePositionLearnGrid - 3×3 grid for tongue position vowels
+ *    • Vowels101LipShapeLearnGrid      - 3×3 grid for lip shape vowels
+ *    • Vowels101LengthLearnGrid        - 3×3 grid for vowel length
+ * 
+ * 2. Grapheme Grids (Static Mode):
+ *    • GraphemesGetYourGraphemesRightGrid - 2×2 grid for basic graphemes
+ *    • GraphemesTackleTrickyPairsGrid    - 2×2 grid for tricky pairs
+ * 
+ * 3. Quiz Grids (Sortable Mode):
+ *    • VowelShuffle*Grids - 4×4 grids for vowel sorting
+ *    • SpellAndTellQuizGrid - 3×3 grid for spelling practice
+ *    • PairPlayQuizGrid    - 2×2 grid for pair matching
+ *    • PhonicTrioQuizGrid  - 3×3 grid for trio matching
+ * 
+ * How It Works:
+ * • Each grid uses DataDrivenGrid under the hood
+ * • Two modes: "static" (learn) and "sortable" (quiz)
+ * • Automatically loads data from API endpoints
+ * • Has fallback data if API is offline
+ * 
+ * Usage Example:
+ * ```tsx
+ * import { Vowels101TonguePositionLearnGrid } from './GridPresets';
+ * 
+ * function MyPage() {
+ *   return <Vowels101TonguePositionLearnGrid />;
+ * }
+ * ```
+ */
+
 // src/components/GridPresets.tsx
 
 /*────────────────────────────────────────────────────────────

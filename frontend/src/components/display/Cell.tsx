@@ -1,3 +1,32 @@
+/**
+ * Cell.tsx
+ * 
+ * A single cell in a grid that can show any content.
+ * 
+ * What It Does:
+ * • Shows content in a square cell
+ * • Can be active or inactive
+ * • Works in both learn and quiz modes
+ * • Handles hover states
+ * 
+ * Props You Can Use:
+ * • children: Content to show inside
+ * • active: Whether cell is active
+ * • draggable: Whether cell can be dragged
+ * • gridHover: Whether grid is being hovered
+ * 
+ * Usage Example:
+ * ```tsx
+ * <Cell
+ *   active={true}
+ *   draggable={false}
+ *   gridHover={false}
+ * >
+ *   <VowelCard />
+ * </Cell>
+ * ```
+ */
+
 import { Paper, useMantineTheme, MantineTheme, useMantineColorScheme } from '@mantine/core';
 import { createStyles } from '@mantine/emotion';
 import { useHover } from '@mantine/hooks';
