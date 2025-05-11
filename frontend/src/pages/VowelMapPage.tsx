@@ -264,7 +264,25 @@ const VowelGridRow = styled.div`
   display: flex;
 `;
 
-const VowelCell = styled.div<{ selected?: boolean }>`
+// const VowelCell = styled.div<{ selected?: boolean; selectable?: boolean; }>`
+//   display: flex;
+//   flex-direction: row;
+//   align-items: center;
+//   justify-content: center;
+//   font-size: 2.2rem;
+//   font-weight: 700;
+//   border: 1.5px solid ${GRID_BORDER};
+//   background: ${({ selected }) => (selected ? '#F2652280' : 'transparent')};
+//   color: #23243a;
+//   cursor: pointer;
+//   transition: background 0.2s, color 0.2s;
+//   width: 6rem;
+//   height: 6rem;
+// `;
+const VowelCell = styled.div<{
+  selected?: boolean;
+  selectable?: boolean;     /* NEW */
+}>`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -272,12 +290,22 @@ const VowelCell = styled.div<{ selected?: boolean }>`
   font-size: 2.2rem;
   font-weight: 700;
   border: 1.5px solid ${GRID_BORDER};
+
+  /* clicked‑state colour */
   background: ${({ selected }) => (selected ? '#F2652280' : 'transparent')};
-  color: #23243a;
-  cursor: pointer;
+
+  /* pointer only when there is something to click */
+  cursor: ${({ selectable }) => (selectable ? 'pointer' : 'default')};
   transition: background 0.2s, color 0.2s;
+
   width: 6rem;
   height: 6rem;
+
+  /* 🔸 highlight on hover */
+  &:hover {
+    background: ${({ selectable, selected }) =>
+      selectable && !selected ? '#F2652230' : undefined};
+  }
 `;
 
 const MouthCol = styled.div`
@@ -413,7 +441,7 @@ const LipVowelGridSubtitle = styled.div`
 const VowelMapPage: React.FC = () => {
   const [selectedVowel, setSelectedVowel] = useState('i');
   const [lipShape, setLipShape] = useState<'unrounded' | 'rounded'>('unrounded');
-  const [activeTab, setActiveTab] = useState<'tongue' | 'lip' | 'length'>('lip');
+  const [activeTab, setActiveTab] = useState<'tongue' | 'lip' | 'length'>('tongue');
   const navigate = useNavigate();
   // Play sound for a given vowel symbol
   const playVowelSound = (vowel: string) => {
@@ -497,6 +525,7 @@ const VowelMapPage: React.FC = () => {
                           {row.map((cell, colIdx) => (
                             <VowelCell
                               key={rowIdx + '-' + colIdx}
+                              selectable={cell.length > 0}                 
                               style={{ cursor: cell[0] ? 'pointer' : 'default' }}
                               selected={cell.some(vowel => vowel === selectedVowel)}
                             >
