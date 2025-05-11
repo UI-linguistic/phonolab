@@ -49,6 +49,18 @@ import { Box } from '@mantine/core';
 import { GridItem } from './ConfigurableGrid';
 import { VowelGridCell } from '@api/types';
 import API_CONFIG from '@api/api';
+
+// Utility to extract array from API envelope fallback
+function extractSections(importer: () => Promise<any>) {
+    return async () => {
+        const mod = await importer();
+        if (mod.default && mod.default.data && Array.isArray(mod.default.data.sections)) {
+            return { default: mod.default.data.sections };
+        }
+        return mod;
+    };
+}
+
 // ────────────────────────────────────────────────────────────
 // 1. Mapper functions
 // ────────────────────────────────────────────────────────────
@@ -120,7 +132,7 @@ export function Vowels101TonguePositionLearnGrid(
     return (
         <DataDrivenGrid<VowelGridCell>
             endpoint={cfg.url}
-            fallbackImporter={cfg.fallbackImporter!}
+            fallbackImporter={extractSections(cfg.fallbackImporter!)}
             mapNodeToGridItem={learnMapper}
             mode="static"
             cols={3}
@@ -140,7 +152,7 @@ export function Vowels101LipShapeLearnGrid(props: any) {
     return (
         <DataDrivenGrid<VowelGridCell>
             endpoint={cfg.url}
-            fallbackImporter={cfg.fallbackImporter!}
+            fallbackImporter={extractSections(cfg.fallbackImporter!)}
             mapNodeToGridItem={learnMapper}
             mode="static"
             cols={3}
@@ -156,7 +168,7 @@ export function Vowels101LengthLearnGrid(props: any) {
     return (
         <DataDrivenGrid<VowelGridCell>
             endpoint={cfg.url}
-            fallbackImporter={cfg.fallbackImporter!}
+            fallbackImporter={extractSections(cfg.fallbackImporter!)}
             mapNodeToGridItem={learnMapper}
             mode="static"
             cols={3}

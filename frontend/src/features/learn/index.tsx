@@ -5,6 +5,7 @@ import LearnMenu from './LearnMenu';
 import { MapVowelSpacePage } from './MapVowelSpace';
 import { GraphemesPage } from './Graphemes';
 import { TrickyPairsPage } from './TrickyPairs';
+import Vowels101Page from './Vowels101/Vowels101Page';
 
 export const LearnRoutes = (
   <Route path="learn">
@@ -12,7 +13,7 @@ export const LearnRoutes = (
     <Route index element={<LearnMenu />} />
 
     {/* /learn/vowels-101 */}
-    <Route path="vowels-101/:sectionSlug?" element={<MapVowelSpacePage />} />
+    <Route path="vowels-101/:sectionSlug?" element={<Vowels101Page />} />
 
     <Route path="map-vowel-space" element={<MapVowelSpacePage />} />
     <Route path="graphemes" element={<GraphemesPage />} />

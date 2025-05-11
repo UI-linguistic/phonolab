@@ -150,6 +150,7 @@ export function ConfigurableGrid({
 }: ConfigurableGridProps) {
   const theme = useMantineTheme();
   const [internalItems, setInternalItems] = useState(items);
+  const sensors = useSensors(useSensor(PointerSensor));
 
   /* default responsive breakpoints if none provided */
   const bp =
@@ -186,7 +187,6 @@ export function ConfigurableGrid({
     /*────────────────────────────────────────────────────────
       12. Sortable Mode
     ─────────────────────────────────────────────────────────*/
-    const sensors = useSensors(useSensor(PointerSensor));
     return (
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
         <SortableContext
@@ -205,19 +205,17 @@ export function ConfigurableGrid({
     );
   }
 
-  /*────────────────────────────────────────────────────────────
+  /*────────────────────────────────────────────────────────
     13. Static Mode
-  ────────────────────────────────────────────────────────────*/
+  ─────────────────────────────────────────────────────────*/
   return (
     <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: cols }} spacing={spacing}>
-      {renderItems.map((item, idx) => (
-        <Cell
-          key={item.id}
-          audioSrc={item.audioSrc}
-          onClick={() => handleClick(item, idx)}
-        >
-          {item.content}
-        </Cell>
+      {renderItems.map((item, index) => (
+        <div key={item.id} style={{ cursor: 'pointer' }} onClick={() => handleClick(item, index)}>
+          <Cell>
+            {item.content}
+          </Cell>
+        </div>
       ))}
     </SimpleGrid>
   );

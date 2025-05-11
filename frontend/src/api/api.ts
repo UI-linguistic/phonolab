@@ -8,7 +8,9 @@ export interface APIEndpointConfig {
     /** REST API URL */
     url: string;
     /** Optional dynamic import for local JSON fallback */
-    fallbackImporter?: () => Promise<{ default: any[] }>;
+    fallbackImporter?: () => Promise<{
+        default: { status: string; message: string; data: { sections: any[] } } | any[]
+    }>;
 }
 
 // Base URL for all endpoints
@@ -42,23 +44,58 @@ export const API_CONFIG: Record<string, APIEndpointConfig> = {
     ────────────────────────────────────────────────────────────*/
     'learn/vowels/tongue-position': {
         url: `${API_BASE_URL}/api/learn/vowels/tongue-position`,
-        fallbackImporter: () => import('../../../backend/src/data/learn/vowels/tongue-position.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/tongue-position.json');
+            } catch (e) {
+                console.warn('Fallback file missing: tongue-position.json');
+                return { default: [] };
+            }
+        },
     },
     'learn/vowels/lip-shape': {
         url: `${API_BASE_URL}/api/learn/vowels/lip-shape`,
-        fallbackImporter: () => import('../../../backend/src/data/learn/vowels/lip-shape.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/lip-shape.json');
+            } catch (e) {
+                console.warn('Fallback file missing: lip-shape.json');
+                return { default: [] };
+            }
+        },
     },
     'learn/vowels/length': {
         url: `${API_BASE_URL}/api/learn/vowels/length`,
-        fallbackImporter: () => import('../../../backend/src/data/learn/vowels/length.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/length.json');
+            } catch (e) {
+                console.warn('Fallback file missing: length.json');
+                return { default: [] };
+            }
+        },
     },
     'learn/graphemes/get-your-graphemes-right': {
         url: `${API_BASE_URL}/api/learn/graphemes/get-your-graphemes-right`,
-        fallbackImporter: () => import('../../../backend/src/data/learn/graphemes/get-your-graphemes-right.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/get-your-graphemes-right.json');
+            } catch (e) {
+                console.warn('Fallback file missing: get-your-graphemes-right.json');
+                return { default: [] };
+            }
+        },
     },
     'learn/graphemes/tackle-tricky-pairs': {
         url: `${API_BASE_URL}/api/learn/graphemes/tackle-tricky-pairs`,
-        fallbackImporter: () => import('../../../backend/src/data/learn/graphemes/tackle-tricky-pairs.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/tackle-tricky-pairs.json');
+            } catch (e) {
+                console.warn('Fallback file missing: tackle-tricky-pairs.json');
+                return { default: [] };
+            }
+        },
     },
 
     /*───────────────────────────────────────────────────────────
@@ -66,27 +103,69 @@ export const API_CONFIG: Record<string, APIEndpointConfig> = {
     ────────────────────────────────────────────────────────────*/
     'quiz/vowel-shuffle/tongue-position': {
         url: `${API_BASE_URL}/api/quiz/vowel-shuffle/tongue-position`,
-        fallbackImporter: () => import('../../../backend/src/data/quiz/vowel-shuffle/tongue-position.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/tongue-position.json');
+            } catch (e) {
+                console.warn('Fallback file missing: tongue-position.json');
+                return { default: [] };
+            }
+        },
     },
     'quiz/vowel-shuffle/lip-shape': {
         url: `${API_BASE_URL}/api/quiz/vowel-shuffle/lip-shape`,
-        fallbackImporter: () => import('../../../backend/src/data/quiz/vowel-shuffle/lip-shape.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/lip-shape.json');
+            } catch (e) {
+                console.warn('Fallback file missing: lip-shape.json');
+                return { default: [] };
+            }
+        },
     },
     'quiz/vowel-shuffle/length': {
         url: `${API_BASE_URL}/api/quiz/vowel-shuffle/length`,
-        fallbackImporter: () => import('../../../backend/src/data/quiz/vowel-shuffle/length.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/length.json');
+            } catch (e) {
+                console.warn('Fallback file missing: length.json');
+                return { default: [] };
+            }
+        },
     },
     'quiz/spell-and-tell': {
         url: `${API_BASE_URL}/api/quiz/spell-and-tell`,
-        fallbackImporter: () => import('../../../backend/src/data/quiz/spell-and-tell.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/spell-and-tell.json');
+            } catch (e) {
+                console.warn('Fallback file missing: spell-and-tell.json');
+                return { default: [] };
+            }
+        },
     },
     'quiz/pair-play': {
         url: `${API_BASE_URL}/api/quiz/pair-play`,
-        fallbackImporter: () => import('../../../backend/src/data/quiz/pair-play.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/pair-play.json');
+            } catch (e) {
+                console.warn('Fallback file missing: pair-play.json');
+                return { default: [] };
+            }
+        },
     },
     'quiz/phonic-trio': {
         url: `${API_BASE_URL}/api/quiz/phonic-trio`,
-        fallbackImporter: () => import('../../../backend/src/data/quiz/phonic-trio.json'),
+        fallbackImporter: async () => {
+            try {
+                return await import('./fallback/phonic-trio.json');
+            } catch (e) {
+                console.warn('Fallback file missing: phonic-trio.json');
+                return { default: [] };
+            }
+        },
     },
 };
 
