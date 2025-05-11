@@ -5,6 +5,7 @@ import { Vowels101Layout } from '@components/ui/LearnLayout';
 import TongueSection from './components/TongueSection';
 import LipSection from './components/LipSection';
 import LengthSection from './components/LengthSection';
+import { Group } from '@mantine/core';
 
 export default function Vowels101Page() {
     const [activeTab, setActiveTab] = useState(0);
@@ -21,8 +22,6 @@ export default function Vowels101Page() {
             showBackButton
             activeTabIndex={activeTab}
             onTabSelect={setActiveTab}
-        // slotDirections={['column', 'column', 'column']}
-        // variant="threeColumns"
         >
             {allSections[activeTab]}
         </Vowels101Layout>

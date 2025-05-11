@@ -19,25 +19,54 @@
  */
 
 import React from 'react';
-import styled from 'styled-components';
+import styled, { DefaultTheme } from 'styled-components';
 import { PageTitle } from '../typography/PageTypography';
+import { QuizProgressBar } from './Pbar';
 
 interface QuizLayoutProps {
     title: string;
+    titleAlign?: 'left' | 'center' | 'right';
+    subtitle?: string;
+    subtitleAlign?: 'left' | 'center' | 'right';
+    rowGap?: string | keyof DefaultTheme['heroGaps'];
     quizStageLabel: string;
     showBackButton?: boolean;
     nextButton?: React.ReactNode;
     progressBar?: React.ReactNode;
+    activeTabIndex?: number;
+    onTabSelect?: (index: number) => void;
+    sectionTabs?: string[];
     variant?: 'twoColumns' | 'threeColumns' | 'stacked';
     slotDirections?: ('row' | 'column')[];
     children: React.ReactNode;
 }
 
-const Wrapper = styled.div`
+type HeroGapKey = keyof DefaultTheme['heroGaps']; // "tight" | "normal" | "wide"
+
+interface LayoutWrapperProps {
+    /** one of theme.heroGaps: "tight", "normal", or "wide" */
+    rowGap?: HeroGapKey;
+}
+
+// const Wrapper = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   gap: ${({ theme }) => theme.spacing.large};
+//   padding: ${({ theme }) => theme.spacing.large};
+// `;
+
+const Wrapper = styled.div<{ rowGap?: string }>`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.large};
+  gap: ${({ theme, rowGap }) =>
+        rowGap
+            ? theme.heroGaps[rowGap as HeroGapKey]
+            : theme.spacing.large
+    };
   padding: ${({ theme }) => theme.spacing.large};
+  background-color: transparent;
+  border-radius: ${({ theme }) => theme.borderRadius};
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
 const HeaderRow = styled.div`
@@ -97,6 +126,14 @@ const QuizLayout: React.FC<QuizLayoutProps> = ({
     variant = 'twoColumns',
     slotDirections = [],
     children,
+    sectionTabs,
+    activeTabIndex,
+    onTabSelect,
+    titleAlign = 'left',
+    subtitle,
+    subtitleAlign = 'left',
+    rowGap = 'normal',
+    ...props
 }) => {
     const childrenArray = React.Children.toArray(children);
 
@@ -105,7 +142,7 @@ const QuizLayout: React.FC<QuizLayoutProps> = ({
             <HeaderRow>
                 <div>{showBackButton ? 'Back' : null}</div>
                 <div><SmallTitle>{title}</SmallTitle></div>
-                <div>{progressBar ?? 'Progress'}</div>
+                <div>{progressBar ?? <QuizProgressBar value={0} label="0/3" />}</div>
                 <div>{nextButton ?? 'Next'}</div>
             </HeaderRow>
 
@@ -128,8 +165,9 @@ export function VowelShuffleLayout(props: Omit<QuizLayoutProps, 'variant' | 'slo
     return (
         <QuizLayout
             {...props}
+            titleAlign="center"
+            sectionTabs={["Tongue Position", "Lip Shape", "Length"]}
             variant="threeColumns"
-            slotDirections={['column', 'column', 'column']}
         />
     );
 }
