@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 // Footer Bar (Flex)
 const FooterContainer = styled.footer`
-  outline: 2px dashed rgba(33, 150, 243, 0.6); /* debug */
+  outline: ${({ theme }) => theme.debugOutline ? '2px dashed rgba(33, 150, 243, 0.6)' : 'none'};
   height: ${({ theme }) => theme.layout.footerHeight};
   background: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.white};
@@ -21,5 +21,5 @@ const FooterContainer = styled.footer`
 `;
 
 export default function Footer() {
-    return <FooterContainer>© {new Date().getFullYear()} Hooked on Phonetics™</FooterContainer>;
+  return <FooterContainer>© {new Date().getFullYear()} Hooked on Phonetics™</FooterContainer>;
 }

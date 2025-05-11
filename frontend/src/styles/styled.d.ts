@@ -115,5 +115,7 @@ declare module 'styled-components' {
       footerHeight: string;
       maxContentWidth: string;
     };
+
+    debugOutline?: boolean;
   }
 }

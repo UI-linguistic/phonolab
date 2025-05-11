@@ -31,8 +31,7 @@ import { Paper, useMantineTheme, MantineTheme, useMantineColorScheme } from '@ma
 import { createStyles } from '@mantine/emotion';
 import { useHover } from '@mantine/hooks';
 import React, { ReactNode } from 'react';
-
-
+import styled from 'styled-components';
 
 const useStyles = createStyles((theme: MantineTheme, { active, colorScheme }: { active: boolean; colorScheme: 'light' | 'dark' | 'auto' }) => ({
     cell: {
@@ -92,3 +91,14 @@ export function Cell({
         </Paper>
     );
 }
+
+export const MediaCell = styled(Cell)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  gap: 1.2rem;
+  background: ${({ theme }) => theme.colors.backgroundAccent};
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+`;

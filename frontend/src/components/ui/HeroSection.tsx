@@ -70,7 +70,7 @@ type HeroSectionProps = {
 // Generic Hero Layout
 // ────────────────────────────────────────────────────────────
 export const HeroSection = styled.section<HeroSectionProps>`
-  outline: 2px dashed rgba(207, 48, 42, 0.6);
+  outline: ${({ theme }) => theme.debugOutline ? '2px dashed rgba(207, 48, 42, 0.6)' : 'none'};
   max-width: ${({ $maxWidth = '100%' }) => $maxWidth};
   margin: 0 auto;
 

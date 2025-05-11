@@ -7,3 +7,4 @@ export { SortableGrid } from './SortableGrid';
 export { SortableItem } from './SortableItem';
 export { Cell } from './Cell';
 export { GridLayout, RowLayout, ColumnLayout } from './Layouts';
+export { MediaCell } from './Cell';

@@ -2,12 +2,13 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { useDebug } from '../../DebugContext';
 
 // ════════════════════════
 // Outer Nav Container (Flex for page-level)
 // ════════════════════════
 const Nav = styled.nav`
-  outline: 2px dashed rgba(0, 123, 255, 0.6); /* debug */
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
   position: fixed;
   top: 0; left: 0; right: 0;
   height: ${({ theme }) => theme.layout.headerHeight};
@@ -22,7 +23,7 @@ const Nav = styled.nav`
 // Columns: [Logo] [Menu expands] [empty for alignment]
 // ════════════════════════
 const NavInner = styled.div`
-  outline: 2px dashed rgba(255, 193, 7, 0.6); /* debug */
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
   width: 100%;
   max-width: min(1200px, 85ch);
   margin: 0 auto;
@@ -45,7 +46,7 @@ const NavInner = styled.div`
 // Logo Link
 // ════════════════════════
 const Logo = styled(Link)`
-  outline: 2px dashed rgba(76, 175, 80, 0.6); /* debug */
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
   font-family: ${({ theme }) => theme.fonts.heading};
   font-size: clamp(1.6rem, 4vw, 2rem);
   color: ${({ theme }) => theme.colors.white};
@@ -60,7 +61,7 @@ const Logo = styled(Link)`
 // Menu Links Container
 // ════════════════════════
 const Menu = styled.div`
-  outline: 2px dashed rgba(233, 30, 99, 0.6); /* debug */
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
   display: flex;
   gap: ${({ theme }) => theme.spacing.large};
 
@@ -76,7 +77,7 @@ const Menu = styled.div`
 // Individual NavLink
 // ════════════════════════
 const MenuItem = styled(NavLink)`
-  outline: 1px dashed rgba(156, 39, 176, 0.6); /* debug */
+  outline: ${({ theme }) => theme.debugOutline ? `1px dashed ${theme.colors.secondary}` : 'none'};
   font-family: ${({ theme }) => theme.fonts.main};
   font-size: ${({ theme }) => theme.fontSizes.md};
   color: ${({ theme }) => theme.colors.white};
@@ -99,6 +100,8 @@ const MenuItem = styled(NavLink)`
 `;
 
 export default function Navbar() {
+  const { debugOutline, setDebugOutline } = useDebug();
+
   return (
     <Nav>
       <NavInner>

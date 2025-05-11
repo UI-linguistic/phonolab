@@ -146,6 +146,8 @@ const theme: DefaultTheme = {
     footerHeight: '64px',    // footer height
     maxContentWidth: '85ch' // ~65 characters per line ≈ 680px at 16px font
   },
+
+  debugOutline: false,
 };
 
 export default theme;

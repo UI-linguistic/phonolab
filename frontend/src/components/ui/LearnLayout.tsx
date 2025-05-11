@@ -70,36 +70,37 @@ const LayoutWrapper = styled.div`
   padding: ${({ theme }) => theme.spacing.large};
   background-color: transparent;
   border-radius: ${({ theme }) => theme.borderRadius};
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
 const TopRowWrapper = styled.div`
   display: grid;
   grid-template-columns: max-content 1fr max-content;
   align-items: center;
-  outline: 2px dashed ${({ theme }) => theme.colors.secondary};
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 
   & > div {
-    outline: 2px dashed ${({ theme }) => theme.colors.secondary};
+    outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
     padding: ${({ theme }) => theme.spacing.small};
     max-width: 15ch;
   }
 
   & > div:nth-child(2) {
     max-width: none;
-    outline: 2px dashed ${({ theme }) => theme.colors.secondary};
+    outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
     text-align: center;
   }
 `;
 
 const SubtitleWrapper = styled.div`
-  outline: 2px dashed ${({ theme }) => theme.colors.secondary};
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
 const SectionTabsWrapper = styled.div`
   display: flex;
   gap: ${({ theme }) => theme.spacing.medium};
   border-bottom: 2px solid ${({ theme }) => theme.colors.secondary};
-  outline: 2px dashed ${({ theme }) => theme.colors.secondary};
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
 const ContentWrapper = styled.div<{ variant?: LearnLayoutProps['variant'] }>`
@@ -116,13 +117,13 @@ const ContentWrapper = styled.div<{ variant?: LearnLayoutProps['variant'] }>`
                 return 'grid-template-columns: 1fr;';
         }
     }}
-  outline: 2px dashed ${({ theme }) => theme.colors.secondary};
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
 const SlotWrapper = styled.div<{ direction: 'row' | 'column' }>`
   display: flex;
   flex-direction: ${({ direction }) => direction};
-  outline: 2px dashed ${({ theme }) => theme.colors.secondary};
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
   padding: ${({ theme }) => theme.spacing.small};
 `;
 
