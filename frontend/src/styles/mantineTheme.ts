@@ -1,67 +1,110 @@
-/**
- * Mantine theme override mapping
- * styled-components tokens → Mantine shape
- */
+// src/mantine-theme.ts
 import { MantineThemeOverride } from '@mantine/core';
-import scTheme from './theme';
+import scTheme, { HeroGaps } from './theme';
+import type { MantineColorsTuple } from '@mantine/core';
 
-// helper: convert rem strings (based on 1rem=16px) to numeric px
-const remToPx = (rem: string) => parseFloat(rem) * 16;
+const remToPx = (rem: string) => `${parseFloat(rem) * 16}px`;
 
-// helper: create a color array with 10 shades
-const createColorShades = (color: string): [string, string, string, string, string, string, string, string, string, string] => {
-    return [color, color, color, color, color, color, color, color, color, color];
-};
+// Generate a fixed 10-shade tuple of the same base color
+const createColorShades = (base: string): MantineColorsTuple => [
+    base, base, base, base, base,
+    base, base, base, base, base,
+];
+
+type SC = typeof scTheme;
 
 const mantineTheme: MantineThemeOverride = {
     // ────────────────────────────────────────────────────────────
-    // Color Palette
+    // 1) Colors
     // ────────────────────────────────────────────────────────────
-    colors: {
-        primary: createColorShades(scTheme.colors.primary),
-        secondary: createColorShades(scTheme.colors.secondary),
-        tertiary: createColorShades(scTheme.colors.tertiary),
-        accent: createColorShades(scTheme.colors.accent),
-        background: createColorShades(scTheme.colors.background),
-        text: createColorShades(scTheme.colors.text),
-        grey: createColorShades(scTheme.colors.grey),
-    },
+    colors: Object.fromEntries(
+        Object.entries(scTheme.colors).map(([key, val]) => [key, createColorShades(val)])
+    ) as Record<keyof SC['colors'], MantineColorsTuple>,
+
     primaryColor: 'primary',
 
     // ────────────────────────────────────────────────────────────
-    // Spacing (px)
+    // 2) Spacing & Layout
     // ────────────────────────────────────────────────────────────
     spacing: {
-        xs: `${remToPx(scTheme.spacing.xsmall)}px`,  // 6.4px
-        sm: `${remToPx(scTheme.spacing.small)}px`,   // 12.8px
-        md: `${remToPx(scTheme.spacing.medium)}px`,  // 25.6px
-        lg: `${remToPx(scTheme.spacing.large)}px`,   // 38.4px
-        xl: `${remToPx(scTheme.spacing.xlarge)}px`,  // 51.2px
+        xs: remToPx(scTheme.spacing.xsmall),
+        sm: remToPx(scTheme.spacing.small),
+        md: remToPx(scTheme.spacing.medium),
+        lg: remToPx(scTheme.spacing.large),
+        xl: remToPx(scTheme.spacing.xlarge),
+    },
+
+    breakpoints: {
+        xs: scTheme.breakpoints.mobile,
+        sm: scTheme.breakpoints.tablet,
+        md: scTheme.breakpoints.desktop,
+        lg: scTheme.breakpoints.widescreen,
     },
 
     // ────────────────────────────────────────────────────────────
-    // Border radius
+    // 3) Radii & Borders
     // ────────────────────────────────────────────────────────────
     radius: {
-        sm: `${remToPx(scTheme.borderRadius)}px`,    // 8px
-        md: `${remToPx(scTheme.borderRadius)}px`,
-        lg: `${remToPx(scTheme.borderRadius)}px`,
+        sm: remToPx(scTheme.borderRadius),
+        md: remToPx(scTheme.borderRadius),
+        lg: remToPx(scTheme.borderRadius),
     },
 
     // ────────────────────────────────────────────────────────────
-    // Typography
+    // 4) Typography
     // ────────────────────────────────────────────────────────────
-    fontFamily: scTheme.fonts.main,
-    headings: {
-        fontFamily: scTheme.fonts.heading,
+    fontFamily: scTheme.fonts.inter,
+    headings: { fontFamily: scTheme.fonts.poppins },
+
+    fontSizes: {
+        xs: remToPx(scTheme.fontSizes.xs),
+        sm: remToPx(scTheme.fontSizes.sm),
+        md: remToPx(scTheme.fontSizes.md),
+        lg: remToPx(scTheme.fontSizes.lg),
+        xl: remToPx(scTheme.fontSizes.xl),
+        xxl: remToPx(scTheme.fontSizes.xxl),
     },
 
-    // ────────────────────────────────────────────────────────────
-    // Breakpoints
-    // ────────────────────────────────────────────────────────────
-    breakpoints: scTheme.breakpoints,
+    lineHeights: {
+        xs: scTheme.lineHeights.xs.toString(),
+        sm: scTheme.lineHeights.sm.toString(),
+        md: scTheme.lineHeights.md.toString(),
+        lg: scTheme.lineHeights.lg.toString(),
+        xl: scTheme.lineHeights.xl.toString(),
+        xxl: scTheme.lineHeights.xxl.toString(),
+    },
 
-    // you can map more (shadows, zIndex, etc.) as needed…
+    // fontWeights: {
+    //     light: scTheme.fontWeights.light.toString(),
+    //     normal: scTheme.fontWeights.normal.toString(),
+    //     medium: scTheme.fontWeights.medium.toString(),
+    //     bold: scTheme.fontWeights.bold.toString(),
+    //     extrabold: scTheme.fontWeights.extrabold.toString(),
+    // },
+    // ────────────────────────────────────────────────────────────
+    // 5) Shadows, zIndex, transitions, opacity
+    // ────────────────────────────────────────────────────────────
+    shadows: {
+        xs: scTheme.shadows.low,
+        sm: scTheme.shadows.medium,
+        md: scTheme.shadows.high,
+    },
+
+    // zIndex: {
+    //     dropdown: scTheme.layers.dropdown,
+    //     modal: scTheme.layers.modal,
+    //     tooltip: scTheme.layers.tooltip,
+    // },
+
+    // transitionTimingFunction: scTheme.transitions.default,
+
+    // ────────────────────────────────────────────────────────────
+    // 6) Custom fields from SC theme
+    // ────────────────────────────────────────────────────────────
+    // @ts-ignore: passing through extra theme props
+    heroGaps: scTheme.heroGaps as HeroGaps,
+    // @ts-ignore
+    layout: scTheme.layout,
 };
 
 export default mantineTheme;

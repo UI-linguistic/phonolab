@@ -34,20 +34,22 @@ declare module 'styled-components' {
     };
 
     typography: {
-      title: [string, { min: string, fluid: string, max: string }, number, string];
-      subtitle: [string, { min: string, fluid: string, max: string }, number, string];
-      body: [string, { min: string, fluid: string, max: string }, number, string];
-      label: [string, { min: string, fluid: string, max: string }, number, string];
-      instruction: [string, { min: string, fluid: string, max: string }, number, string];
-      caption: [string, { min: string, fluid: string, max: string }, number, string];
-      layoutTitle: [string, { min: string, fluid: string, max: string }, number, string];
-      layoutSubtitle: [string, { min: string, fluid: string, max: string }, number, string];
-      layoutInstruction: [string, { min: string, fluid: string, max: string }, number, string];
-      gridPhoneme: [string, { min: string, fluid: string, max: string }, number, string];
+      title: [string, { min: string; fluid: string; max: string }, number, string];
+      subtitle: [string, { min: string; fluid: string; max: string }, number, string];
+      body: [string, { min: string; fluid: string; max: string }, number, string];
+      label: [string, { min: string; fluid: string; max: string }, number, string];
+      instruction: [string, { min: string; fluid: string; max: string }, number, string];
+      caption: [string, { min: string; fluid: string; max: string }, number, string];
+      layoutTitle: [string, { min: string; fluid: string; max: string }, number, string];
+      layoutSubtitle: [string, { min: string; fluid: string; max: string }, number, string];
+      layoutInstruction: [string, { min: string; fluid: string; max: string }, number, string];
+      gridPhoneme: [string, { min: string; fluid: string; max: string }, number, string];
+      heroTitle: [string, { min: string; fluid: string; max: string }, number, string];
     };
+
     fonts: {
-      main: string;
-      heading: string;
+      inter: string;
+      poppins: string;
     };
 
     fontWeights: {
@@ -55,6 +57,7 @@ declare module 'styled-components' {
       normal: number;
       medium: number;
       bold: number;
+      extrabold: number;
     };
 
     fontSizes: {
