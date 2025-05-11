@@ -74,7 +74,7 @@ export function InteractiveObject({
             ref={ref}
             onClick={handleClick}
             style={{
-                padding: theme.spacing.sm,
+                padding: theme.spacing.xs,
                 backgroundColor: active
                     ? theme.colors.secondary[1]
                     : hovered

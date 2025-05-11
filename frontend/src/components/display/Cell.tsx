@@ -52,7 +52,6 @@ export function Cell({
     className,
     textProps,
 }: CellProps) {
-    const theme = useMantineTheme();
     const { hovered, ref } = useHover();
 
     const handleClick = () => {

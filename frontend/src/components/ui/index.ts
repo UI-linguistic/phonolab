@@ -7,4 +7,4 @@ export { HeroSection } from './HeroSection';
 export { Illustration } from './IllustrationWrappers';
 export { MenuList, ActionList } from './Menu';
 export { default as MenuPresets } from './MenuPresets';
-// export { CellBox } from './CellBox';
+

@@ -68,6 +68,7 @@ export function DataDrivenGrid<T>({
       .get<T[]>(endpoint)
       .then((res) => {
         if (!mounted) return
+        console.log('[DataDrivenGrid] API data:', res.data);
         setNodes(res.data)
         setLoading(false)
       })
@@ -78,6 +79,7 @@ export function DataDrivenGrid<T>({
 
             // treat mod as any so TS stops complaining
             const raw = (mod as any).default
+            console.log('[DataDrivenGrid] Fallback raw data:', raw);
 
             // If it's already an array, use it.
             // Otherwise assume it's an "envelope" with data.sections
@@ -87,6 +89,7 @@ export function DataDrivenGrid<T>({
                 ? raw.data.sections
                 : []
 
+            console.log('[DataDrivenGrid] Fallback mapped data:', data);
             setNodes(data)
             setLoading(false)
           })
@@ -115,6 +118,14 @@ export function DataDrivenGrid<T>({
   }
 
   const items = nodes.map(mapNodeToGridItem)
+  console.log('[DataDrivenGrid] items.length:', items.length, 'items:', items);
+  if (gridProps && 'cols' in gridProps) {
+    // gridProps is spread, so check if cols is present
+    // (in practice, cols should always be present)
+    // eslint-disable-next-line
+    // @ts-ignore
+    console.log('[DataDrivenGrid] gridProps.cols:', gridProps.cols);
+  }
   return <ConfigurableGrid items={items} {...gridProps} />
 }
 
@@ -123,7 +134,7 @@ export function DataDrivenGrid<T>({
  * Given a dynamic‐importer of either:
  *  - Lesson (object), or
  *  - Lesson[] (array of lessons),
- * this returns a promise that resolves to a flat array of that lesson’s sections.
+ * this returns a promise that resolves to a flat array of that lesson's sections.
  */
 export async function extractSections(
   importer: () => Promise<{ default: Lesson | Lesson[] }>

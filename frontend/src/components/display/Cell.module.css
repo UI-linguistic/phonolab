@@ -1,6 +1,8 @@
 /* Cell.module.css */
 .cell {
-    padding: var(--mantine-spacing-md);
+    /*affects graphenes cells */
+    padding: var(--mantine-spacing-sm);
+
     border: 2px solid var(--mantine-color-grey);
     border-radius: var(--mantine-radius-sm);
     background-color: var(--mantine-color-white);
