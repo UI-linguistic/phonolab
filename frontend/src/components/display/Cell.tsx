@@ -31,6 +31,7 @@ import { Paper, useMantineTheme } from '@mantine/core';
 import { useHover } from '@mantine/hooks';
 import React, { ReactNode } from 'react';
 import styles from './Cell.module.css';
+import { Text, TextProps } from '@components/typography/PageTypography';
 
 export interface CellProps {
     children: ReactNode;
@@ -39,6 +40,7 @@ export interface CellProps {
     audioSrc?: string;
     sx?: React.CSSProperties; // override styles
     className?: string;    // override classes
+    textProps?: Omit<TextProps, 'children'>;
 }
 
 export function Cell({
@@ -48,6 +50,7 @@ export function Cell({
     audioSrc,
     sx,
     className,
+    textProps,
 }: CellProps) {
     const theme = useMantineTheme();
     const { hovered, ref } = useHover();
@@ -57,7 +60,6 @@ export function Cell({
         onClick?.();
     };
 
-    // Compose class names
     const cellClass = [
         styles.cell,
         active ? styles.cellActive : '',
@@ -73,7 +75,9 @@ export function Cell({
             className={cellClass}
             style={sx}
         >
-            {children}
+            {textProps
+                ? <Text {...textProps}>{children}</Text>
+                : children}
         </Paper>
     );
 }

@@ -33,6 +33,17 @@ declare module 'styled-components' {
       greyDark: string;
     };
 
+    typography: {
+      title: [string, { min: string, fluid: string, max: string }, number, string];
+      subtitle: [string, { min: string, fluid: string, max: string }, number, string];
+      body: [string, { min: string, fluid: string, max: string }, number, string];
+      label: [string, { min: string, fluid: string, max: string }, number, string];
+      instruction: [string, { min: string, fluid: string, max: string }, number, string];
+      caption: [string, { min: string, fluid: string, max: string }, number, string];
+      layoutTitle: [string, { min: string, fluid: string, max: string }, number, string];
+      layoutSubtitle: [string, { min: string, fluid: string, max: string }, number, string];
+      layoutInstruction: [string, { min: string, fluid: string, max: string }, number, string];
+    };
     fonts: {
       main: string;
       heading: string;

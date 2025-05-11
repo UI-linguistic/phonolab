@@ -45,6 +45,63 @@ const theme: DefaultTheme = {
   // ────────────────────────────────────────────────────────────
   // Typography
   // ────────────────────────────────────────────────────────────
+  typography: {
+    title: [
+      'h1',
+      { min: '2rem', fluid: '2vw + 1rem', max: '3rem' },
+      1.6,
+      'bold',
+    ],
+    subtitle: [
+      'h2',
+      { min: '1.5rem', fluid: '1.8vw + 0.8rem', max: '2rem' },
+      1.5,
+      'medium',
+    ],
+    body: [
+      'p',
+      { min: '1rem', fluid: '1.6vw + 0.4rem', max: '1.2rem' },
+      1.5,
+      'normal',
+    ],
+    label: [
+      'span',
+      { min: '0.875rem', fluid: '1.4vw + 0.2rem', max: '1.4rem' },
+      1.4,
+      'medium',
+    ],
+    instruction: [
+      'p',
+      { min: '0.875rem', fluid: '1.4vw + 0.2rem', max: '1.2rem' },
+      1.5,
+      'normal',
+    ],
+    caption: [
+      'p',
+      { min: '0.75rem', fluid: '1.2vw + 0.1rem', max: '1rem' },
+      1.3,
+      'light',
+    ],
+
+    layoutTitle: [
+      'h1',
+      { min: '1rem', fluid: '2.5vw', max: '2.1rem' },
+      1.3,
+      'bold',
+    ],
+    layoutSubtitle: [
+      'p',
+      { min: '0.8rem', fluid: '1.5vw', max: '1.5rem' },
+      1.4,
+      'normal',
+    ],
+    layoutInstruction: [
+      'p',
+      { min: '0.5rem', fluid: '1.5vw', max: '1rem' },
+      1.4,
+      'normal',
+    ],
+  },
 
   fonts: {
     main: "'Roboto', sans-serif",

@@ -47,7 +47,7 @@
 
 import React from 'react';
 import styled, { DefaultTheme, useTheme } from 'styled-components';
-import { PageTitle, PageSubtitle } from '../typography/PageTypography';
+import { LayoutTitle, LayoutSubtitle, PageSubtitle } from '../typography/PageTypography';
 import { MenuList } from './Menu';
 
 interface LearnLayoutProps {
@@ -55,7 +55,7 @@ interface LearnLayoutProps {
     titleAlign?: 'left' | 'center' | 'right';
     subtitle?: string;
     subtitleAlign?: 'left' | 'center' | 'right';
-    rowGap?: string;
+    rowGap?: string | keyof DefaultTheme['heroGaps'];
     showBackButton?: boolean;
     additionalButton?: React.ReactNode;
     nextButton?: React.ReactNode;
@@ -87,6 +87,7 @@ const LayoutWrapper = styled.div<{ rowGap?: string }>`
   border-radius: ${({ theme }) => theme.borderRadius};
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
+
 
 const TopRowWrapper = styled.div`
   /* 1. Fill the parent */
@@ -195,19 +196,27 @@ const LearnLayout: React.FC<LearnLayoutProps> = ({
     children,
     rowGap,
 }) => {
-    const contentArray = React.Children.toArray(children);
+    const contentArray = React.Children.toArray(children).flatMap(child => {
+        if (
+            React.isValidElement(child) &&
+            child.type === React.Fragment
+        ) {
+            return React.Children.toArray(child.props.children);
+        }
+        return [child];
+    });
 
     return (
         <LayoutWrapper rowGap={rowGap}>
             <TopRowWrapper>
                 <div>{showBackButton ? 'Back button placeholder' : null}</div>
-                <div><PageTitle align={titleAlign}>{title}</PageTitle></div>
+                <div><LayoutTitle align={titleAlign}>{title}</LayoutTitle></div>
                 <div>{nextButton ?? 'Next button placeholder'}</div>
             </TopRowWrapper>
 
             {subtitle && (
                 <SubtitleWrapper>
-                    <PageSubtitle align={subtitleAlign}>{subtitle}</PageSubtitle>
+                    <LayoutSubtitle align={subtitleAlign}>{subtitle}</LayoutSubtitle>
                 </SubtitleWrapper>
             )}
 
@@ -244,7 +253,7 @@ export function Vowels101Layout(props: Omit<LearnLayoutProps, 'variant' | 'secti
     return (
         <LearnLayout
             {...props}
-            rowGap="1rem"
+            rowGap="tight"
             titleAlign="center"
             sectionTabs={["Tongue Position", "Lip Shape", "Length"]}
             variant="threeColumns"

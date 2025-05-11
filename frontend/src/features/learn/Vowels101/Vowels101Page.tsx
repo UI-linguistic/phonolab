@@ -3,18 +3,17 @@
 import React, { useState } from 'react';
 import { Vowels101Layout } from '@components/ui/LearnLayout';
 import TongueSection from './components/TongueSection';
-// import LipSection from './components/LipSection';
-// import LengthSection from './components/LengthSection';
+import LipSection from './components/LipSection';
+import LengthSection from './components/LengthSection';
 
 export default function Vowels101Page() {
     const [activeTab, setActiveTab] = useState(0);
 
-    // Placeholder for future sections
-    const sections = [
-        <TongueSection key="tongue" />,
-        // <LipSection key="lip" />,
-        // <LengthSection key="length" />,
-    ];
+    const tongueNodes = TongueSection();
+    const lipNodes = LipSection();
+    const lengthNodes = LengthSection();
+
+    const allSections = [tongueNodes, lipNodes, lengthNodes];
 
     return (
         <Vowels101Layout
@@ -22,13 +21,12 @@ export default function Vowels101Page() {
             showBackButton
             activeTabIndex={activeTab}
             onTabSelect={setActiveTab}
-            slotDirections={['column', 'column', 'column']}
+        // slotDirections={['column', 'column', 'column']}
+        // variant="threeColumns"
         >
-            {sections[activeTab]}
+            {allSections[activeTab]}
         </Vowels101Layout>
     );
 }
 
 // PENDING UPDATE BUT WORKS WITH BACKEND!
-
-export { };

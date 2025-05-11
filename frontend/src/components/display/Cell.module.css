@@ -1,21 +1,21 @@
 /* Cell.module.css */
 .cell {
-    padding: var(--mantine-spacing-md, 16px);
-    border: 2px solid var(--cell-border-color, #e0e0e0);
-    border-radius: var(--mantine-radius-sm, 8px);
-    background-color: var(--cell-bg, #fff);
+    padding: var(--mantine-spacing-md);
+    border: 2px solid var(--mantine-color-grey);
+    border-radius: var(--mantine-radius-sm);
+    background-color: var(--mantine-color-white);
     transition: background 150ms, border-color 150ms;
     cursor: pointer;
     user-select: none;
 }
 
 .cellActive {
-    border-color: var(--mantine-primary-color, #228be6);
-    background-color: var(--mantine-primary-light, #e7f5ff);
+    border-color: var(--mantine-color-primary);
+    background-color: var(--mantine-color-cellActivePrimary);
 }
 
 .cellHover {
-    background-color: var(--mantine-gray-light, #f8f9fa);
+    background-color: var(--mantine-color-cellHoverPrimary);
 }
 
 .mediaCell {
@@ -25,6 +25,15 @@
     justify-content: center;
     min-height: 220px;
     gap: 1.2rem;
-    background: var(--media-cell-bg, #EFD9CE);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    background: var(--mantine-color-backgroundAccent);
+    box-shadow: var(--mantine-shadow-sm);
+}
+
+/* These are the critical overrides: */
+.noBorder {
+    border: none !important;
+}
+
+.noBackground {
+    background-color: transparent !important;
 }
