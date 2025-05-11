@@ -46,12 +46,16 @@
  */
 
 import React from 'react';
-import styled, { useTheme } from 'styled-components';
+import styled, { DefaultTheme, useTheme } from 'styled-components';
 import { PageTitle, PageSubtitle } from '../typography/PageTypography';
+import { MenuList } from './Menu';
 
 interface LearnLayoutProps {
     title: string;
+    titleAlign?: 'left' | 'center' | 'right';
     subtitle?: string;
+    subtitleAlign?: 'left' | 'center' | 'right';
+    rowGap?: string;
     showBackButton?: boolean;
     additionalButton?: React.ReactNode;
     nextButton?: React.ReactNode;
@@ -63,10 +67,21 @@ interface LearnLayoutProps {
     children: React.ReactNode;
 }
 
-const LayoutWrapper = styled.div`
+type HeroGapKey = keyof DefaultTheme['heroGaps']; // "tight" | "normal" | "wide"
+
+interface LayoutWrapperProps {
+    /** one of theme.heroGaps: "tight", "normal", or "wide" */
+    rowGap?: HeroGapKey;
+}
+
+const LayoutWrapper = styled.div<{ rowGap?: string }>`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.large};
+  gap: ${({ theme, rowGap }) =>
+        rowGap
+            ? theme.heroGaps[rowGap as HeroGapKey]
+            : theme.spacing.large
+    };
   padding: ${({ theme }) => theme.spacing.large};
   background-color: transparent;
   border-radius: ${({ theme }) => theme.borderRadius};
@@ -74,21 +89,58 @@ const LayoutWrapper = styled.div`
 `;
 
 const TopRowWrapper = styled.div`
+  /* 1. Fill the parent */
+  width: 100%;
+  max-width: 100%;
+  min-width: 0; /* allow it to shrink properly */
+
   display: grid;
-  grid-template-columns: max-content 1fr max-content;
+  /* 2. Three columns: auto | flex‑fill | auto */
+  grid-template-columns: auto 1fr auto;
+  column-gap: ${({ theme }) => theme.spacing.small};
+
+  justify-items: start; /* default for slot 1 */
   align-items: center;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
+
+  outline: ${({ theme }) =>
+        theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : "none"};
 
   & > div {
-    outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
+    min-width: 0;
     padding: ${({ theme }) => theme.spacing.small};
-    max-width: 15ch;
+    outline: ${({ theme }) =>
+        theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : "none"};
   }
 
+  /* square back + next button slots */
+  & > div:nth-child(1),
+  & > div:nth-child(3) {
+    width: ${({ theme }) => theme.spacing.xlarge};
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* child 1: left edge margin */
+  & > div:nth-child(1) {
+    justify-self: start;
+    margin-left: ${({ theme }) => theme.spacing.small};
+  }
+
+  /* center title slot: centered */
   & > div:nth-child(2) {
-    max-width: none;
-    outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
+    width: 100%;
+    justify-self: center;
     text-align: center;
+    display: inline-block;
+  }
+
+  /* child 3: right edge margin + hug right */
+  & > div:nth-child(3) {
+    justify-self: end;
+    margin-right: ${({ theme }) => theme.spacing.small};
   }
 `;
 
@@ -97,8 +149,6 @@ const SubtitleWrapper = styled.div`
 `;
 
 const SectionTabsWrapper = styled.div`
-  display: flex;
-  gap: ${({ theme }) => theme.spacing.medium};
   border-bottom: 2px solid ${({ theme }) => theme.colors.secondary};
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
@@ -131,7 +181,9 @@ const SlotWrapper = styled.div<{ direction: 'row' | 'column' }>`
 
 const LearnLayout: React.FC<LearnLayoutProps> = ({
     title,
+    titleAlign = 'left',
     subtitle,
+    subtitleAlign = 'left',
     showBackButton = true,
     additionalButton,
     nextButton,
@@ -141,30 +193,37 @@ const LearnLayout: React.FC<LearnLayoutProps> = ({
     variant = 'single',
     slotDirections = [],
     children,
+    rowGap,
 }) => {
     const contentArray = React.Children.toArray(children);
 
     return (
-        <LayoutWrapper>
+        <LayoutWrapper rowGap={rowGap}>
             <TopRowWrapper>
                 <div>{showBackButton ? 'Back button placeholder' : null}</div>
-                <div><PageTitle>{title}</PageTitle></div>
+                <div><PageTitle align={titleAlign}>{title}</PageTitle></div>
                 <div>{nextButton ?? 'Next button placeholder'}</div>
             </TopRowWrapper>
 
             {subtitle && (
                 <SubtitleWrapper>
-                    <PageSubtitle>{subtitle}</PageSubtitle>
+                    <PageSubtitle align={subtitleAlign}>{subtitle}</PageSubtitle>
                 </SubtitleWrapper>
             )}
 
             {sectionTabs && (
                 <SectionTabsWrapper>
-                    {sectionTabs.map((tab, idx) => (
-                        <button key={idx} onClick={() => onTabSelect?.(idx)}>
-                            {tab}
-                        </button>
-                    ))}
+                    <MenuList
+                        items={sectionTabs}
+                        orientation="horizontal"
+                        size="md"
+                        activeIndex={activeTabIndex}
+                        onSelect={onTabSelect}
+                        horizontalPadding="1rem"
+                        buttonWidth="220px"
+                        itemGap="5rem"
+                        textWeight="bold"
+                    />
                 </SectionTabsWrapper>
             )}
 
@@ -185,6 +244,8 @@ export function Vowels101Layout(props: Omit<LearnLayoutProps, 'variant' | 'secti
     return (
         <LearnLayout
             {...props}
+            rowGap="1rem"
+            titleAlign="center"
             sectionTabs={["Tongue Position", "Lip Shape", "Length"]}
             variant="threeColumns"
         />

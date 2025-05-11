@@ -51,6 +51,13 @@ const theme: DefaultTheme = {
     heading: "'Poppins', sans-serif",
   },
 
+  fontWeights: {
+    light: 300,
+    normal: 400,
+    medium: 500,
+    bold: 700,
+  },
+
   fontSizes: {
     xs: '1.2rem',   // 12px
     sm: '1.4rem',   // 14px

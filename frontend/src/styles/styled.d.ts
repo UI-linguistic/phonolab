@@ -38,6 +38,13 @@ declare module 'styled-components' {
       heading: string;
     };
 
+    fontWeights: {
+      light: number;
+      normal: number;
+      medium: number;
+      bold: number;
+    };
+
     fontSizes: {
       xs: string;
       sm: string;
