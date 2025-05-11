@@ -2,21 +2,20 @@ import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
   /*────────────────────────────────────────────────────────────
-   1. Import Fonts
-  ────────────────────────────────────────────────────────────*/
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500&display=swap');
-
-  /*────────────────────────────────────────────────────────────
-   2. Reset & Box‑Sizing
+   1. Reset & Box‑Sizing
   ────────────────────────────────────────────────────────────*/
   *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
   /*────────────────────────────────────────────────────────────
-   3. ROOT & ACCESSIBILITY
+   2. ROOT & ACCESSIBILITY
   ────────────────────────────────────────────────────────────*/
   html {
     font-size: clamp(10px, 2.2vw, 16px);
     scroll-behavior: smooth;
+    color-scheme: light;
+    color-rendering: optimizeQuality;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
@@ -42,6 +41,14 @@ const GlobalStyle = createGlobalStyle`
     transition: top 150ms ease-in;
   }
   .skip-link:focus { top:1rem; }
+
+  /*────────────────────────────────────────────────────────────
+   3. Color Management
+  ────────────────────────────────────────────────────────────*/
+  img, video, canvas {
+    color-scheme: light;
+    color-rendering: optimizeQuality;
+  }
 
   /*────────────────────────────────────────────────────────────
    4. Typography

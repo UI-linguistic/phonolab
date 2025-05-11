@@ -61,9 +61,9 @@ import { Size } from '../ui/Menu';
 
 type HeroSectionProps = {
   /** choose one of theme.heroGaps keys */
-  gapScale?: keyof import('../../styles/theme').HeroGaps;
+  $gapScale?: keyof import('../../styles/theme').HeroGaps;
   /** override maximum width, defaults to full container */
-  maxWidth?: string;
+  $maxWidth?: string;
 };
 
 // ────────────────────────────────────────────────────────────
@@ -71,13 +71,13 @@ type HeroSectionProps = {
 // ────────────────────────────────────────────────────────────
 export const HeroSection = styled.section<HeroSectionProps>`
   outline: 2px dashed rgba(207, 48, 42, 0.6);
-  max-width: ${({ maxWidth = '100%' }) => maxWidth};
+  max-width: ${({ $maxWidth = '100%' }) => $maxWidth};
   margin: 0 auto;
 
   display: grid;
   /* two columns, left gets 1.2fr, right 1fr for extra space on text */
   grid-template-columns: 1.2fr 1fr;
-  column-gap: ${({ theme, gapScale = 'normal' }) => theme.heroGaps[gapScale]};
+  column-gap: ${({ theme, $gapScale = 'normal' }) => theme.heroGaps[$gapScale]};
   padding: ${({ theme }) => theme.spacing.large} 0;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
@@ -100,7 +100,7 @@ const MediaColumn = styled.div`
   align-items: center;
 `;
 
-interface HeroProps extends HeroSectionProps {
+interface HeroProps extends Omit<HeroSectionProps, '$gapScale' | '$maxWidth'> {
   title: string;
   subtitle?: string;
   menu: React.FC<{ activeIndex?: number; onSelect?: (i: number) => void; size?: Size }>;
@@ -108,6 +108,8 @@ interface HeroProps extends HeroSectionProps {
   paths?: string[];
   illustration: React.FC;
   centeredTitle?: boolean;
+  gapScale?: keyof import('../../styles/theme').HeroGaps;
+  maxWidth?: string;
 }
 
 export function HeroTemplate({
@@ -126,14 +128,14 @@ export function HeroTemplate({
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <HeroSection gapScale={gapScale} maxWidth={maxWidth}>
+    <HeroSection $gapScale={gapScale} $maxWidth={maxWidth}>
       <TextColumn style={centeredTitle ? { textAlign: 'center' } : {}}>
-        <TitleContainer marginLeft={centeredTitle ? '0' : theme.spacing.small}>
+        <TitleContainer style={{ marginLeft: centeredTitle ? '0' : theme.spacing.small }}>
           <PageTitle>{title}</PageTitle>
         </TitleContainer>
 
         {subtitle && (
-          <SubtitleContainer marginLeft={centeredTitle ? '0' : theme.spacing.medium}>
+          <SubtitleContainer style={{ marginLeft: centeredTitle ? '0' : theme.spacing.medium }}>
             <PageSubtitle>{subtitle}</PageSubtitle>
           </SubtitleContainer>
         )}

@@ -8,11 +8,24 @@ import scTheme from './theme';
 // helper: convert rem strings (based on 1rem=16px) to numeric px
 const remToPx = (rem: string) => parseFloat(rem) * 16;
 
+// helper: create a color array with 10 shades
+const createColorShades = (color: string): [string, string, string, string, string, string, string, string, string, string] => {
+    return [color, color, color, color, color, color, color, color, color, color];
+};
+
 const mantineTheme: MantineThemeOverride = {
     // ────────────────────────────────────────────────────────────
     // Color Palette
     // ────────────────────────────────────────────────────────────
-    colors: scTheme.colors as any,
+    colors: {
+        primary: createColorShades(scTheme.colors.primary),
+        secondary: createColorShades(scTheme.colors.secondary),
+        tertiary: createColorShades(scTheme.colors.tertiary),
+        accent: createColorShades(scTheme.colors.accent),
+        background: createColorShades(scTheme.colors.background),
+        text: createColorShades(scTheme.colors.text),
+        grey: createColorShades(scTheme.colors.grey),
+    },
     primaryColor: 'primary',
 
     // ────────────────────────────────────────────────────────────

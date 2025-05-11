@@ -6,8 +6,8 @@
  * Features:
  *  - Generic <Illustration> wrapper that:
  *     • Accepts any image src/alt
- *     • Supports two variants: “plain” (no extra styling) or “circle” (circular mask, background, border)
- *     • Uses three size tokens (“small”/“medium”/“large”) to set fixed diameter, with responsive fallback (80vw max)
+ *     • Supports two variants: "plain" (no extra styling) or "circle" (circular mask, background, border)
+ *     • Uses three size tokens ("small"/"medium"/"large") to set fixed diameter, with responsive fallback (80vw max)
  *     • Constrains inner <img> to 90% of its container for neat padding
  *  - Named presets for common pages:
  *     • HomePageIllustration   – plain, medium
@@ -39,11 +39,11 @@
 
 import React from 'react';
 import styled, { css, DefaultTheme } from 'styled-components';
-import HomeIllustration from '@assets/images/home_brain-mouth.png';
-import LearnIllustration from '@assets/images/learn_brain-mouth.png';
-import QuizIllustration from '@assets/images/quiz_brain-mouth.png';
-import FeedbackBadIllustration from '@assets/images/learn_brain-mouth.png';
-import FeedbackGoodIllustration from '@assets/images/quiz_feedback_good.png';
+import HomeIllustration from '../../assets/images/home_brain-mouth.png';
+import LearnIllustration from '../../assets/images/learn_brain-mouth.png';
+import QuizIllustration from '../../assets/images/quiz_brain-mouth.png';
+import FeedbackBadIllustration from '../../assets/images/quiz_feedback_bad.png';
+import FeedbackGoodIllustration from '../../assets/images/quiz_feedback_good.png';
 
 // ---------------------------
 // Generic Illustration Props

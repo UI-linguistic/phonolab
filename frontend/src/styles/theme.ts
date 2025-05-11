@@ -13,7 +13,7 @@ const theme: DefaultTheme = {
   colors: {
     backgroundAccent: '#EFD9CE',
     primary: '#107E7D',
-    secondary: '#FFA726',
+    secondary: '#F05D23',
     tertiary: '#63535B',
 
     cellHoverPrimary: 'rgba(255, 167, 38, 0.2)',

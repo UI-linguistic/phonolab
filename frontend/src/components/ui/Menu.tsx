@@ -130,7 +130,7 @@ const List = styled.div<{ orientation: Orientation; size: Size }>`
 `;
 
 const ItemButton = styled.button<{
-  active: boolean;
+  $active: boolean;
   size: Size;
 }>`
   /* center text horizontally & vertically */
@@ -150,10 +150,10 @@ const ItemButton = styled.button<{
 
   border-radius: ${({ theme }) => theme.borderRadius};
   border: 2px solid
-    ${({ active, theme }) => (active ? theme.colors.black : theme.colors.secondary)};
-  background: ${({ active, theme }) => (active ? theme.colors.secondary : 'transparent')};
-  color: ${({ active, theme }) =>
-    active ? theme.colors.white : theme.colors.text};
+    ${({ $active, theme }) => ($active ? theme.colors.black : theme.colors.secondary)};
+  background: ${({ $active, theme }) => ($active ? theme.colors.secondary : 'transparent')};
+  color: ${({ $active, theme }) =>
+    $active ? theme.colors.white : theme.colors.text};
   cursor: pointer;
   transition: background-color ${({ theme }) => theme.transitions.default},
     color ${({ theme }) => theme.transitions.default};
@@ -168,8 +168,8 @@ const ItemButton = styled.button<{
   &:hover {
     transform: translateY(-3px) scale(1.02);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    background: ${({ active, theme }) =>
-    active ? theme.colors.secondary : theme.colors.secondary + '22'};
+    background: ${({ $active, theme }) =>
+    $active ? theme.colors.secondary : theme.colors.secondary + '22'};
   }
 
   &:active {
@@ -199,10 +199,10 @@ export function MenuList({
     <List orientation={orientation} size={size}>
       {items.map((label, idx) => (
         <ItemButton
-          key={idx}
-          active={idx === activeIndex}
+          key={label}
           size={size}
-          onClick={() => onSelect && onSelect(idx)}
+          $active={idx === activeIndex}
+          onClick={() => onSelect?.(idx)}
         >
           {label}
         </ItemButton>
