@@ -169,7 +169,7 @@ const MinimalPairsPage: React.FC = () => {
   };
 
   const goToPairPlay = () => {
-    navigate('/learn/pair-play');
+    navigate('/quiz');
   };
 
   const { ipa, spell, sounds, highlight, highlightSpell } = minimalPairs[currentPair];
