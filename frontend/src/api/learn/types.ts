@@ -1,4 +1,4 @@
-// src/features/learn/types.ts
+// src/api/lesson/types.ts
 
 /**
  * A single section within a lesson.

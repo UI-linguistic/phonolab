@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import PageContainer from '@components/ui/PageContainer';
 import { TongueSection, LipSection, LengthSection } from './components';
 
-import { fetchVowels101Lesson } from '../../../api/lessons';
+import { fetchVowels101Lesson } from '@api/learn/vowels101'
 import {
     Lesson,
     LessonSection,
@@ -42,7 +42,7 @@ export const Vowels101Page: React.FC = () => {
                 setByType(categorized);
                 setLoading(false);
             })
-            .catch(err => {
+            .catch((err: Error) => {
                 console.error(err);
                 setError('Failed to load lesson.');
                 setLoading(false);

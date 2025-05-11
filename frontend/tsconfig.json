@@ -39,6 +39,7 @@
     }
   },
   "include": [
-    "src"
+    "src",
+    "../backend/src/data"
   ]
 }

@@ -12,12 +12,17 @@ import { useHover } from '@mantine/hooks';
 
 interface InteractiveObjectProps {
     id: string;
-    audioSrc?: string;
     label?: React.ReactNode;
+    audioUrls?: string[];
     onToggle?: (id: string, active: boolean) => void;
 }
 
-export function InteractiveObject({ id, audioSrc, label, onToggle }: InteractiveObjectProps) {
+export function InteractiveObject({
+    id,
+    label,
+    audioUrls = [],
+    onToggle,
+}: InteractiveObjectProps) {
     const theme = useMantineTheme();
     const { hovered, ref } = useHover();
     const [active, setActive] = useState(false);
@@ -26,7 +31,16 @@ export function InteractiveObject({ id, audioSrc, label, onToggle }: Interactive
         const next = !active;
         setActive(next);
         onToggle?.(id, next);
-        if (audioSrc) new Audio(audioSrc).play();
+
+        // try each URL until one plays
+        for (const url of audioUrls) {
+            try {
+                new Audio(url).play();
+                break;
+            } catch {
+                // swallow and try next
+            }
+        }
     };
 
     return (
@@ -45,10 +59,12 @@ export function InteractiveObject({ id, audioSrc, label, onToggle }: Interactive
                 border: `1px solid ${theme.colors.gray[4]}`,
                 cursor: 'pointer',
                 userSelect: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
             }}
         >
             {label ?? id}
         </Box>
     );
 }
-
