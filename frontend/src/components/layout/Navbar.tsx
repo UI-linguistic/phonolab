@@ -12,6 +12,7 @@ import { Box, Container, Group, Stack, Button, Burger, rem, useMantineTheme } fr
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { NavLink, Link } from 'react-router-dom';
 import { useDebug } from '../../DebugContext';
+import scTheme from '../../styles/theme';
 
 export default function AppNavbar() {
   const theme = useMantineTheme();
@@ -20,13 +21,14 @@ export default function AppNavbar() {
   const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   // pull SC‑tokens out of theme.other
-  const { fontWeights, fonts, spacingTokens, layout } = theme.other!;
+
+  const { fontWeights, fonts, spacing, layout } = scTheme;
 
   const linkBase = {
     color: theme.white,
     textDecoration: 'none',
-    fontWeight: fontWeights.medium,
-    padding: `${spacingTokens.small} ${spacingTokens.medium}`,
+    fontWeight: fontWeights.normal,
+    padding: `${spacing.small} ${spacing.medium}`,
     borderRadius: rem(theme.radius.sm),
   };
   const linkActive = {
@@ -49,12 +51,13 @@ export default function AppNavbar() {
       }}
     >
       <Container
-        size="lg"
-        px="md"
+        size="sm"
+        px="sm"
         style={{
-          height: rem(layout.headerHeight),
+          height: layout.headerHeight,
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
         {/* Logo */}
@@ -62,11 +65,12 @@ export default function AppNavbar() {
           to="/"
           style={{
             fontFamily: theme.headings.fontFamily,
-            fontSize: rem(theme.headings.sizes.h1.fontSize + 'px'),
-            fontWeight: theme.headings.sizes.h1.fontWeight,
+            fontSize: rem(theme.headings.sizes.h3.fontSize + 'px'),
+            fontWeight: scTheme.fontWeights.extrabold,
             color: theme.white,
             textDecoration: 'none',
             letterSpacing: rem('1px'),
+            marginRight: spacing.large
           }}
         >
           Hooked on Phonetics™
@@ -121,10 +125,10 @@ export default function AppNavbar() {
           style={{
             backgroundColor: theme.colors.primary[6],
             boxShadow: theme.shadows.sm,
-            padding: spacingTokens.medium,
+            padding: spacing.medium,
           }}
         >
-          <Stack style={{ gap: spacingTokens.small }}>
+          <Stack style={{ gap: spacing.small }}>
             {['learn', 'quiz'].map((route) => (
               <NavLink
                 key={route}

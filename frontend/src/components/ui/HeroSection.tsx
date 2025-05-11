@@ -73,13 +73,11 @@ export const HeroSection = styled.section<HeroSectionProps>`
   outline: ${({ theme }) => theme.debugOutline ? '2px dashed rgba(207, 48, 42, 0.6)' : 'none'};
   max-width: ${({ $maxWidth = '100%' }) => $maxWidth};
   margin: 0 auto;
-
   display: grid;
-  /* two columns, left gets 1.2fr, right 1fr for extra space on text */
-  grid-template-columns: 1.2fr 1fr;
+  /* Make grid more content-adaptive */
+  grid-template-columns: minmax(auto, 1.1fr) minmax(auto, 1fr);
   column-gap: ${({ theme, $gapScale = 'normal' }) => theme.heroGaps[$gapScale]};
   padding: ${({ theme }) => theme.spacing.large} 0;
-
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     grid-template-columns: 1fr;
     row-gap: ${({ theme }) => theme.spacing.large};
@@ -87,11 +85,18 @@ export const HeroSection = styled.section<HeroSectionProps>`
 `;
 
 
-
 const TextColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.medium};
+
+  /* Debug outlines for direct children */
+  ${({ theme }) => theme.debugOutline && `
+    > * {
+      outline: 2px dotted rgba(32, 127, 221, 0.93);
+      padding: 4px;
+    }
+  `}
 `;
 
 const MediaColumn = styled.div`
@@ -102,7 +107,8 @@ const MediaColumn = styled.div`
 
 interface HeroProps extends Omit<HeroSectionProps, '$gapScale' | '$maxWidth'> {
   title: string;
-  subtitle?: string;
+  subtitle?: React.ReactNode;
+  columnRatio?: string;
   menu: React.FC<{ activeIndex?: number; onSelect?: (i: number) => void; size?: Size }>;
   menuSize?: Size;
   paths?: string[];
@@ -122,6 +128,7 @@ export function HeroTemplate({
   centeredTitle = false,
   gapScale = 'normal',
   maxWidth,
+  columnRatio = '1.4fr 1fr',
 }: HeroProps) {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -131,12 +138,12 @@ export function HeroTemplate({
     <HeroSection $gapScale={gapScale} $maxWidth={maxWidth}>
       <TextColumn style={centeredTitle ? { textAlign: 'center' } : {}}>
         <TitleContainer style={{ marginLeft: centeredTitle ? '0' : theme.spacing.small }}>
-          <PageTitle>{title}</PageTitle>
+          <PageTitle variant="heroTitle">{title}</PageTitle>
         </TitleContainer>
 
         {subtitle && (
           <SubtitleContainer style={{ marginLeft: centeredTitle ? '0' : theme.spacing.medium }}>
-            <PageSubtitle>{subtitle}</PageSubtitle>
+            <PageSubtitle variant="heroSubtitle" color="textSubtle">{subtitle}</PageSubtitle>
           </SubtitleContainer>
         )}
 
@@ -165,7 +172,12 @@ export function HomeHero(props: HeroSectionProps) {
   return (
     <HeroTemplate
       title="Start Your Vowel Journey"
-      subtitle="Your brain knows English. Let's get your mouth on board."
+      subtitle={
+        <>
+          Your brain knows English.<br />
+          Let's get your mouth on board.
+        </>
+      }
       menu={HomeHeroMenuList}
       menuSize="md"
       paths={['/learn', '/quiz']}
@@ -179,7 +191,12 @@ export function LearnHero(props: HeroSectionProps) {
   return (
     <HeroTemplate
       title="Choose Your Learning Path"
-      subtitle="Master those slippery English vowels that trip up even fluent speakers."
+      subtitle={
+        <>
+          Master those slippery English vowels<br /> that
+          trip up even fluent speakers.
+        </>
+      }
       menu={LearnMenuList}
       menuSize="md"
       paths={[

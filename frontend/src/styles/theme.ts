@@ -58,10 +58,11 @@ const theme: DefaultTheme = {
     layoutInstruction: ['p', { min: tokens.fontsize['100'].$value, fluid: '1.5vw', max: tokens.fontsize['200'].$value }, tokens.lineheight['300'].$value, 'normal'],
     gridPhoneme: ['span', { min: tokens.fontsize['300'].$value, fluid: '2vw', max: tokens.fontsize['400'].$value }, tokens.lineheight['200'].$value, 'bold'],
 
-    // Hero title “Start Your Vowel Journey”
-    heroTitle: ['h1', { min: tokens.typography.heroTitle.$value.fontSize, fluid: '4vw + 1rem', max: tokens.typography.heroTitle.$value.fontSize }, tokens.typography.heroTitle.$value.lineHeight, 'extrabold'],
+    // Hero title "Start Your Vowel Journey"
+    heroTitle: ['h1', { min: '2rem', fluid: '4vw + 1rem', max: '2.8rem' }, tokens.typography.heroTitle.$value.lineHeight, 'extrabold'],
+    heroSubtitle: ['h2', { min: '1.4rem', fluid: '2vw + 0.8rem', max: '1.8rem' }, tokens.typography.heroSubtitle.$value.lineHeight, 'medium'],
+    heroInstruction: ['p', { min: tokens.typography.heroInstruction.$value.fontSize, fluid: '2vw + 0.8rem', max: tokens.typography.heroInstruction.$value.fontSize }, tokens.typography.heroInstruction.$value.lineHeight, 'normal'],
   },
-
   // ────────────────────────────────────────────────────────────
   // Font families & weights
   // ────────────────────────────────────────────────────────────
@@ -163,7 +164,15 @@ const theme: DefaultTheme = {
     gutter: tokens.spacing['400'].$value,
     headerHeight: '64px',
     footerHeight: '64px',
-    maxContentWidth: '85ch',
+    maxContentWidth: '95ch',
+  },
+
+  mediaSizes: {
+    xsmall: tokens.mediaSizes['xsmall'].$value,
+    small: tokens.mediaSizes['small'].$value,
+    medium: tokens.mediaSizes['medium'].$value,
+    large: tokens.mediaSizes['large'].$value,
+    xlarge: tokens.mediaSizes['xlarge'].$value,
   },
 
   debugOutline: false,

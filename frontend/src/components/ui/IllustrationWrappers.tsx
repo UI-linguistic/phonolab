@@ -1,42 +1,4 @@
-/**
- * IllustrationWrappers.tsx
- *
- * Provides a flexible Illustration component and named presets for page graphics.
- *
- * Features:
- *  - Generic <Illustration> wrapper that:
- *     • Accepts any image src/alt
- *     • Supports two variants: "plain" (no extra styling) or "circle" (circular mask, background, border)
- *     • Uses three size tokens ("small"/"medium"/"large") to set fixed diameter, with responsive fallback (80vw max)
- *     • Constrains inner <img> to 90% of its container for neat padding
- *  - Named presets for common pages:
- *     • HomePageIllustration   – plain, medium
- *     • LearnMenuIllustration  – circle, medium
- *     • QuizMenuIllustration   – circle, medium
- *     • QuizFeedbackBad        – plain, large
- *     • QuizFeedbackGood       – plain, large
- *
- * Configuration:
- *  • sizeTokens: map IllustrationSize → dimension (px)
- *  • theme.breakpoints.tablet: switches wrapping behavior
- *  • theme.colors.circleBg: circle background color
- *  • theme.spacing.small: circle padding
- *
- * Usage:
- *  // generic
- *  <Illustration
- *    src="/assets/foo.png"
- *    alt="Description"
- *    variant="circle"
- *    size="small"
- *  />
- *
- *  // preset
- *  import { HomePageIllustration } from './IllustrationWrappers';
- *  <HomePageIllustration />
- */
-
-
+// src/components/ui/IllustrationWrappers.tsx
 import React from 'react';
 import styled, { css, DefaultTheme } from 'styled-components';
 import HomeIllustration from '../../assets/images/home_brain-mouth.png';
@@ -45,11 +7,8 @@ import QuizIllustration from '../../assets/images/quiz_brain-mouth.png';
 import FeedbackBadIllustration from '../../assets/images/quiz_feedback_bad.png';
 import FeedbackGoodIllustration from '../../assets/images/quiz_feedback_good.png';
 
-// ---------------------------
-// Generic Illustration Props
-// ---------------------------
 export type IllustrationVariant = 'circle' | 'plain';
-export type IllustrationSize = 'small' | 'medium' | 'large';
+export type IllustrationSize = 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
 
 interface IllustrationProps {
   src: string;
@@ -58,85 +17,67 @@ interface IllustrationProps {
   size?: IllustrationSize;
 }
 
-// ---------------------------
-// Size token map
-// ---------------------------
-const sizeTokens: Record<IllustrationSize, { dimension: string }> = {
-  small: { dimension: '300px' },
-  medium: { dimension: '600px' },
-  large: { dimension: '800px' },
+/**
+ * Map IllustrationSize → CSS dimension using theme tokens
+ */
+const sizeTokens: Record<IllustrationSize, (theme: DefaultTheme) => string> = {
+  xsmall: theme => theme.mediaSizes.xsmall,
+  small: theme => theme.mediaSizes.small,
+  medium: theme => theme.mediaSizes.medium,
+  large: theme => theme.mediaSizes.large,
+  xlarge: theme => theme.mediaSizes.xlarge,
 };
 
-// ---------------------------
-// Styled wrapper
-// ---------------------------
-const Wrapper = styled.div<{
-  variant: IllustrationVariant;
-  size: IllustrationSize;
-  theme: DefaultTheme;
-}>`
+const Wrapper = styled.div<{ variant: IllustrationVariant; size: IllustrationSize }>`
   display: flex;
   justify-content: center;
   align-items: center;
-
-  /* fixed diameter, overridable by the size token */
-  width: ${({ size }) => sizeTokens[size].dimension};
-  height: ${({ size }) => sizeTokens[size].dimension};
   box-sizing: border-box;
+
+  /* fixed diameter from theme tokens */
+  width: ${({ theme, size }) => sizeTokens[size](theme)};
+  height: ${({ theme, size }) => sizeTokens[size](theme)};
 
   ${({ variant, theme }) =>
     variant === 'circle'
       ? css`
           border-radius: 50%;
-          background: ${theme.colors.circleBg}33; /* 20% alpha */
-          border: 2px solid ${theme.colors.black};
+          background: ${theme.colors.circleBg}33;
+          border: ${theme.borderWidths.default} solid ${theme.colors.black};
           padding: ${theme.spacing.small};
         `
       : ''}
 
-  /* shrink on smaller viewports */
-  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
-    width: ${({ size }) =>
-    `min(${sizeTokens[size].dimension}, 80vw)`};
-    height: ${({ size }) =>
-    `min(${sizeTokens[size].dimension}, 80vw)`};
-  }
-
   img {
-    /* let the image fill up to 90% of its container */
     max-width: 90%;
     max-height: 90%;
     display: block;
   }
+
+  /* responsive fallback for small screens */
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    width: ${({ theme, size }) => sizeTokens[size](theme)};
+    height: ${({ theme, size }) => sizeTokens[size](theme)};
+  }
 `;
 
-/**
- * Generic Illustration component
- *
- * - variant: 'circle' wraps in a circle, 'plain' is no extra styling
- * - size: determines wrapper diameter
- */
 export const Illustration: React.FC<IllustrationProps> = ({
   src,
   alt,
   variant = 'plain',
-  size = 'medium',
+  size = 'small',
 }) => (
   <Wrapper variant={variant} size={size}>
     <img src={src} alt={alt} />
   </Wrapper>
 );
 
-// ---------------------------
-// Named presets for pages
-// ---------------------------
-
 export const HomePageIllustration: React.FC = () => (
   <Illustration
     src={HomeIllustration}
     alt="Brain and mouth handshake illustration"
     variant="plain"
-    size="medium"
+    size="small"
   />
 );
 
@@ -145,7 +86,7 @@ export const LearnMenuIllustration: React.FC = () => (
     src={LearnIllustration}
     alt="Brain and mouth learning illustration"
     variant="circle"
-    size="medium"
+    size="small"
   />
 );
 
@@ -154,7 +95,7 @@ export const QuizMenuIllustration: React.FC = () => (
     src={QuizIllustration}
     alt="Brain and mouth quiz illustration"
     variant="circle"
-    size="medium"
+    size="small"
   />
 );
 
@@ -163,7 +104,7 @@ export const QuizFeedbackBad: React.FC = () => (
     src={FeedbackBadIllustration}
     alt="Brain with dunce cap illustration"
     variant="plain"
-    size="large"
+    size="small"
   />
 );
 
@@ -172,6 +113,6 @@ export const QuizFeedbackGood: React.FC = () => (
     src={FeedbackGoodIllustration}
     alt="Celebrating brain and mouth illustration"
     variant="plain"
-    size="large"
+    size="small"
   />
 );

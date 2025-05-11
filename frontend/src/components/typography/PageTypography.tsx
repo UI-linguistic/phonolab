@@ -1,76 +1,46 @@
 /**
  * PageTypography.tsx
  *
- * Provides styled heading and paragraph components for page titles and subtitles,
- * plus wrapper containers to control their horizontal placement.
+ * Provides styled text components for page content with consistent typography.
+ * 
+ * Core features:
+ *  - Base Text component that accepts all typography token properties
+ *  - Specialized components (PageTitle, PageSubtitle, LayoutTitle, etc.) that
+ *    apply specific token-based styling for consistent usage patterns
+ *  - Container components for layout control
  *
- * Features:
- *  - TitleContainer / SubtitleContainer:
- *      • Simple <div> wrappers that accept a `marginLeft` prop for offsetting
- *      • Use case: indent headings/subtitles consistently without inline styles
- *
- *  - <PageTitle>:
- *      • Renders an <h1> with:
- *          – theme.fonts.heading
- *          – theme.fontSizes.xxl + theme.lineHeights.lg
- *          – color from theme.colors (default `text`)
- *          – white-space: nowrap + text-overflow ellipsis to prevent mid‑line wraps
- *      • Props:
- *          – color?: keyof theme.colors (defaults to `text`)
- *          – align?: 'left'|'center'|'right' (defaults to left)
- *
- *  - <PageSubtitle>:
- *      • Renders a <p> with:
- *          – theme.fonts.main
- *          – theme.fontSizes.md + theme.lineHeights.md
- *          – color from theme.colors (default `textSubtle`)
- *          – margin-top: theme.spacing.small for spacing below title
- *      • Props:
- *          – color?: keyof theme.colors (defaults to `textSubtle`)
- *          – align?: 'left'|'center'|'right' (defaults to left)
- *
- * Shared Base Styles:
- *  - text-align and margin reset via `baseStyles` fragment
- *
- * Usage Example:
- *  <TitleContainer marginLeft="2rem">
- *    <PageTitle color="primary" align="center">
- *      Welcome to Hooked on Phonetics™
- *    </PageTitle>
- *  </TitleContainer>
- *
- *  <SubtitleContainer marginLeft="2rem">
- *    <PageSubtitle color="secondaryAccent">
- *      Let's get your mouth on board.
- *    </PageSubtitle>
- *  </SubtitleContainer>
+ * Usage:
+ *  <PageTitle>Main Heading</PageTitle>
+ *  <PageSubtitle>Supporting text that explains the page purpose</PageSubtitle>
  */
-
 import React from 'react';
 import styled, { css, DefaultTheme } from 'styled-components';
 
-
-type ColorKey = keyof DefaultTheme['colors']
-type AlignKey = 'left' | 'center' | 'right' | 'justify'
-type WeightKey = keyof DefaultTheme['fontWeights']
-type TransformKey = 'none' | 'uppercase' | 'lowercase' | 'capitalize'
-type DecorationKey = 'none' | 'underline' | 'line-through' | 'overline'
-
-export type Variant = keyof DefaultTheme['typography']
+// ────────────────────────────────────────────────────────────
+// Type definitions
+// ────────────────────────────────────────────────────────────
+type ColorKey = keyof DefaultTheme['colors'];
+type AlignKey = 'left' | 'center' | 'right' | 'justify';
+type WeightKey = keyof DefaultTheme['fontWeights'];
+type TransformKey = 'none' | 'uppercase' | 'lowercase' | 'capitalize';
+type DecorationKey = 'none' | 'underline' | 'line-through' | 'overline';
+export type Variant = keyof DefaultTheme['typography'];
 
 export interface TextProps extends React.HTMLAttributes<HTMLElement> {
-  variant?: Variant;               // which style to use
-  color?: ColorKey;                // theme.colors key
-  align?: AlignKey;                // text-align
-  weight?: WeightKey;              // overrides default weight
-  italic?: boolean;                // font-style
-  transform?: TransformKey;        // text-transform
-  decoration?: DecorationKey;      // text-decoration
-  margin?: string;                 // CSS margin shorthand
-  padding?: string;                // CSS padding shorthand
-  fontSize?: string;               // CSS font-size shorthand
+  variant?: Variant;
+  color?: ColorKey;
+  align?: AlignKey;
+  weight?: WeightKey;
+  italic?: boolean;
+  transform?: TransformKey;
+  decoration?: DecorationKey;
+  margin?: string;
+  padding?: string;
 }
 
+// ────────────────────────────────────────────────────────────
+// Helper functions
+// ────────────────────────────────────────────────────────────
 const resolveFontSize = (
   fs: string | { min: string; fluid: string; max: string }
 ) =>
@@ -81,78 +51,68 @@ const resolveFontSize = (
 const variantStyles = (theme: DefaultTheme, v: Variant) => {
   const [tag, rawSize, lineHeight, defaultWeight] = theme.typography[v];
   const fontSize = resolveFontSize(rawSize);
+
+  // Determine font weight from theme tokens
+  const weightValue =
+    typeof defaultWeight === 'string' && theme.fontWeights
+      ? theme.fontWeights[defaultWeight as WeightKey]
+      : defaultWeight;
+
   return css`
-    font-family: ${tag.startsWith('h')
-      ? theme.fonts.heading
-      : theme.fonts.main};
+    font-family: ${tag.startsWith('h') ? theme.fonts.inter : theme.fonts.poppins};
     font-size: ${fontSize};
     line-height: ${lineHeight};
-    font-weight: ${defaultWeight};
+    font-weight: ${weightValue};
   `;
 };
 
-
+// ────────────────────────────────────────────────────────────
+// Base Text Component
+// ────────────────────────────────────────────────────────────
 export const Text = styled.span<TextProps>`
   ${({ theme, variant = 'body' }) => variantStyles(theme, variant)};
-
   ${({ theme, color }) =>
     color ? `color: ${theme.colors[color]};` : ''}
-
   text-align: ${({ align }) => align ?? 'left'};
   font-weight: ${({ theme, weight, variant }) =>
-    weight
-      ? theme.fontWeights[weight]
-      : theme.typography[variant ?? 'body'][3]};
-
+    weight ? theme.fontWeights[weight] : undefined};
   font-style: ${({ italic }) => (italic ? 'italic' : 'normal')};
   text-transform: ${({ transform }) => transform ?? 'none'};
   text-decoration: ${({ decoration }) => decoration ?? 'none'};
-
   margin: ${({ margin }) => margin ?? 0};
   padding: ${({ padding }) => padding ?? 0};
-`
-Text.displayName = 'Text'
+`;
+Text.displayName = 'Text';
 
 // ────────────────────────────────────────────────────────────
-// Exported Prop Types for Title & Subtitle
-// ────────────────────────────────────────────────────────────
-/**
- * Props available on <PageTitle>. Inherits all super‑text props
- * except `variant` (forced to "title").
- */
-export interface TitleProps extends Omit<TextProps, 'variant'> { }
-
-/**
- * Props available on <PageSubtitle>. Inherits all super‑text props
- * except `variant` (forced to "subtitle").
- */
-export interface SubtitleProps extends Omit<TextProps, 'variant'> { }
-
-// ────────────────────────────────────────────────────────────
-// Title & Subtitle Containers
+// Container Components
 // ────────────────────────────────────────────────────────────
 export const TitleContainer = styled.div<{ marginLeft?: string }>`
-  margin-left: ${({ marginLeft, theme }) => marginLeft ?? '0'};
+  margin-left: ${({ marginLeft }) => marginLeft ?? '0'};
   display: block;
 `;
 TitleContainer.displayName = 'TitleContainer';
 
 export const SubtitleContainer = styled.div<{ marginLeft?: string }>`
-  margin-left: ${({ marginLeft, theme }) => marginLeft ?? '0'};
+  margin-left: ${({ marginLeft }) => marginLeft ?? '0'};
   display: block;
 `;
 SubtitleContainer.displayName = 'SubtitleContainer';
 
 // ────────────────────────────────────────────────────────────
-// PageTitle & PageSubtitle Wrappers
+// Page Typography Components
 // ────────────────────────────────────────────────────────────
+
 /**
- * PageTitle: renders an <h1> with "title" variant and super text props.
+ * PageTitle: Renders an <h1> with the 'title' typography variant by default.
+ * Can be customized with any typography token variant.
  */
-export const PageTitle = styled(Text).attrs<TitleProps>({
-  as: 'h1',
-  variant: 'title',
-}) <TitleProps>`
+export const PageTitle = styled(Text).attrs<TextProps>(
+  ({ variant = 'title', as = 'h1' }) => ({
+    variant,
+    as,
+  })
+) <TextProps>`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -160,71 +120,67 @@ export const PageTitle = styled(Text).attrs<TitleProps>({
 PageTitle.displayName = 'PageTitle';
 
 /**
- * PageSubtitle: renders a <p> with "subtitle" variant and super text props.
+ * PageSubtitle: Renders a <p> with the 'subtitle' typography variant by default.
+ * Can be customized with any typography token variant.
  */
-export const PageSubtitle = styled(Text).attrs<SubtitleProps>({
-  as: 'p',
-  variant: 'subtitle',
-}) <SubtitleProps>`
+export const PageSubtitle = styled(Text).attrs<TextProps>(
+  ({ variant = 'subtitle', as = 'p' }) => ({
+    variant,
+    as,
+  })
+) <TextProps>`
   margin-top: ${({ theme }) => theme.spacing.small};
 `;
 PageSubtitle.displayName = 'PageSubtitle';
 
+// ────────────────────────────────────────────────────────────
+// Layout-specific Typography Components
+// ────────────────────────────────────────────────────────────
 
-// A slightly smaller H1 for Learn pages:
+/**
+ * LayoutTitle: Specialized title component that always uses the 'layoutTitle' variant.
+ * This component is not customizable to ensure consistent layout styling.
+ */
 export const LayoutTitle = styled(Text).attrs<TextProps>({
-  as: 'h1',
   variant: 'layoutTitle',
+  as: 'h1',
 })`
-  /* Optionally, you can still preserve ellipsis behavior: */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 `;
 LayoutTitle.displayName = 'LayoutTitle';
 
-// A slightly smaller subtitle forLearn pages:
+/**
+ * LayoutSubtitle: Specialized subtitle component that always uses the 'layoutSubtitle' variant.
+ * This component is not customizable to ensure consistent layout styling.
+ */
 export const LayoutSubtitle = styled(Text).attrs<TextProps>({
-  as: 'p',
   variant: 'layoutSubtitle',
+  as: 'p',
 })`
   margin-top: ${({ theme }) => theme.spacing.small};
 `;
 LayoutSubtitle.displayName = 'LayoutSubtitle';
 
-// A slightly smaller instruction for Learn pages:
+/**
+ * LayoutInstruction: Specialized instruction text component that always uses the 'layoutInstruction' variant.
+ * This component is not customizable to ensure consistent layout styling.
+ */
 export const LayoutInstruction = styled(Text).attrs<TextProps>({
-  as: 'p',
   variant: 'layoutInstruction',
+  as: 'p',
 })`
   margin-top: ${({ theme }) => theme.spacing.small};
 `;
 LayoutInstruction.displayName = 'LayoutInstruction';
 
-
-
-
-// ────────────────────────────────────────────────────────────
-// Usage Example:
-//
-// <TitleContainer marginLeft="2rem">
-//   <PageTitle color="primary" align="center">
-//     Welcome to Hooked on Phonetics™
-//   </PageTitle>
-// </TitleContainer>
-//
-// <SubtitleContainer marginLeft="2rem">
-//   <PageSubtitle color="secondaryAccent">
-//     Let's get your mouth on board.
-//   </PageSubtitle>
-// </SubtitleContainer>
-
-
-export const PhonemeGridText = styled(Text).attrs({
-  as: 'p',
+/**
+ * PhonemeGridText: Specialized text component for phoneme grids.
+ * This component is not customizable to ensure consistent grid styling.
+ */
+export const PhonemeGridText = styled(Text).attrs<TextProps>({
   variant: 'gridPhoneme',
-
-})`
-`;
-
+  as: 'p',
+})``;
 PhonemeGridText.displayName = 'PhonemeGridText';

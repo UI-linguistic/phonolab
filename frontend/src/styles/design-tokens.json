@@ -560,6 +560,46 @@
                 "lineHeight": 1.3
             },
             "$type": "typography"
+        },
+        "heroSubtitle": {
+            "$value": {
+                "fontFamily": "Poppins, sans‑serif",
+                "fontWeight": 500,
+                "fontSize": "16px",
+                "lineHeight": 1.5
+            },
+            "$type": "typography"
+        },
+        "heroInstruction": {
+            "$value": {
+                "fontFamily": "Inter, sans‑serif",
+                "fontWeight": 400,
+                "fontSize": "14px",
+                "lineHeight": 1.5
+            },
+            "$type": "typography"
+        }
+    },
+    "mediaSizes": {
+        "xsmall": {
+            "$value": "300px",
+            "$type": "dimension"
+        },
+        "small": {
+            "$value": "500px",
+            "$type": "dimension"
+        },
+        "medium": {
+            "$value": "800px",
+            "$type": "dimension"
+        },
+        "large": {
+            "$value": "1200px",
+            "$type": "dimension"
+        },
+        "xlarge": {
+            "$value": "80vw",
+            "$type": "dimension"
         }
     }
 }

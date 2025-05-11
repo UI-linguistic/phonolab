@@ -45,6 +45,8 @@ declare module 'styled-components' {
       layoutInstruction: [string, { min: string; fluid: string; max: string }, number, string];
       gridPhoneme: [string, { min: string; fluid: string; max: string }, number, string];
       heroTitle: [string, { min: string; fluid: string; max: string }, number, string];
+      heroSubtitle: [string, { min: string; fluid: string; max: string }, number, string];
+      heroInstruction: [string, { min: string; fluid: string; max: string }, number, string];
     };
 
     fonts: {
@@ -138,6 +140,13 @@ declare module 'styled-components' {
       maxContentWidth: string;
     };
 
+    mediaSizes: {
+      xsmall: string;
+      small: string;
+      medium: string;
+      large: string;
+      xlarge: string;
+    };
     debugOutline?: boolean;
   }
 }

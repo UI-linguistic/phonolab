@@ -156,14 +156,14 @@ const ItemButton = styled.button<{
 
   /* 1) Font family */
   font-family: ${({ theme, textFamily }) =>
-    theme.fonts[textFamily ?? 'main']};
+    theme.fonts[textFamily ?? 'poppins']};
 
   /* 2) Font size from your sizeStyles */
   font-size: ${({ size }) => sizeStyles[size].fontSize};
 
   /* 3) Font weight */
   font-weight: ${({ theme, textWeight }) =>
-    theme.fontWeights[textWeight ?? 'normal']};
+    theme.fontWeights[textWeight ?? 'bold']};
 
   /* 4) Font style */
   font-style: ${({ textStyle }) => textStyle ?? 'normal'};
@@ -278,7 +278,7 @@ const ActionListWrapper = styled.div<{ size: Size; itemGap?: string; }>`
 
 const ActionButton = styled.button<{ actionType: 'submit' | 'reset'; size: Size; textFamily?: FontFamilyKey; textWeight?: FontWeightKey; textStyle?: 'normal' | 'italic' | 'oblique'; textColor?: keyof DefaultTheme['colors']; }>`
   font-family: ${({ theme, textFamily }) =>
-    theme.fonts[textFamily ?? 'main']};
+    theme.fonts[textFamily ?? 'inter']};
   font-size: ${({ size }) => sizeStyles[size].fontSize};
   font-weight: ${({ theme, textWeight }) =>
     theme.fontWeights[textWeight ?? 'normal']};
