@@ -97,9 +97,15 @@ const theme: DefaultTheme = {
     ],
     layoutInstruction: [
       'p',
-      { min: '0.5rem', fluid: '1.5vw', max: '1rem' },
+      { min: '0.6rem', fluid: '1.5vw', max: '1rem' },
       1.4,
       'normal',
+    ],
+    gridPhoneme: [
+      'span',
+      { min: '1rem', fluid: '2vw', max: '1.5rem' },
+      1.1,
+      'bold',
     ],
   },
 

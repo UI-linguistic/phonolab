@@ -62,13 +62,14 @@ import { Cell } from '@components/display/Cell';
 ───────────────────────────────────────────────────────────*/
 export type GridMode = 'static' | 'sortable';
 
-export interface GridItem {
+export interface GridItem<T = any> {
   id: string;
   content: React.ReactNode;
+  data?: T;
   audioSrc?: string;
 }
 
-export interface ConfigurableGridProps {
+export interface ConfigurableGridProps<T = any> {
   /*────────────────────────────────────────────────────────────
     3. Grid mode: 'static' or 'sortable'
   ────────────────────────────────────────────────────────────*/
@@ -77,7 +78,7 @@ export interface ConfigurableGridProps {
   /*────────────────────────────────────────────────────────────
     4. Data items for cells
   ────────────────────────────────────────────────────────────*/
-  items: GridItem[];
+  items: GridItem<T>[];
 
   /*────────────────────────────────────────────────────────────
     5. Number of columns; rows adapt automatically
@@ -97,14 +98,14 @@ export interface ConfigurableGridProps {
   /*────────────────────────────────────────────────────────────
     8. Callback: new order after drag end (sortable mode)
   ────────────────────────────────────────────────────────────*/
-  onOrderChange?: (items: GridItem[]) => void;
+  onOrderChange?: (items: GridItem<T>[]) => void;
 
   /*────────────────────────────────────────────────────────────
     9. Callback: cell clicked (static mode)
        provides item, its flat index, and (row, col)
   ────────────────────────────────────────────────────────────*/
   onSelect?: (
-    item: GridItem,
+    item: GridItem<T>,
     index: number,
     row: number,
     col: number
@@ -144,21 +145,17 @@ export function ConfigurableGrid({
   items,
   cols = 4,
   spacing = 'sm',
-  breakpoints,
   onOrderChange,
   onSelect,
 }: ConfigurableGridProps) {
-  const theme = useMantineTheme();
   const [internalItems, setInternalItems] = useState(items);
   const sensors = useSensors(useSensor(PointerSensor));
 
-  /* default responsive breakpoints if none provided */
-  const bp =
-    breakpoints ?? [
-      { maxWidth: theme.breakpoints.mobile, cols: Math.min(1, cols) },
-      { maxWidth: theme.breakpoints.tablet, cols: Math.min(2, cols) },
-      { maxWidth: theme.breakpoints.desktop, cols: Math.min(3, cols) },
-    ];
+  const gridProps = {
+    cols: cols,
+    spacing,
+  };
+
 
   /* handle drag end */
   const handleDragEnd = (event: { active: any; over: any }) => {
@@ -189,12 +186,9 @@ export function ConfigurableGrid({
     ─────────────────────────────────────────────────────────*/
     return (
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <SortableContext
-          items={renderItems.map((i) => i.id)}
-          strategy={rectSortingStrategy}
-        >
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: cols }} spacing={spacing}>
-            {renderItems.map((item) => (
+        <SortableContext items={renderItems.map(i => i.id)} strategy={rectSortingStrategy}>
+          <SimpleGrid {...gridProps}>
+            {renderItems.map(item => (
               <SortableItem key={item.id} id={item.id}>
                 <Cell>{item.content}</Cell>
               </SortableItem>
@@ -209,12 +203,20 @@ export function ConfigurableGrid({
     13. Static Mode
   ─────────────────────────────────────────────────────────*/
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: cols }} spacing={spacing}>
-      {renderItems.map((item, index) => (
-        <div key={item.id} style={{ cursor: 'pointer' }} onClick={() => handleClick(item, index)}>
-          <Cell>
-            {item.content}
-          </Cell>
+    <SimpleGrid {...gridProps}>
+      {renderItems.map((item, idx) => (
+        <div
+          key={item.id}
+          onClick={() => handleClick(item, idx)}
+          style={{
+            cursor: 'pointer',
+            aspectRatio: '50 / 3',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Cell>{item.content}</Cell>
         </div>
       ))}
     </SimpleGrid>

@@ -1,4 +1,4 @@
-import { Lesson } from "./types";
+import { Lesson } from "../types";
 
 
 export async function fetchVowels101Lesson(): Promise<Lesson> {

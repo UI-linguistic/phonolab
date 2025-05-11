@@ -14,7 +14,7 @@ const DebugContext = createContext<DebugContextType>({
 export const useDebug = () => useContext(DebugContext);
 
 export const DebugProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [debugOutline, setDebugOutline] = useState(false);
+    const [debugOutline, setDebugOutline] = useState(true);
     return (
         <DebugContext.Provider value={{ debugOutline, setDebugOutline }}>
             {children}

@@ -41,7 +41,7 @@
  *
  *  <SubtitleContainer marginLeft="2rem">
  *    <PageSubtitle color="secondaryAccent">
- *      Let’s get your mouth on board.
+ *      Let's get your mouth on board.
  *    </PageSubtitle>
  *  </SubtitleContainer>
  */
@@ -68,6 +68,7 @@ export interface TextProps extends React.HTMLAttributes<HTMLElement> {
   decoration?: DecorationKey;      // text-decoration
   margin?: string;                 // CSS margin shorthand
   padding?: string;                // CSS padding shorthand
+  fontSize?: string;               // CSS font-size shorthand
 }
 
 const resolveFontSize = (
@@ -200,6 +201,9 @@ export const LayoutInstruction = styled(Text).attrs<TextProps>({
 `;
 LayoutInstruction.displayName = 'LayoutInstruction';
 
+
+
+
 // ────────────────────────────────────────────────────────────
 // Usage Example:
 //
@@ -211,6 +215,16 @@ LayoutInstruction.displayName = 'LayoutInstruction';
 //
 // <SubtitleContainer marginLeft="2rem">
 //   <PageSubtitle color="secondaryAccent">
-//     Let’s get your mouth on board.
+//     Let's get your mouth on board.
 //   </PageSubtitle>
 // </SubtitleContainer>
+
+
+export const PhonemeGridText = styled(Text).attrs({
+  as: 'p',
+  variant: 'gridPhoneme',
+
+})`
+`;
+
+PhonemeGridText.displayName = 'PhonemeGridText';

@@ -31,7 +31,7 @@
 import React, { useState } from 'react';
 
 // Mantine UI components and hooks
-import { Box, useMantineTheme } from '@mantine/core';
+import { Box, useMantineTheme, Text } from '@mantine/core';
 import { useHover } from '@mantine/hooks';
 
 interface InteractiveObjectProps {
@@ -39,6 +39,7 @@ interface InteractiveObjectProps {
     label?: React.ReactNode;
     audioUrls?: string[];
     onToggle?: (id: string, active: boolean) => void;
+    textProps?: any;
 }
 
 export function InteractiveObject({
@@ -46,6 +47,7 @@ export function InteractiveObject({
     label,
     audioUrls = [],
     onToggle,
+    textProps,
 }: InteractiveObjectProps) {
     const theme = useMantineTheme();
     const { hovered, ref } = useHover();
@@ -73,7 +75,6 @@ export function InteractiveObject({
             onClick={handleClick}
             style={{
                 padding: theme.spacing.sm,
-                margin: theme.spacing.xs,
                 backgroundColor: active
                     ? theme.colors.secondary[1]
                     : hovered
@@ -88,7 +89,7 @@ export function InteractiveObject({
                 justifyContent: 'center',
             }}
         >
-            {label ?? id}
+            <Text {...textProps}>{label}</Text>
         </Box>
     );
 }

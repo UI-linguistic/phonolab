@@ -46,8 +46,8 @@
  */
 
 import React from 'react';
-import styled, { DefaultTheme, useTheme } from 'styled-components';
-import { LayoutTitle, LayoutSubtitle, PageSubtitle } from '../typography/PageTypography';
+import styled, { DefaultTheme } from 'styled-components';
+import { LayoutTitle, LayoutSubtitle } from '../typography/PageTypography';
 import { MenuList } from './Menu';
 
 interface LearnLayoutProps {
@@ -150,7 +150,6 @@ const SubtitleWrapper = styled.div`
 `;
 
 const SectionTabsWrapper = styled.div`
-  border-bottom: 2px solid ${({ theme }) => theme.colors.secondary};
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 

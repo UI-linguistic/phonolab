@@ -7,14 +7,12 @@ export function Vowels101Instructions() {
     return (
         <>
             <InstructionBox variant="transparent"> </InstructionBox>
-            <InstructionBox variant="transparent">
-                <Text variant="layoutInstruction" weight="bold">
-                    Vowels are distinguished by the part of the tongue used to make the sound (
-                    <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
-                        front to back
-                    </Text>
-                    )…
+            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold' }}>
+                Vowels are distinguished by the part of the tongue used to make the sound (
+                <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
+                    front to back
                 </Text>
+                )…
             </InstructionBox>
 
 

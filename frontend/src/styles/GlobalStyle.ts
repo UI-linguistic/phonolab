@@ -56,7 +56,7 @@ const GlobalStyle = createGlobalStyle`
   h1,h2,h3,h4,h5,h6 {
     font-family: ${({ theme }) => theme.fonts.heading};
     font-weight:600;
-    margin-bottom: ${({ theme }) => theme.spacing.medium};
+    margin-bottom: ${({ theme }) => theme.spacing.small};
     line-height: ${({ theme }) => theme.lineHeights.sm};
     color: ${({ theme }) => theme.colors.text};
   }
@@ -68,7 +68,7 @@ const GlobalStyle = createGlobalStyle`
   h6 { font-size: ${({ theme }) => theme.fontSizes.xs}; }
 
   p, ul, ol {
-    margin-bottom: ${({ theme }) => theme.spacing.medium};
+    // margin-bottom: ${({ theme }) => theme.spacing.medium};
     font-size: ${({ theme }) => theme.fontSizes.md};
   }
   ul, ol { padding-left: ${({ theme }) => theme.spacing.large}; }

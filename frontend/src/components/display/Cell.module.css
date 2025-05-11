@@ -7,6 +7,8 @@
     transition: background 150ms, border-color 150ms;
     cursor: pointer;
     user-select: none;
+    outline: 1px dashed rgba(19, 16, 212, 0.5);
+    min-width: 0;
 }
 
 .cellActive {

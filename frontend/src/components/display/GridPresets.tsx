@@ -43,12 +43,12 @@
   - Uses generic DataDrivenGrid under the hood
 ───────────────────────────────────────────────────────────*/
 import React from 'react';
-import { DataDrivenGrid } from './DataDrivenGrid';
+import { DataDrivenGrid, DataDrivenGridProps, fallbackTongueGrid } from './DataDrivenGrid';
 import { InteractiveObject } from './InteractiveObject';
 import { Box } from '@mantine/core';
 import { GridItem } from './ConfigurableGrid';
-import { VowelGridCell } from '@api/types';
 import API_CONFIG from '@api/api';
+import { Vowel, VowelGridCell, RawLesson, RawVowel } from '@api/types';
 
 // Utility to extract array from API envelope fallback
 function extractSections(importer: () => Promise<any>) {
@@ -70,16 +70,14 @@ function extractSections(importer: () => Promise<any>) {
  * - Wraps each cell's phoneme objects in InteractiveObject frames
  * - Supports zero, one, or multiple vowels per cell
  */
-const learnMapper = (cell: VowelGridCell | undefined | null): GridItem => {
-    // If cell is empty (undefined, null, or does not have vowels), render a blank cell
+const learnMapper = (cell: VowelGridCell | null): GridItem<VowelGridCell> => {
     if (!cell || !Array.isArray(cell.vowels)) {
-        return {
-            id: Math.random().toString(36), // unique id for React
-            content: <div />
-        };
+        return { id: Math.random().toString(36), content: <div /> }
     }
+
     return {
         id: String(cell.id),
+        data: cell,   // stash the raw cell for onSelect
         content: (
             <Box
                 style={{
@@ -91,18 +89,22 @@ const learnMapper = (cell: VowelGridCell | undefined | null): GridItem => {
                     gap: '0.5rem',
                 }}
             >
-                {cell.vowels.map((v) => (
+                {cell.vowels.map(v => (
                     <InteractiveObject
                         key={v.id}
                         id={String(v.id)}
                         label={v.ipa}
-                        audioUrls={[v.audio_url, ...(v.fallback_audio_url ? [v.fallback_audio_url] : [])]}
+                        textProps={{ variant: 'gridPhoneme' }}
+                        audioUrls={[
+                            v.audio_url,
+                            ...(v.fallback_audio_url ? [v.fallback_audio_url] : []),
+                        ]}
                     />
                 ))}
             </Box>
         ),
-    };
-};
+    }
+}
 
 /**
  * Quiz mode mapper:
@@ -132,26 +134,63 @@ const quizMapper = (cell: VowelGridCell): GridItem => ({
 // ────────────────────────────────────────────────────────────
 // 2. Learn Grids
 // ────────────────────────────────────────────────────────────
-export function Vowels101TonguePositionLearnGrid(
-    props: Omit<React.ComponentProps<typeof DataDrivenGrid>,
-        'items' | 'mapNodeToGridItem' | 'endpoint' | 'fallbackImporter'
-    >
-) {
+export interface Vowels101TongueGridProps
+    extends Omit<DataDrivenGridProps<VowelGridCell>,
+        'items' | 'endpoint' | 'fallbackImporter' | 'mapNodeToGridItem'> {
+    /** when a phoneme inside any cell is clicked */
+    onPhonemeSelect?: (v: Vowel) => void;
+}
+
+export function Vowels101TonguePositionLearnGrid({
+    onPhonemeSelect,
+    ...gridProps
+}: Vowels101TongueGridProps) {
     const cfg = API_CONFIG['learn/vowels/tongue-position'];
+    const mapper: (cell: VowelGridCell) => GridItem = (cell) => {
+        if (!cell || !Array.isArray(cell.vowels)) {
+            return { id: Math.random().toString(), content: <div /> };
+        }
+        return {
+            id: String(cell.id),
+            content: (
+                <Box
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+
+                    }}
+                >
+                    {cell.vowels.map((v) => (
+                        <InteractiveObject
+                            key={v.id}
+                            id={String(v.id)}
+                            label={v.ipa}
+                            audioUrls={[v.audio_url, ...(v.fallback_audio_url ? [v.fallback_audio_url] : [])]}
+                            onToggle={(_, isActive) => {
+                                if (isActive && onPhonemeSelect) {
+                                    onPhonemeSelect(v);
+                                }
+                            }}
+                        />
+                    ))}
+                </Box>
+            ),
+        };
+    };
+
     return (
         <DataDrivenGrid<VowelGridCell>
             endpoint={cfg.url}
             fallbackImporter={extractSections(cfg.fallbackImporter!)}
-            mapNodeToGridItem={learnMapper}
+            mapNodeToGridItem={mapper}
             mode="static"
             cols={3}
-            spacing="md"
-            breakpoints={[
-                { maxWidth: 480, cols: 1 },
-                { maxWidth: 768, cols: 2 },
-                { maxWidth: 1024, cols: 3 },
-            ]}
-            {...props}
+            spacing="sm"
+            {...gridProps}
         />
     );
 }
@@ -166,7 +205,6 @@ export function Vowels101LipShapeLearnGrid(props: any) {
             mode="static"
             cols={3}
             spacing="md"
-            breakpoints={[{ maxWidth: 1024, cols: 3 }]}
             {...props}
         />
     );

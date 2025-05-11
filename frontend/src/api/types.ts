@@ -1,4 +1,4 @@
-// src/api/lessons/types.ts
+// src/api/types.ts
 
 /**
  * A single vowel entry including audio (cloud + optional fallback) and images.
@@ -13,9 +13,9 @@ export interface Vowel {
     /** Optional secondary audio URL for fallback */
     fallback_audio_url?: string;
     /** URL for lip image */
-    lip_image_url: string;
+    lip_image_url?: string;
     /** URL for tongue position image */
-    tongue_image_url: string;
+    tongue_image_url?: string;
 }
 
 /**
@@ -36,30 +36,47 @@ export interface VowelGridCell {
     vowels: Vowel[];
 }
 
+
 /**
- * A section of the Vowels‑101 lesson, grouping grid cells.
+ * A single section within a lesson:
+ * - For Vowels101, sections might be "tongue_position", "lip_shape", "length", etc.
+ * - `T` lets you supply the exact content shape per‐section.
  */
-export interface LessonSection {
-    /** Section identifier */
-    id: number;
-    /** Human‑readable name */
+export interface LessonSection<T = any> {
+    /** Section identifier or slug */
+    id: string | number;
+    /** Human‑readable name (e.g. "Tongue Position") */
     name: string;
+    /** Section content: could be a grid, a caption, anything */
+    content: T;
     /** URL‑friendly slug */
     slug: string;
-    /** List of grid cells in this section */
-    cells: VowelGridCell[];
+}
+
+
+
+/**
+ * The top‑level Lesson object returned by your API or fallback JSON.
+ * - `Sections` is a map of section‑key → LessonSection<T>
+ */
+export interface Lesson<T = any> {
+    id: number;
+    slug: string;       // e.g. "vowels-101"
+    name: string;       // e.g. "Vowels 101"
+    sections: Record<string, LessonSection<T>>;
 }
 
 /**
- * API response wrapper for lessons endpoints.
+ * API response envelope.
+ * - lesson endpoints often wrap their data in { status, message, data }
+ * - data can be typed to your endpoint’s payload shape.
  */
-export interface ApiResponse {
+export interface ApiResponse<T = any> {
     status: 'success' | 'error';
     message: string;
-    data: {
-        sections: LessonSection[];
-    };
+    data: T;
 }
+
 
 /**
  * A generic quiz node shape, mirroring Vowel but without images.
@@ -73,4 +90,21 @@ export interface QuizNode {
     audio_url?: string;
     /** Optional fallback audio URL */
     fallback_audio_url?: string;
+}
+
+
+export interface RawVowel {
+    ipa: string;
+    id: string;
+    pronounced: string;
+    audio_url: string[];
+    mouth_image_url: string;
+}
+
+export interface RawLesson {
+    content: {
+        tongue_position: {
+            grid: RawVowel[][][];
+        };
+    };
 }

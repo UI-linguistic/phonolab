@@ -17,7 +17,7 @@ export default function TongueSection() {
     const grid = (
         <Vowels101TonguePositionLearnGrid
             key="grid"
-        // onPhonemeSelect={setSelectedPhoneme}
+            onPhonemeSelect={setSelectedPhoneme}
         />
     )
 

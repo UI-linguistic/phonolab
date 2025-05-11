@@ -43,6 +43,7 @@ declare module 'styled-components' {
       layoutTitle: [string, { min: string, fluid: string, max: string }, number, string];
       layoutSubtitle: [string, { min: string, fluid: string, max: string }, number, string];
       layoutInstruction: [string, { min: string, fluid: string, max: string }, number, string];
+      gridPhoneme: [string, { min: string, fluid: string, max: string }, number, string];
     };
     fonts: {
       main: string;

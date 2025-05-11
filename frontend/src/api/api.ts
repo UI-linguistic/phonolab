@@ -1,5 +1,7 @@
 // src/config/api.ts
 
+import { fallbackTongueGrid } from '@components/display/DataDrivenGrid';
+
 /*────────────────────────────────────────────────────────────
   Centralized API endpoints & JSON fallback importers
   - All data‑driven grid presets pull from here
@@ -44,14 +46,8 @@ export const API_CONFIG: Record<string, APIEndpointConfig> = {
     ────────────────────────────────────────────────────────────*/
     'learn/vowels/tongue-position': {
         url: `${API_BASE_URL}/api/learn/vowels/tongue-position`,
-        fallbackImporter: async () => {
-            try {
-                return await import('./fallback/tongue-position.json');
-            } catch (e) {
-                console.warn('Fallback file missing: tongue-position.json');
-                return { default: [] };
-            }
-        },
+        fallbackImporter: () =>
+            fallbackTongueGrid(() => import('./fallback/vowels-101_preview.json')),
     },
     'learn/vowels/lip-shape': {
         url: `${API_BASE_URL}/api/learn/vowels/lip-shape`,

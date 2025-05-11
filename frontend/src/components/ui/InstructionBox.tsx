@@ -45,7 +45,7 @@ export function InstructionBox({
     return (
         <Paper
             ref={ref}
-            component="div"          /* render as div so we ignore Mantine's withBorder */
+            component="div"
             className={boxClass}
             onClick={onClick}
             styles={(theme) => ({

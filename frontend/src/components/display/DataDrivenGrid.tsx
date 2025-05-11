@@ -33,136 +33,137 @@
  * />
  * ```
  */
+// src/components/DataDrivenGrid.tsx
+// src/components/DataDrivenGrid.tsx
 
-// React and core dependencies
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from 'react'
+import { LoadingOverlay, Box, Text as MantineText } from '@mantine/core'
+import { api } from '@api/client'
+import { ConfigurableGrid, GridItem, ConfigurableGridProps } from './ConfigurableGrid'
+import { Lesson, LessonSection, Vowel, VowelGridCell } from '@api/types'
 
-// Mantine UI components
-import { LoadingOverlay, Box, Text } from '@mantine/core';
-
-// Local components
-import { ConfigurableGrid, type GridItem, type ConfigurableGridProps } from '@components/display';
-
-/*────────────────────────────────────────────────────────────
-  2. DataDrivenGridProps<T>
-  - endpoint: URL to fetch array of T
-  - fallbackImporter: dynamic import for local JSON fallback
-  - mapNodeToGridItem: transform T → GridItem (supports multi‑object cells)
-  - other gridProps: any ConfigurableGrid props except `items`
-───────────────────────────────────────────────────────────*/
-export interface DataDrivenGridProps<T>
-  extends Omit<ConfigurableGridProps, 'items'> {
-  endpoint: string;
-  fallbackImporter: () => Promise<{ default: T[] }>;
-  mapNodeToGridItem: (node: T) => GridItem;
+export interface DataDrivenGridProps<T> extends Omit<ConfigurableGridProps, 'items'> {
+  /** full URL (or path) to fetch from */
+  endpoint: string
+  /** dynamic import of a fallback JSON if the network request fails */
+  fallbackImporter: () => Promise<{ default: T[] }>
+  /** map a single T to a GridItem */
+  mapNodeToGridItem: (node: T) => GridItem
 }
 
-/*────────────────────────────────────────────────────────────
-  3. DataDrivenGrid component
-───────────────────────────────────────────────────────────*/
 export function DataDrivenGrid<T>({
   endpoint,
   fallbackImporter,
   mapNodeToGridItem,
   ...gridProps
 }: DataDrivenGridProps<T>) {
-  const [nodes, setNodes] = useState<T[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [nodes, setNodes] = useState<T[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    let mounted = true;
-    axios
+    let mounted = true
+
+    api
       .get<T[]>(endpoint)
       .then((res) => {
-        if (!mounted) return;
-        setNodes(res.data);
-        setLoading(false);
+        if (!mounted) return
+        setNodes(res.data)
+        setLoading(false)
       })
-      .catch((err) => {
-        console.warn('API fetch failed, falling back to local JSON', err);
+      .catch(() => {
         fallbackImporter()
           .then((mod) => {
-            if (!mounted) return;
-            setNodes(mod.default);
-            setLoading(false);
+            if (!mounted) return
+
+            // treat mod as any so TS stops complaining
+            const raw = (mod as any).default
+
+            // If it's already an array, use it.
+            // Otherwise assume it's an "envelope" with data.sections
+            const data: T[] = Array.isArray(raw)
+              ? raw
+              : Array.isArray(raw.data?.sections)
+                ? raw.data.sections
+                : []
+
+            setNodes(data)
+            setLoading(false)
           })
           .catch((fallbackErr) => {
-            if (!mounted) return;
-            setError(fallbackErr);
-            setLoading(false);
-          });
-      });
-    return () => {
-      mounted = false;
-    };
-  }, [endpoint]);
+            if (!mounted) return
+            setError(fallbackErr)
+            setLoading(false)
+          })
+      })
 
-  // Loading / Error states
+    return () => {
+      mounted = false
+    }
+  }, [endpoint, fallbackImporter])
+
   if (loading) {
     return (
       <Box mih={200} pos="relative">
         <LoadingOverlay visible />
       </Box>
-    );
+    )
   }
+
   if (error) {
-    return (
-      <Text color="red">Error loading data: {error.message}</Text>
-    );
+    return <MantineText color="red">Error loading data: {error.message}</MantineText>
   }
 
-  // Map nodes → grid items
-  const items: GridItem[] = nodes.map(mapNodeToGridItem);
-
-  /*───────────────────────────────────────────────────────────
-    4. Render ConfigurableGrid with dynamic items
-  ────────────────────────────────────────────────────────────*/
-  return <ConfigurableGrid items={items} {...gridProps} />;
+  const items = nodes.map(mapNodeToGridItem)
+  return <ConfigurableGrid items={items} {...gridProps} />
 }
 
-/*────────────────────────────────────────────────────────────
-  5. Example usage of DataDrivenGrid for Tongue Position quiz
-───────────────────────────────────────────────────────────*/
-/*
-import { InteractiveObject } from './InteractiveObject';
-import { NodeObject } from '../data/types';
 
-export function TonguePositionQuizGrid() {
-  return (
-    <DataDrivenGrid<NodeObject>
-      endpoint="/api/quiz/tongue-position"
-      fallbackImporter={() => import('../data/quiz/tongue-position.json')}
-      mapNodeToGridItem={(node) => {
-        // if two objects per cell:
-        if (node.secondaryId) {
-          return {
-            id: node.id,
-            content: (
-              <>
-                <InteractiveObject id={node.id} label={node.label} audioSrc={node.audioSrc} />
-                <InteractiveObject id={node.secondaryId} label={node.secondaryLabel!} audioSrc={node.secondaryAudioSrc!} />
-              </>
-            ),
-          };
-        }
-        // single object cell:
-        return {
-          id: node.id,
-          content: <InteractiveObject id={node.id} label={node.label} audioSrc={node.audioSrc} />,
-        };
-      }}
-      mode="static"
-      cols={4}
-      spacing="md"
-      breakpoints={[
-        { maxWidth: 480, cols: 1 },
-        { maxWidth: 768, cols: 2 },
-        { maxWidth: 1024, cols: 4 },
-      ]}
-      onSelect={(item, idx, row, col) => {/* quiz logic /}}
-    />
+/**
+ * Given a dynamic‐importer of either:
+ *  - Lesson (object), or
+ *  - Lesson[] (array of lessons),
+ * this returns a promise that resolves to a flat array of that lesson’s sections.
+ */
+export async function extractSections(
+  importer: () => Promise<{ default: Lesson | Lesson[] }>
+): Promise<{ default: LessonSection[] }> {
+  const mod = await importer();
+  const raw = mod.default;
+  // pick first lesson if array
+  const lesson = Array.isArray(raw) && raw.length
+    ? (raw[0] as Lesson)
+    : (raw as Lesson);
+
+  // pull all section objects into an array
+  const sections = Object.values(lesson.sections);
+  return { default: sections };
+}
+
+
+/**  
+ * Given an importer for the full preview JSON,  
+ * extract `content.tongue_position.grid` and turn it into `VowelGridCell[]`.  
+ */
+export async function fallbackTongueGrid(
+  importer: () => Promise<{ default: any }>
+): Promise<{ default: VowelGridCell[] }> {
+  const mod = await importer();
+  const raw: any[][][] = mod.default.content.tongue_position.grid;
+
+  const cells = raw.flatMap((rowArr, row) =>
+    rowArr.map((cellArr, col) => {
+      const vowels: Vowel[] = cellArr.map((rv: any) => ({
+        id: Number(rv.id),
+        ipa: rv.ipa,
+        audio_url: rv.audio_url[0],
+        fallback_audio_url: rv.audio_url[1],
+        lip_image_url: '',
+        tongue_image_url: rv.mouth_image_url,
+      }));
+      return { id: row * rowArr.length + col, row, col, vowels };
+    })
   );
+
+  return { default: cells };
 }
-*/
