@@ -1,78 +1,3 @@
-/**
- * MenuPresets.tsx
- *
- * Pre‑configured, named wrappers around MenuList and ActionList for common UI patterns:
- *
- * 1. SubmitResetGroup
- *    – A two‑button vertical action list for form submit/reset.
- *    – Always uses 'md' size unless overridden.
- *    – Submit: theme.accent background; Reset: theme.secondary background.
- *
- *    Props:
- *      • onSubmit: () ⇒ void    — callback for Submit
- *      • onReset:  () ⇒ void    — callback for Reset
- *      • size?:    Size         — optional size override (xs|sm|md|lg)
- *
- *    Usage:
- *      <SubmitResetGroup onSubmit={…} onReset={…} size="sm" />
- *
- * 2. QuizMenuList
- *    – Vertical menu of four quiz options.
- *    – Default: first item active, size 'md'.
- *
- *    Props:
- *      • activeIndex?: number   — which option is active
- *      • onSelect?:  (i)=>void  — click handler
- *      • size?:       Size      — optional size override
- *
- *    Usage:
- *      <QuizMenuList activeIndex={0} onSelect={…} />
- *
- * 3. LearnMenuList
- *    – Vertical menu of four learning modules.
- *    – Same API as QuizMenuList.
- *
- *    Usage:
- *      <LearnMenuList activeIndex={2} onSelect={…} />
- *
- * 4. HomeHeroMenuList
- *    – Vertical menu with two hero‑page actions.
- *    – Same API, two items only.
- *
- *    Usage:
- *      <HomeHeroMenuList activeIndex={1} onSelect={…} />
- *
- * 5. StartButton
- *    - A single large button for starting a quiz or lesson.
- *    - Uses accent color by default for high visibility.
- *    
- *    Props:
- *      • onClick: () => void    — callback for button click
- *      • size?:   Size          — optional size override (xs|sm|md|lg)
- *      • label?:  string        — optional label text (defaults to "Start")
- *
- *    Usage:
- *      <StartButton onClick={handleStart} />
- *
- * 6. TonguePositionButtonGroup
- *    - A specialized Submit/Reset button pair for the Vowel Shuffle/Tongue Position quiz.
- *    - Submit button uses teal/green color, Reset uses salmon/peach color.
- *    - Custom styling to match the quiz design.
- *    
- *    Props:
- *      • onSubmit: () => void    — callback for Submit
- *      • onReset:  () => void    — callback for Reset
- *    
- *    Usage:
- *      <TonguePositionButtonGroup onSubmit={handleSubmit} onReset={handleReset} />
- *
- * Export:
- *   Default export is an object { SubmitResetGroup, QuizMenuList, LearnMenuList, HomeHeroMenuList }
- *   so you can import presets as:
- *     import MenuPresets from './MenuPresets';
- *     const { QuizMenuList, HomeHeroMenuList } = MenuPresets;
- */
-
 import React from 'react';
 import { MenuList, ActionList } from './Menu';
 import styled from 'styled-components';
@@ -179,8 +104,9 @@ const StyledStartButton = styled.button<{ size?: 'xs' | 'sm' | 'md' | 'lg' }>`
   border: none;
   border-radius: ${({ theme }) => theme.borderRadius};
   font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
+  transition: 
+    background-color ${({ theme }) => theme.transitions.short}, 
+    transform ${({ theme }) => theme.transitions.short};
   min-width: 150px;
   
   /* Size variants */
@@ -203,20 +129,47 @@ const StyledStartButton = styled.button<{ size?: 'xs' | 'sm' | 'md' | 'lg' }>`
       default: return theme.fontSizes.lg;
     }
   }};
-
+  
   &:hover {
     background-color: ${({ theme }) => theme.colors.accent ? `${theme.colors.accent}dd` : theme.colors.accent};
     transform: translateY(-2px);
   }
-
+  
   &:active {
     transform: translateY(0);
   }
-
+  
   &:disabled {
     background-color: ${({ theme }) => theme.colors.grey || '#cccccc'};
     cursor: not-allowed;
     transform: none;
+  }
+  
+  /* Responsive adjustments */
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    min-width: 120px;
+  }
+  
+  @media ${({ theme }) => theme.media.tablet.replace('@media ', '')} {
+    min-width: 150px;
+  }
+  
+  @media ${({ theme }) => theme.media.desktop.replace('@media ', '')} {
+    min-width: 180px;
+  }
+  
+  @media ${({ theme }) => theme.media.widescreen.replace('@media ', '')} {
+    min-width: 200px;
+  }
+  
+  /* Reduced motion preference */
+  @media ${({ theme }) => theme.media.reducedMotion.replace('@media ', '')} {
+    transition: 
+      background-color ${({ theme }) => theme.transitions.reducedMotion.short}, 
+      transform ${({ theme }) => theme.transitions.reducedMotion.short};
+    &:hover {
+      transform: none;
+    }
   }
 `;
 
@@ -227,7 +180,6 @@ export function StartButton(props: {
   disabled?: boolean;
 }) {
   const { onClick, size = 'lg', label = 'Start', disabled = false } = props;
-
   return (
     <StyledStartButton
       onClick={onClick}
@@ -243,7 +195,6 @@ export function StartButton(props: {
 // 6) TonguePositionButtonGroup 
 //    Custom styling for Vowel Shuffle quiz
 // ────────────────────────────────────────────────────────────
-
 const TonguePositionWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -255,13 +206,23 @@ const TonguePositionWrapper = styled.div`
   height: 100%;
   padding: 0;
   margin: 0;
+  
+  @media ${({ theme }) => theme.media.tablet.replace('@media ', '')} {
+    max-width: 200px;
+    gap: 3.5rem;
+  }
+  
+  @media ${({ theme }) => theme.media.desktop.replace('@media ', '')} {
+    max-width: 220px;
+    gap: 4rem;
+  }
 `;
 
 const SubmitButton = styled.button`
   font-size: 1.25rem;
   font-weight: bold;
   padding: 0.75rem 1.25rem;
-  min-width: 170px; 
+  min-width: 170px;
   width: 100%;
   height: 50px;
   background-color: #71B2AD; /* Teal color from the image */
@@ -281,6 +242,25 @@ const SubmitButton = styled.button`
     transform: translateY(0);
     box-shadow: none;
   }
+  
+  @media ${({ theme }) => theme.media.tablet.replace('@media ', '')} {
+    min-width: 200px;
+    font-size: 1.35rem;
+    height: 55px;
+  }
+  
+  @media ${({ theme }) => theme.media.desktop.replace('@media ', '')} {
+    min-width: 220px;
+    font-size: 1.5rem;
+    height: 60px;
+  }
+  @media ${({ theme }) => theme.media.reducedMotion.replace('@media ', '')} {
+    transition: all ${({ theme }) => theme.transitions.reducedMotion.short};
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
 `;
 
 const ResetButton = styled.button`
@@ -295,7 +275,7 @@ const ResetButton = styled.button`
   border: 2px solid black;
   border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all ${({ theme }) => theme.transitions.medium};
   margin: 0;
   
   &:hover {
@@ -307,14 +287,34 @@ const ResetButton = styled.button`
     transform: translateY(0);
     box-shadow: none;
   }
+  
+  @media ${({ theme }) => theme.media.tablet.replace('@media ', '')} {
+    min-width: 200px;
+    font-size: 1.35rem;
+    height: 55px;
+  }
+  
+  @media ${({ theme }) => theme.media.desktop.replace('@media ', '')} {
+    min-width: 220px;
+    font-size: 1.5rem;
+    height: 60px;
+  }
+  
+  @media ${({ theme }) => theme.media.reducedMotion.replace('@media ', '')} {
+    transition: all ${({ theme }) => theme.transitions.reducedMotion.short};
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
 `;
+
 
 export function TonguePositionButtonGroup(props: {
   onSubmit: () => void;
   onReset: () => void;
 }) {
   const { onSubmit, onReset } = props;
-
   return (
     <TonguePositionWrapper>
       <SubmitButton onClick={onSubmit}>Submit</SubmitButton>
@@ -331,4 +331,5 @@ const MenuPresets = {
   StartButton,
   TonguePositionButtonGroup
 };
+
 export default MenuPresets;

@@ -371,6 +371,14 @@ declare module 'styled-components' {
       },
     },
 
+    // ────────────────────────────────────────────────────────────
+    // Progress Bar
+    // ────────────────────────────────────────────────────────────
+    progressBar?: {
+      height?: string;
+      borderRadius?: string;
+    };
+
   }
 }
 

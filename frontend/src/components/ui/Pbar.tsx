@@ -25,9 +25,9 @@ const ProgressTrack = styled.div`
     flex: 1 1 auto;
     position: relative;
     background-color: transparent;
-    border-radius: ${({ theme }) => theme.progressBar.borderRadius || theme.borderRadius};
+    border-radius: ${({ theme }) => theme.progressBar?.borderRadius || theme.borderRadius};
     border: ${({ theme }) => theme.borderWidths.thin} solid ${({ theme }) => theme.colors.black};
-    height: ${({ theme }) => theme.progressBar.height};
+    height: ${({ theme }) => theme.progressBar?.height || '8px'};
     overflow: hidden;
 `;
 
@@ -36,7 +36,7 @@ const ProgressFill = styled.div<{ $value: number }>`
     width: ${props => `${props.$value}%`};
     height: 100%;
     background-color: ${({ theme }) => theme.colors.black};
-    border-radius: ${({ theme }) => theme.progressBar.borderRadius || theme.borderRadius} 0 0 ${({ theme }) => theme.progressBar.borderRadius || theme.borderRadius};
+    border-radius: ${({ theme }) => theme.progressBar?.borderRadius || theme.borderRadius} 0 0 ${({ theme }) => theme.progressBar?.borderRadius || theme.borderRadius};
 `;
 
 // The label component
@@ -67,7 +67,6 @@ export function QuizProgressBar({
             <ProgressTrack style={height ? { height } : undefined}>
                 <ProgressFill $value={displayValue} />
             </ProgressTrack>
-
             {label && labelOnRight && (
                 <ProgressLabel>{label}</ProgressLabel>
             )}
@@ -79,5 +78,8 @@ export function QuizProgressBar({
 QuizProgressBar.defaultTheme = {
     progressBar: {
         height: '8px',
+        borderRadius: '4px',
     },
 };
+
+export default QuizProgressBar;

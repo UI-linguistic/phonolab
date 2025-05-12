@@ -8,333 +8,119 @@
  *  - threeColumns:  Common for vowel grid + spectrum + answer box
  *  - stacked:       Stacked full-width blocks (e.g. timeline or progression stages)
  *
- * Slot direction control (`slotDirections` prop):
- *  - Array defining flex direction ('row' | 'column') for each slot
- *  - Enables different layout flow for each placeholder container
- *
  * Structure:
- *  • Row 1: back button | title | progress bar | next button (same row)
+ *  • Row 1: back button | title | progress bar | next button
  *  • Row 2: quiz section label
  *  • Row 3: content placeholders (1–3), depending on variant
  */
-
 import React from 'react';
-import styled, { DefaultTheme, keyframes } from 'styled-components';
+import styled, { DefaultTheme, css } from 'styled-components';
 import { PageTitle } from '../typography/PageTypography';
-import { QuizProgressBar } from './Pbar';
 import { TonguePositionButtonGroup } from './MenuPresets';
+import QuizProgressBar from './Pbar';
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Type definitions
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+type HeroGapKey = keyof DefaultTheme['heroGaps']; // "tight" | "normal" | "wide"
+type AlignmentType = 'left' | 'center' | 'right';
+type FlexAlignmentType = 'flex-start' | 'center' | 'flex-end';
 
 interface QuizLayoutProps {
-    title: string;
-    titleAlign?: 'left' | 'center' | 'right';
-    subtitle?: string;
-    subtitleAlign?: 'left' | 'center' | 'right';
-    rowGap?: string | keyof DefaultTheme['heroGaps'];
-    quizStageLabel: string;
-    showBackButton?: boolean;
-    nextButton?: React.ReactNode;
-    progressBar?: React.ReactNode;
-    activeTabIndex?: number;
-    onTabSelect?: (index: number) => void;
-    sectionTabs?: string[];
-    variant?: 'twoColumns' | 'threeColumns' | 'stacked';
-    slotDirections?: ('row' | 'column')[];
-    children: React.ReactNode;
-    onSubmit?: () => void;
-    onReset?: () => void;
-    headerConfig?: {
-        titleWidth?: string;
-        progressBarWidth?: string;
-        titleAlignment?: 'left' | 'center' | 'right';
-        progressAlignment?: 'flex-start' | 'center' | 'flex-end';
-        gridTemplateColumns?: string;
-        columnGap?: string;
-        titleProgressGap?: string;
-        backTitleGap?: string;
-        progressNextGap?: string;
-        centerProgressBar?: boolean;
-    };
+  title: string;
+  titleAlign?: AlignmentType;
+  subtitle?: string;
+  subtitleAlign?: AlignmentType;
+  rowGap?: string | HeroGapKey;
+  quizStageLabel: string;
+  showBackButton?: boolean;
+  nextButton?: React.ReactNode;
+  progressBar?: React.ReactNode;
+  activeTabIndex?: number;
+  onTabSelect?: (index: number) => void;
+  sectionTabs?: string[];
+  variant?: 'twoColumns' | 'threeColumns' | 'stacked';
+  slotDirections?: ('row' | 'column')[];
+  children: React.ReactNode;
+  onSubmit?: () => void;
+  onReset?: () => void;
+  headerConfig?: {
+    titleWidth?: string;
+    progressBarWidth?: string;
+    titleAlignment?: AlignmentType;
+    progressAlignment?: FlexAlignmentType;
+    gridTemplateColumns?: string;
+    columnGap?: string;
+    titleProgressGap?: string;
+    backTitleGap?: string;
+    progressNextGap?: string;
+  };
 }
 
-type HeroGapKey = keyof DefaultTheme['heroGaps']; // "tight" | "normal" | "wide"
-
-interface LayoutWrapperProps {
-    /** one of theme.heroGaps: "tight", "normal", or "wide" */
-    rowGap?: HeroGapKey;
-}
-
-// const Wrapper = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   gap: ${({ theme }) => theme.spacing.large};
-//   padding: ${({ theme }) => theme.spacing.large};
-// `;
-
-const Wrapper = styled.div<{ rowGap?: string }>`
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Main Layout Container
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const Wrapper = styled.div<{ rowGap: string }>`
   display: flex;
   flex-direction: column;
   gap: ${({ theme, rowGap }) =>
-        rowGap
-            ? theme.heroGaps[rowGap as HeroGapKey]
-            : theme.spacing.large
-    };
-  padding: ${({ theme }) => theme.spacing.large};
+    rowGap && theme.heroGaps[rowGap as HeroGapKey]
+      ? theme.heroGaps[rowGap as HeroGapKey]
+      : theme.spacing.large};
+  padding: ${({ theme }) => `${theme.spacing.xlarge} ${theme.spacing.xlarge}`};
   background-color: transparent;
   border-radius: ${({ theme }) => theme.borderRadius};
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-  max-width: ${({ theme }) => theme.layout.maxContentWidth};
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.container : 'none'};
   margin: 0 auto;
+  max-width: ${({ theme }) => theme.layout.maxWidth};
   width: 100%;
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    padding: ${({ theme }) => theme.spacing.large};
+  }
 `;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// HEADER ROW CONFIGURATION
+// Header Row Components
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// The HeaderRow is a grid with 4 columns by default:
-// [back button] [title] [progress bar] [next button]
-// This can be customized using the $gridTemplateColumns prop
 const HeaderRow = styled.div<{
-    $gridTemplateColumns?: string;
-    $columnGap?: string;
-    $titleProgressGap?: string;
-    $backTitleGap?: string;
-    $progressNextGap?: string;
+  $gridTemplateColumns?: string;
+  $columnGap?: string;
 }>`
-  /* 1. Grid layout for the header elements */
   display: grid;
-  
-  /* 2. CRITICAL: This defines the width of each column in the header */
-  /* You can adjust this through headerConfig.gridTemplateColumns */
-  grid-template-columns: ${props => props.$gridTemplateColumns || '100px minmax(150px, 1fr) 400px 100px'};
-  
-  /* 3. Vertical alignment of elements */
+  grid-template-columns: ${({ $gridTemplateColumns }) => $gridTemplateColumns || '100px 1fr 1fr 100px'};
+  gap: ${({ theme, $columnGap }) => $columnGap || theme.spacing.medium};
   align-items: center;
-  
-  /* 4. Horizontal centering of the entire header row */
+  min-height: 80px;
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.grid : 'none'};
   justify-content: center;
-  
-  /* 5. Space between columns - configurable through headerConfig */
   column-gap: ${props => props.$columnGap || props.theme.spacing.medium};
-  
-  /* 6. Visual styling */
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-  
-  /* 7. CRITICAL: This centers the header row on the page */
   width: 100%;
   margin: 0 auto 1rem;
   padding: 0.5rem 0;
   box-sizing: border-box;
-
-  /* Apply consistent spacing to all child elements */
-  & > * {
-    box-sizing: border-box;
-    margin: 0; /* Reset margins for all direct children */
-  }
-
-  /* Use grid-column-gap instead of margins for spacing between columns */
-  /* This ensures consistent spacing that works well with the grid layout */
-  & > *:nth-child(1),
-  & > *:nth-child(2),
-  & > *:nth-child(3) {
-    margin-right: 0; /* Remove inline margins */
-  }
-`;
-
-// Create named styled components for each slot in the header row
-const BackButtonSlot = styled.nav`
-  justify-content: flex-start;
-  padding: ${({ theme }) => theme.spacing.small};
-  display: flex;
-  align-items: center;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-`;
-
-// Consolidate TitleSlot and TitleContainer
-const TitleSlot = styled.header<{ $alignment?: 'left' | 'center' | 'right', $width?: string }>`
-  display: flex;
-  align-items: center;
-  width: ${props => props.$width || '100%'};
-  min-width: 0; /* Allow container to shrink if needed */
-  padding: ${({ theme }) => theme.spacing.small};
-  text-align: ${props => props.$alignment || 'center'};
-  justify-content: ${props => {
-        switch (props.$alignment) {
-            case 'left': return 'flex-start';
-            case 'right': return 'flex-end';
-            default: return 'center';
-        }
-    }};
-  box-sizing: border-box; /* Ensure padding is included in width calculation */
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed orange` : 'none'};
   
-  /* Remove any right margin to prevent unwanted spacing */
-  margin-right: 0;
-`;
-
-const ProgressBarSlot = styled.section<{ $alignment?: 'flex-start' | 'center' | 'flex-end' }>`
-  justify-content: ${props => props.$alignment || 'center'};
-  padding: ${({ theme }) => theme.spacing.small};
-  display: flex;
-  align-items: center;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-`;
-
-const ActionButtonSlot = styled.nav`
-  justify-content: flex-end;
-  padding: ${({ theme }) => theme.spacing.small};
-  display: flex;
-  align-items: center;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-`;
-
-const LargeQuizTitle = styled(PageTitle)`
-  font-size: ${({ theme }) => theme.fontSizes.xxxl};
-  font-weight: ${({ theme }) => theme.fontWeights.extrabold};
-  margin: 0;
-  padding: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: ${({ theme }) => theme.colors.quizSectionTitle};
-  width: 100%; /* Fill available width */
-  box-sizing: border-box; /* Ensure padding is included in width calculation */
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-  
-  /* Ensure text doesn't overflow its container */
-  max-width: 100%;
-`;
-
-const SectionLabel = styled.div`
-  font-weight: bold;
-  font-size: ${({ theme }) => theme.typography.quizSubtitle[1].max};
-  text-align: center;
-  margin: 1.5rem auto 2rem;
-  padding: ${({ theme }) => theme.spacing.medium};
-  width: 100%;
-  color: ${({ theme }) => theme.colors.quizSectionSubtitle};
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-`;
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// PROGRESS BAR CONTAINER - Consolidated wrapper and container into one component
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const ProgressBarContainer = styled.div<{
-    $width?: string;
-    $centerProgressBar?: boolean;
-    $alignment?: 'flex-start' | 'center' | 'flex-end';
-}>`
-  /* 1. Width of the progress bar itself - configurable via headerConfig */
-  width: ${props => props.$width || '100%'}; /* Default to 100% to fill the column */
-  min-width: 200px; /* Ensure a minimum width for the progress bar */
-  max-width: 100%; /* Don't exceed the available space */
-  
-  /* 2. Height of the container */
-  height: ${({ theme }) => theme.progressBar.height};
-  
-  /* 3. Position and alignment */
-  display: flex;
-  align-items: center;
-  justify-content: ${props => props.$alignment || 'center'};
-  margin: ${props => props.$alignment === 'flex-start' ? '0' :
-        props.$alignment === 'flex-end' ? '0 0 0 auto' : '0 auto'};
-  padding: 0;
-  
-  /* Visual debugging outline */
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-  
-  /* 4. CRITICAL FOR CENTERING: This 3-property combo ensures perfect centering */
-  /* Only applied when centerProgressBar is true */
-  position: ${props => props.$centerProgressBar !== false ? 'relative' : 'static'};
-  left: ${props => props.$centerProgressBar !== false ? '50%' : 'auto'};
-  transform: ${props => props.$centerProgressBar !== false ? 'translateX(-50%)' : 'none'};
-`;
-
-const ContentContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};  
-`;
-
-const ContentGrid = styled.div<{ variant: QuizLayoutProps['variant'] }>`
-  display: grid;
-  width: 100%;
-  height: 100%;
-  margin: 0 auto;
-  ${({ variant }) => {
-        switch (variant) {
-            case 'twoColumns':
-                return 'grid-template-columns: 1fr 1fr; gap: 2rem;';
-            case 'threeColumns':
-                return 'grid-template-columns: 3fr 1fr; gap: 2.5rem; align-items: center;';
-            case 'stacked':
-                return 'grid-template-rows: repeat(3, auto); gap: 2rem;';
-            default:
-                return 'grid-template-columns: 1fr;';
-        }
-    }}
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-`;
-
-const GridColumn = styled.div`
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  padding: 20px;
-  box-sizing: border-box;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-`;
-
-const ButtonColumn = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  width: 100%;
-  height: 100%;
-  padding-left: 10px;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-`;
-
-const Slot = styled.div<{ direction: 'row' | 'column' }>`
-  display: flex;
-  flex-direction: ${({ direction }) => direction};
-  width: 100%;
-  height: 100%;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-  
-  /* Center content by default */
-  align-items: center;
-  justify-content: center;
-`;
-
-// Add subtle pulse animation for instruction boxes
-const pulseAnimation = keyframes`
-  0% {
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.05);
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: 
+      "back title next"
+      "progress progress progress";
+    row-gap: ${({ theme }) => theme.spacing.medium};
+    
+    & > *:nth-child(1) { grid-area: back; }
+    & > *:nth-child(2) { grid-area: title; }
+    & > *:nth-child(3) { grid-area: progress; }
+    & > *:nth-child(4) { grid-area: next; }
   }
-  70% {
-    box-shadow: 0 0 0 8px rgba(0, 0, 0, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-  }
-`;
-
-// Add focused outline animation for accessibility
-const focusAnimation = keyframes`
-  0% {
-    outline-offset: 0px;
-  }
-  50% {
-    outline-offset: 4px;
-  }
-  100% {
-    outline-offset: 0px;
+  
+  @media ${({ theme }) => theme.media.tablet.replace('@media ', '')} {
+    grid-template-columns: auto 1fr auto auto;
+    grid-template-areas: "back title progress next";
+    
+    & > *:nth-child(1) { grid-area: back; }
+    & > *:nth-child(2) { grid-area: title; }
+    & > *:nth-child(3) { grid-area: progress; }
+    & > *:nth-child(4) { grid-area: next; }
   }
 `;
 
@@ -349,11 +135,15 @@ const BackButton = styled.button`
   
   &:hover {
     background-color: ${({ theme }) => theme.colors.quizNavigationHover + '22'};
-    transform: translateY(-2px);
   }
   
   &:active {
     transform: translateY(0);
+  }
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    font-size: ${({ theme }) => theme.fontSizes.md};
+    padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.small}`};
   }
 `;
 
@@ -369,246 +159,286 @@ const NextButton = styled.button`
   
   &:hover {
     background-color: ${({ theme }) => theme.colors.quizNavigationHover};
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   }
   
-  &:active {
-    transform: translateY(0);
-    box-shadow: none;
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    font-size: ${({ theme }) => theme.fontSizes.md};
+    padding: ${({ theme }) => `${theme.spacing.xsmall} ${theme.spacing.small}`};
   }
 `;
 
+// Special components for threeColumns layout
+const GridColumn = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    padding: 10px;
+  }
+`;
+
+const ButtonColumn = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding-left: 10px;
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.element : 'none'};
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    justify-content: center;
+    padding-left: 0;
+  }
+`;
+
+const BackButtonSlot = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.cell : 'none'};
+`;
+
+const TitleSlot = styled.div<{
+  $alignment: 'left' | 'center' | 'right';
+  $width?: string;
+}>`
+  display: flex;
+  justify-content: ${({ $alignment }) =>
+    $alignment === 'left' ? 'flex-start' :
+      $alignment === 'right' ? 'flex-end' : 'center'
+  };
+  align-items: center;
+  width: ${({ $width }) => $width || '100%'};
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.cell : 'none'};
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+`;
+
+const ProgressBarSlot = styled.div<{
+  $alignment: 'flex-start' | 'center' | 'flex-end';
+}>`
+  display: flex;
+  justify-content: ${({ $alignment }) => $alignment};
+  align-items: center;
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.cell : 'none'};
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-content: center;
+    margin-top: ${({ theme }) => theme.spacing.small};
+  }
+`;
+
+const ProgressBarContainer = styled.div<{
+  $width?: string;
+  $alignment: 'flex-start' | 'center' | 'flex-end';
+}>`
+  width: ${({ $width }) => $width || '100%'};
+  display: flex;
+  justify-content: ${({ $alignment }) => $alignment};
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.element : 'none'};
+`;
+
+
+const ActionButtonSlot = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.cell : 'none'};
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    display: none;
+  }
+`;
+
+const ContentContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.component : 'none'};
+`;
+
+// Update the SectionLabel component
+const SectionLabel = styled.div`
+  font-size: ${({ theme }) => theme.fontSizes.lg};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  color: ${({ theme }) => theme.colors.primary};
+  margin-bottom: ${({ theme }) => theme.spacing.medium};
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.element : 'none'};
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    font-size: ${({ theme }) => theme.fontSizes.md};
+    margin-bottom: ${({ theme }) => theme.spacing.small};
+  }
+`;
+
+
+const ContentGrid = styled.div<{ variant: QuizLayoutProps['variant'] }>`
+  display: grid;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.grid : 'none'};
+    
+  ${({ variant, theme }) => {
+    switch (variant) {
+      case 'twoColumns':
+        return twoColumnsLayout;
+      case 'threeColumns':
+        return threeColumnsLayout;
+      case 'stacked':
+        return stackedLayout;
+      default:
+        return 'grid-template-columns: 1fr;';
+    }
+  }}
+`;
+
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Main QuizLayout Component
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const QuizLayout: React.FC<QuizLayoutProps> = ({
-    title,
-    quizStageLabel,
-    showBackButton = true,
-    nextButton,
-    progressBar,
-    variant = 'twoColumns',
-    slotDirections = [],
-    children,
-    sectionTabs,
-    activeTabIndex = 0,
-    onTabSelect,
-    titleAlign = 'left',
-    subtitle,
-    subtitleAlign = 'left',
-    rowGap = 'normal',
-    onSubmit = () => console.log('Submit clicked'),
-    onReset = () => console.log('Reset clicked'),
-    headerConfig = {},
-    ...props
+  title,
+  quizStageLabel,
+  showBackButton = true,
+  nextButton,
+  progressBar,
+  variant = 'twoColumns',
+  slotDirections = [],
+  children,
+  sectionTabs,
+  activeTabIndex = 0,
+  onTabSelect,
+  titleAlign = 'left',
+  subtitle,
+  subtitleAlign = 'left',
+  rowGap = 'normal',
+  onSubmit = () => console.log('Submit clicked'),
+  onReset = () => console.log('Reset clicked'),
+  headerConfig = {},
+  ...props
 }) => {
-    const childrenArray = React.Children.toArray(children);
+  const childrenArray = React.Children.toArray(children);
 
-    // Determine grid template based on headerConfig or default
-    const gridTemplateColumns = headerConfig.gridTemplateColumns || '100px minmax(200px, 1fr) 400px 100px';
+  // Determine grid template based on headerConfig or default
+  const gridTemplateColumns = headerConfig.gridTemplateColumns;
 
-    // Determine title alignment
-    const titleAlignment = headerConfig.titleAlignment || titleAlign;
+  // Determine title alignment
+  const titleAlignment = headerConfig.titleAlignment || titleAlign;
 
-    // Extract spacing configurations
-    const columnGap = headerConfig.columnGap;
-    const titleProgressGap = headerConfig.titleProgressGap;
-    const backTitleGap = headerConfig.backTitleGap;
-    const progressNextGap = headerConfig.progressNextGap;
-    const centerProgressBar = headerConfig.centerProgressBar;
-    const progressAlignment = headerConfig.progressAlignment || 'center';
+  // Determine progress alignment
+  const progressAlignment = headerConfig.progressAlignment || 'center';
 
-    return (
-        <Wrapper>
-            <HeaderRow
-                $gridTemplateColumns={gridTemplateColumns}
-                $columnGap={columnGap}
-                $titleProgressGap={titleProgressGap}
-                $backTitleGap={backTitleGap}
-                $progressNextGap={progressNextGap}
-            >
-                <BackButtonSlot>
-                    {showBackButton ? <BackButton>Back</BackButton> : null}
-                </BackButtonSlot>
+  return (
+    <Wrapper rowGap={rowGap as string}>
+      <HeaderRow
+        $gridTemplateColumns={gridTemplateColumns}
+        $columnGap={headerConfig.columnGap}
+      >
+        <BackButtonSlot>
+          {showBackButton ? <BackButton>Back</BackButton> : null}
+        </BackButtonSlot>
 
-                <TitleSlot $alignment={titleAlignment} $width={headerConfig.titleWidth}>
-                    <LargeQuizTitle>
-                        {title}
-                    </LargeQuizTitle>
-                </TitleSlot>
+        <TitleSlot
+          $alignment={titleAlignment}
+          $width={headerConfig.titleWidth}
+        >
+          <LargeQuizTitle>
+            {title}
+          </LargeQuizTitle>
+        </TitleSlot>
 
-                <ProgressBarSlot $alignment={progressAlignment}>
-                    <ProgressBarContainer
-                        $width={headerConfig.progressBarWidth}
-                        $centerProgressBar={centerProgressBar}
-                        $alignment={progressAlignment}
-                    >
-                        {progressBar ?? <QuizProgressBar value={0} label="3/3" />}
-                    </ProgressBarContainer>
-                </ProgressBarSlot>
+        <ProgressBarSlot $alignment={progressAlignment}>
+          <ProgressBarContainer
+            $width={headerConfig.progressBarWidth}
+            $alignment={progressAlignment}
+          >
+            {progressBar ?? <QuizProgressBar value={0} label="3/3" />}
+          </ProgressBarContainer>
+        </ProgressBarSlot>
 
-                <ActionButtonSlot>
-                    {nextButton ?? <NextButton>Next</NextButton>}
-                </ActionButtonSlot>
-            </HeaderRow>
+        <ActionButtonSlot>
+          {nextButton ?? <NextButton>Next</NextButton>}
+        </ActionButtonSlot>
+      </HeaderRow>
 
-            <SectionLabel>{quizStageLabel}</SectionLabel>
+      <SectionLabel>{quizStageLabel}</SectionLabel>
 
-            <ContentContainer>
-                <ContentGrid variant={variant}>
-                    {/* For "threeColumns" variant (VowelShuffle), create a specific layout with exactly two columns */}
-                    {variant === 'threeColumns' ? (
-                        <>
-                            {/* First column: Grid component with true center alignment */}
-                            <GridColumn>
-                                <Slot direction={slotDirections[0] || 'column'}>
-                                    {childrenArray[0] || null}
-                                </Slot>
-                            </GridColumn>
+      <ContentContainer>
+        <ContentGrid variant={variant}>
+          {variant === 'threeColumns' ? (
+            <>
+              {/* First column: Grid component with true center alignment */}
+              <GridColumn>
+                <Slot direction={slotDirections[0] || 'column'} index={0}>
+                  {childrenArray[0] || null}
+                </Slot>
+              </GridColumn>
 
-                            {/* Second column: Button group */}
-                            <ButtonColumn>
-                                <Slot direction="column">
-                                    <TonguePositionButtonGroup
-                                        onSubmit={onSubmit}
-                                        onReset={onReset}
-                                    />
-                                </Slot>
-                            </ButtonColumn>
-                        </>
-                    ) : (
-                        // Default handling for other layouts
-                        childrenArray.map((child, idx) => (
-                            <Slot key={idx} direction={slotDirections[idx] || 'column'}>
-                                {child}
-                            </Slot>
-                        ))
-                    )}
-                </ContentGrid>
-            </ContentContainer>
-        </Wrapper>
-    );
+              {/* Second column: Button group */}
+              <ButtonColumn>
+                <Slot direction="column" index={1}>
+                  <TonguePositionButtonGroup
+                    onSubmit={onSubmit}
+                    onReset={onReset}
+                  />
+                </Slot>
+              </ButtonColumn>
+            </>
+          ) : (
+            // Default handling for other layouts
+            childrenArray.map((child, idx) => (
+              <Slot
+                key={idx}
+                direction={slotDirections[idx] || 'column'}
+                index={idx}
+              >
+                {child}
+              </Slot>
+            ))
+          )}
+        </ContentGrid>
+      </ContentContainer>
+    </Wrapper>
+  );
 };
 
-// Preset wrappers for quiz modules with visual debugging outlines
-
-export function VowelShuffleLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections'>) {
-    // Determine progress value based on quiz content and position
-    // Tongue Position corresponds to 1/3 (33.33%)
-    const isTonguePosition = props.quizStageLabel?.includes("Tongue Position");
-
-    // Default to 33.33% for Tongue Position (first step)
-    let progressValue = 33.33;
-
-    if (props.title?.includes("3/3")) {
-        progressValue = 100;
-    } else if (props.title?.includes("2/3")) {
-        progressValue = 66.67;
-    }
-
-    // Determine the label
-    const progressLabel = isTonguePosition ? "1/3" :
-        props.title?.includes("3/3") ? "3/3" :
-            props.title?.includes("2/3") ? "2/3" : "1/3";
-
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // HEADER ROW CONFIGURATION
-    // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // Optimized layout for Vowel Shuffle with progress bar with label on right
-
-    const headerConfig = {
-        // Title config
-        titleAlignment: 'left' as const,
-        titleWidth: '280px',  // Increased width for title (was 180px)
-
-        // Progress bar config
-        progressBarWidth: '350px', // Slightly reduced from 400px to accommodate larger title
-        progressAlignment: 'flex-start' as const,
-
-        // Grid layout adjusted to provide more space for title
-        // Back button | Title | Progress Bar | Next button
-        gridTemplateColumns: '100px 280px minmax(200px, 1fr) 100px',
-
-        // Gap controls - use consistent values for all gaps
-        columnGap: '0.75rem',
-        titleProgressGap: '0.75rem', // Match columnGap for consistency
-        backTitleGap: '0.75rem',    // Match columnGap for consistency
-        progressNextGap: '0.75rem',  // Match columnGap for consistency
-
-        // No transform centering since we're using flex-start alignment
-        centerProgressBar: false
-    };
-
-    return (
-        <QuizLayout
-            {...props}
-            titleAlign="left"
-
-            variant="threeColumns"
-            slotDirections={['column', 'column']}
-            rowGap="normal"
-            headerConfig={headerConfig}
-            progressBar={
-                <QuizProgressBar
-                    value={progressValue}
-                    label={progressLabel}
-                    labelOnRight={true}
-                />
-            }
-        />
-    );
-}
-
-export function SpellAndTellLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections'>) {
-    return (
-        <QuizLayout
-            {...props}
-            variant="twoColumns"
-            slotDirections={['column', 'row']}
-        />
-    );
-}
-
-export function PairPlayLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections'>) {
-    return (
-        <QuizLayout
-            {...props}
-            variant="stacked"
-            slotDirections={['row', 'column', 'row']}
-        />
-    );
-}
-
-export function PhonicTrioLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections'>) {
-    return (
-        <QuizLayout
-            {...props}
-            variant="twoColumns"
-            slotDirections={['column', 'column']}
-        />
-    );
-}
-
-// ────────────────────────────────────────────────────────────
-// Simplified Intro Layout with minimal header (just back button and title)
-// ────────────────────────────────────────────────────────────
-
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Intro Layout Components
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const IntroWrapper = styled.div<{ rowGap?: string }>`
   display: flex;
   flex-direction: column;
   gap: ${({ theme, rowGap }) =>
-        rowGap
-            ? theme.heroGaps[rowGap as HeroGapKey]
-            : theme.spacing.large
-    };
+    rowGap && theme.heroGaps[rowGap as HeroGapKey]
+      ? theme.heroGaps[rowGap as HeroGapKey]
+      : theme.spacing.large};
   padding: ${({ theme }) => `${theme.spacing.xlarge} ${theme.spacing.xlarge}`};
   background-color: transparent;
   border-radius: ${({ theme }) => theme.borderRadius};
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
+  outline: ${({ theme }) => theme.debug.enabled ? theme.debug.outlines.container : 'none'};
   margin: 0 auto;
-  max-width: ${({ theme }) => theme.layout.maxContentWidth};
+  max-width: ${({ theme }) => theme.layout.maxWidth};
   width: 100%;
-  
-  /* Increase text size for all children */
   font-size: 1.25em;
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    padding: ${({ theme }) => theme.spacing.large};
+    font-size: 1em;
+  }
 `;
 
 const IntroHeaderRow = styled.div`
@@ -616,13 +446,11 @@ const IntroHeaderRow = styled.div`
   grid-template-columns: max-content 1fr max-content;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.medium};
-  outline: 2px dashed ${({ theme }) => theme.colors.secondary};
   min-height: 120px;
   margin-bottom: 1.5rem;
-
+  
   & > div {
     padding: ${({ theme }) => theme.spacing.small};
-    outline: 2px dashed ${({ theme }) => theme.colors.secondary};
     
     /* First and third div should have equal width */
     &:first-child, &:last-child {
@@ -639,6 +467,15 @@ const IntroHeaderRow = styled.div`
       height: 100%;
     }
   }
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    min-height: 80px;
+    grid-template-columns: max-content 1fr;
+    
+    & > div:last-child {
+      display: none;
+    }
+  }
 `;
 
 const LargeTitle = styled(PageTitle)`
@@ -647,52 +484,146 @@ const LargeTitle = styled(PageTitle)`
   line-height: 1.2;
   text-align: center;
   margin: 1rem 0;
+  
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    font-size: ${({ theme }) => theme.fontSizes.xxl};
+  }
 `;
 
-// Base layout for instruction/intro pages with simpler header
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Quiz Intro Layout Component
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const QuizIntroLayout: React.FC<Omit<QuizLayoutProps, 'quizStageLabel' | 'progressBar' | 'nextButton'>> = ({
-    title,
-    showBackButton = true,
-    variant = 'stacked',
-    slotDirections = [],
-    children,
-    titleAlign = 'center',
-    rowGap = 'normal',
-    ...props
+  title,
+  showBackButton = true,
+  variant = 'stacked',
+  slotDirections = [],
+  children,
+  titleAlign = 'center',
+  rowGap = 'normal',
+  ...props
 }) => {
-    const childrenArray = React.Children.toArray(children);
+  const childrenArray = React.Children.toArray(children);
 
-    return (
-        <IntroWrapper rowGap={rowGap}>
-            <IntroHeaderRow>
-                <div>{showBackButton ? 'Back' : null}</div>
-                <div><LargeTitle>{title}</LargeTitle></div>
-                <div>{/* Empty slot for balance - same width as back button */}</div>
-            </IntroHeaderRow>
+  return (
+    <IntroWrapper rowGap={rowGap as string}>
+      <IntroHeaderRow>
+        <div>{showBackButton ? <BackButton>Back</BackButton> : null}</div>
+        <div><LargeTitle>{title}</LargeTitle></div>
+        <div>{/* Empty slot for balance */}</div>
+      </IntroHeaderRow>
 
-            <ContentGrid
-                variant={variant}
-                style={{
-                    maxWidth: '1000px',
-                    margin: '0 auto 0',
-                    padding: '1.5rem 0'
-                }}
-            >
-                {childrenArray.map((child, idx) => (
-                    <Slot key={idx} direction={slotDirections[idx] || 'column'}>
-                        {child}
-                    </Slot>
-                ))}
-            </ContentGrid>
-        </IntroWrapper>
-    );
+      <ContentGrid
+        variant={variant}
+        style={{
+          maxWidth: '1000px',
+          margin: '0 auto',
+          padding: '1.5rem 0'
+        }}
+      >
+        {childrenArray.map((child, idx) => (
+          <Slot
+            key={idx}
+            direction={slotDirections[idx] || 'column'}
+            index={idx}
+          >
+            {child}
+          </Slot>
+        ))}
+      </ContentGrid>
+    </IntroWrapper>
+  );
 };
 
-// ────────────────────────────────────────────────────────────
-// Quiz Intro Layout Presets
-// ────────────────────────────────────────────────────────────
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Preset Layout Components
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Custom grid for VowelShuffleIntro with 2x2 instructions and centered button at bottom
+// VowelShuffleLayout: Optimized for vowel grid + spectrum + answer box
+export function VowelShuffleLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections'>) {
+  // Determine progress value based on quiz content and position
+  const isTonguePosition = props.quizStageLabel?.includes("Tongue Position");
+  let progressValue = 33.33; // Default to 33.33% for Tongue Position (first step)
+
+  if (props.title?.includes("3/3")) {
+    progressValue = 100;
+  } else if (props.title?.includes("2/3")) {
+    progressValue = 66.67;
+  }
+
+  // Determine the label
+  const progressLabel = isTonguePosition ? "1/3" :
+    props.title?.includes("3/3") ? "3/3" :
+      props.title?.includes("2/3") ? "2/3" : "1/3";
+
+  // Optimized header config for VowelShuffle
+  const headerConfig = {
+    titleAlignment: 'left' as const,
+    titleWidth: '280px',
+    progressBarWidth: '350px',
+    progressAlignment: 'flex-start' as const,
+    gridTemplateColumns: '100px 280px minmax(200px, 1fr) 100px',
+    columnGap: '0.75rem',
+    centerProgressBar: false
+  };
+
+  return (
+    <QuizLayout
+      {...props}
+      titleAlign="left"
+      variant="threeColumns"
+      slotDirections={['column', 'column']}
+      rowGap="normal"
+      headerConfig={headerConfig}
+      progressBar={
+        <QuizProgressBar
+          value={progressValue}
+          label={progressLabel}
+          labelOnRight={true}
+        />
+      }
+    />
+  );
+}
+
+// SpellAndTellLayout: Two-column layout for spelling exercises
+export function SpellAndTellLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections'>) {
+  return (
+    <QuizLayout
+      {...props}
+      variant="twoColumns"
+      slotDirections={['column', 'row']}
+    />
+  );
+}
+
+// PairPlayLayout: Stacked layout for pair matching exercises
+export function PairPlayLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections'>) {
+  return (
+    <QuizLayout
+      {...props}
+      variant="stacked"
+      slotDirections={['row', 'column', 'row']}
+    />
+  );
+}
+
+// PhonicTrioLayout: Two-column layout for phonics exercises
+export function PhonicTrioLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections'>) {
+  return (
+    <QuizLayout
+      {...props}
+      variant="twoColumns"
+      slotDirections={['column', 'column']}
+    />
+  );
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Intro Layout Presets
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+// VowelShuffleInstructionsGrid: 2x2 grid for instructions with centered button
 const VowelShuffleInstructionsGrid = styled.div`
   display: grid;
   grid-template-rows: auto auto;
@@ -718,38 +649,20 @@ const VowelShuffleInstructionsGrid = styled.div`
       align-items: center;
       justify-content: center;
       text-align: center;
+      padding: 1rem;
       
-      /* Apply the animation to each instruction box with a different delay */
-      animation: ${pulseAnimation} 4s infinite;
-      animation-play-state: paused;
-      transform-origin: center;
+      /* Add transition for hover effects */
+      transition: all 0.3s ease;
       
-      /* Only play animation on hover */
+      /* Hover effect */
       &:hover {
-        animation-play-state: running;
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       }
       
-      /* Add special focus outline for accessibility */
+      /* Focus effect for accessibility */
       &:focus-within {
         outline: 3px solid ${({ theme }) => theme.colors.primary};
-        animation: ${focusAnimation} 1.5s infinite;
-      }
-      
-      /* Stagger the animation for each box */
-      &:nth-child(1) {
-        animation-delay: 0s;
-      }
-      
-      &:nth-child(2) {
-        animation-delay: 0.5s;
-      }
-      
-      &:nth-child(3) {
-        animation-delay: 1s;
-      }
-      
-      &:nth-child(4) {
-        animation-delay: 1.5s;
       }
     }
   }
@@ -771,43 +684,65 @@ const VowelShuffleInstructionsGrid = styled.div`
       }
     }
   }
+  
+  /* Responsive adjustments */
+  @media ${({ theme }) => theme.media.mobile.replace('@media ', '')} {
+    padding: 1rem;
+    gap: 2rem;
+    
+    .instructions-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(4, auto);
+      gap: 1.5rem;
+    }
+    
+    .button-row {
+      margin-top: 1.5rem;
+    }
+  }
+  
+  @media ${({ theme }) => theme.media.tablet.replace('@media ', '')} {
+    .instructions-grid {
+      gap: 1.5rem;
+    }
+  }
 `;
 
 // VowelShuffleIntroLayout: Custom layout with 2x2 instruction grid and centered start button
 export function VowelShuffleIntroLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections' | 'quizStageLabel'>) {
-    return (
-        <QuizIntroLayout
-            {...props}
-            titleAlign="center"
-            variant="stacked"
-            slotDirections={['column']}
-        >
-            <VowelShuffleInstructionsGrid>
-                <div className="instructions-grid">
-                    {/* We're expecting the first child to be a fragment or array with 4 instruction boxes */}
-                    {props.children && React.Children.toArray(props.children)[0]}
-                </div>
-                <div className="button-row">
-                    {/* We're expecting the second child to be the start button */}
-                    {props.children && React.Children.toArray(props.children)[1]}
-                </div>
-            </VowelShuffleInstructionsGrid>
-        </QuizIntroLayout>
-    );
+  return (
+    <QuizIntroLayout
+      {...props}
+      titleAlign="center"
+      variant="stacked"
+      slotDirections={['column']}
+    >
+      <VowelShuffleInstructionsGrid>
+        <div className="instructions-grid">
+          {/* We're expecting the first child to be a fragment or array with 4 instruction boxes */}
+          {props.children && React.Children.toArray(props.children)[0]}
+        </div>
+        <div className="button-row">
+          {/* We're expecting the second child to be the start button */}
+          {props.children && React.Children.toArray(props.children)[1]}
+        </div>
+      </VowelShuffleInstructionsGrid>
+    </QuizIntroLayout>
+  );
 }
 
 // MinimalPairsIntroLayout: 2-column layout with instructions and examples
 export function MinimalPairsIntroLayout(props: Omit<QuizLayoutProps, 'variant' | 'slotDirections' | 'quizStageLabel'>) {
-    return (
-        <QuizIntroLayout
-            {...props}
-            titleAlign="center"
-            variant="twoColumns"
-            slotDirections={['column', 'column']}
-        >
-            {props.children}
-        </QuizIntroLayout>
-    );
+  return (
+    <QuizIntroLayout
+      {...props}
+      titleAlign="center"
+      variant="twoColumns"
+      slotDirections={['column', 'column']}
+    >
+      {props.children}
+    </QuizIntroLayout>
+  );
 }
 
 export default QuizLayout;
@@ -816,28 +751,46 @@ export default QuizLayout;
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  * USAGE EXAMPLES
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- * These examples demonstrate different ways to use the flexible configuration
- * system to achieve different layouts.
- *
- * Example 1: Default VowelShuffleLayout with optimal spacing
- * - Use the VowelShuffleLayout component directly
- * - Pass title and quizStageLabel props
- * - The component applies the optimized header layout automatically
- *
- * Example 2: Custom alignment with wider title area
- * - Use QuizLayout with threeColumns variant
- * - Configure headerConfig with:
- *   - titleAlignment: 'left'
- *   - titleWidth: '300px'
- *   - gridTemplateColumns: '100px 300px minmax(300px, 1fr) 100px'
- *   - columnGap: '0.25rem' for minimal gaps
- *   - titleProgressGap: '0' to remove gap after title
- *
- * Example 3: Completely custom spacing
- * - Define a custom headerConfig object
- * - Customize all spacing parameters:
- *   - Smaller elements: titleWidth, progressBarWidth
- *   - Custom grid layout: gridTemplateColumns
- *   - Fine-tuned gaps: backTitleGap, titleProgressGap, progressNextGap
- *   - Disable transform centering: centerProgressBar: false
+ * 
+ * Example 1: Default VowelShuffleLayout
+ * ```tsx
+ * <VowelShuffleLayout
+ *   title="Vowel Shuffle 1/3"
+ *   quizStageLabel="Tongue Position"
+ * >
+ *   <VowelGrid />
+ * </VowelShuffleLayout>
+ * ```
+ * 
+ * Example 2: Two-column layout with custom header
+ * ```tsx
+ * <QuizLayout
+ *   title="Minimal Pairs"
+ *   quizStageLabel="Listen and Choose"
+ *   variant="twoColumns"
+ *   slotDirections={['column', 'row']}
+ *   headerConfig={{
+ *     titleAlignment: 'left',
+ *     titleWidth: '300px',
+ *     progressBarWidth: '250px',
+ *     gridTemplateColumns: '100px 300px minmax(250px, 1fr) 100px'
+ *   }}
+ * >
+ *   <AudioPlayer />
+ *   <AnswerOptions />
+ * </QuizLayout>
+ * ```
+ * 
+ * Example 3: Intro layout with instructions
+ * ```tsx
+ * <VowelShuffleIntroLayout title="Vowel Shuffle Instructions">
+ *   <>
+ *     <InstructionBox>Step 1: Listen to the vowel sound</InstructionBox>
+ *     <InstructionBox>Step 2: Find the vowel on the grid</InstructionBox>
+ *     <InstructionBox>Step 3: Select the correct tongue position</InstructionBox>
+ *     <InstructionBox>Step 4: Submit your answer</InstructionBox>
+ *   </>
+ *   <Button>Start Exercise</Button>
+ * </VowelShuffleIntroLayout>
+ * ```
  */

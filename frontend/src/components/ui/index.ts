@@ -1,5 +1,4 @@
 // src/components/ui/index.ts
-export { default as Button } from './Button';
 export { default as QuizLayout } from './QuizLayout';
 export { default as LearnLayout } from './LearnLayout';
 export { HeroSection } from './HeroSection';
