@@ -46,76 +46,164 @@
  *  <Route path="/" element={<Layout />}>
  *    <Route index element={<HomePage />} />
  *    <Route path="learn" element={<LearnMenu />} />
- *    {/* ... /}
- *  </Route>
+ *    {/* ... 
+ *  </Route >
  *
  *  // to make a page full‑bleed:
- *  function FullWidthPage() {
+ * function FullWidthPage() {
  *    return (
- *      <Container fluid>
- *        <MyFullWidthContent />
- *      </Container>
- *    );
+ * <Container fluid>
+        *        <MyFullWidthContent />
+        *      </Container>
+      *    );
  *  }
- */
+  */
 
 import { Outlet } from 'react-router-dom';
-import styled, { DefaultTheme } from 'styled-components';
-import Navbar from './Navbar';
+import styled, { DefaultTheme, useTheme } from 'styled-components';
+import Header from './Header';
 import Footer from './Footer';
 
+// Debug label component to show component names when debugging
+const DebugLabel = styled.div<{ enabled: boolean; position: string }>`
+  display: ${({ enabled }) => (enabled ? 'block' : 'none')};
+  position: absolute;
+  ${({ position }) => {
+    switch (position) {
+      case 'top-right':
+        return 'top: 0; right: 0;';
+      case 'bottom-left':
+        return 'bottom: 0; left: 0;';
+      case 'bottom-right':
+        return 'bottom: 0; right: 0;';
+      case 'top-left':
+      default:
+        return 'top: 0; left: 0;';
+    }
+  }}
+  font-size: ${({ theme }) => theme.debug?.labels?.fontSize || '10px'};
+  background: ${({ theme }) => theme.debug?.labels?.background || 'rgba(0, 0, 0, 0.7)'};
+  color: ${({ theme }) => theme.debug?.labels?.color || 'white'};
+  padding: ${({ theme }) => theme.debug?.labels?.padding || '2px 4px'};
+  border-radius: ${({ theme }) => theme.debug?.labels?.borderRadius || '2px'};
+  z-index: ${({ theme }) => theme.debug?.zIndex || 9999};
+  pointer-events: none;
+`;
 
 interface ContainerProps {
   fluid?: boolean;
 }
 
-
 const Page = styled.div`
+  /* Debug outline */
+  outline: ${({ theme }) =>
+    theme.debug?.enabled
+      ? theme.debug.outlines.container
+      : 'none'
+  };
+  position: relative; /* For debug label positioning */
+  
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background: ${({ theme }) => theme.colors.background};
 `;
 
+const SkipLink = styled.a`
+  position: absolute;
+  top: -40px;
+  left: 0;
+  padding: 8px;
+  background: ${({ theme }) => theme.colors.primary};
+  color: white;
+  z-index: 100;
+  transition: top 0.2s;
+  
+  &:focus {
+    top: 0;
+  }
+`;
+
 const Main = styled.main`
+  /* Debug outline */
+  outline: ${({ theme }) =>
+    theme.debug?.enabled
+      ? theme.debug.outlines.component
+      : 'none'
+  };
+  position: relative; /* For debug label positioning */
+  
   flex: 1;
   /* push content below navbar plus extra gutter */
-  padding-top: calc(
-    ${({ theme }) => theme.layout.headerHeight} + 
-    ${({ theme }) => theme.spacing.large}
-  );
+  padding-top: calc(70px + ${({ theme }) => theme.spacing.large});
 `;
 
 const Container = styled.div<ContainerProps>`
+  /* Debug outline */
+  outline: ${({ theme }) =>
+    theme.debug?.enabled
+      ? theme.debug.outlines.grid
+      : 'none'
+  };
+  position: relative; /* For debug label positioning */
+  
   width: 100%;
+  padding: 0 ${({ theme }) => theme.spacing.small};
+  padding-left: max(${({ theme }) => theme.spacing.small}, env(safe-area-inset-left));
+  padding-right: max(${({ theme }) => theme.spacing.small}, env(safe-area-inset-right));
+  
+  /* Mobile-first approach - start with mobile styles and scale up */
   ${({ fluid, theme }: ContainerProps & { theme: DefaultTheme }) =>
-    fluid
-      ? ``
-      : `max-width: ${theme.layout.maxContentWidth};`}
-
-  margin: 0 auto;
-  padding: 0 ${({ theme }) => theme.layout.gutter};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    !fluid && `max-width: ${theme.layout.maxWidth.large}; margin: 0 auto;`}
+  
+  /* Tablet breakpoint */
+  @media (min-width: ${({ theme }) => theme.breakpoints.mobile}) {
     padding: 0 ${({ theme }) => theme.spacing.medium};
   }
-  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
-    padding: 0 ${({ theme }) => theme.spacing.small};
+  
+  /* Desktop breakpoint */
+  @media (min-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    padding: 0 ${({ theme }) => theme.layout.containerPadding.desktop};
   }
 `;
 
+// Export the Container component so it can be used elsewhere
+export const LayoutContainer = Container;
+
 export default function Layout() {
+  const theme = useTheme();
+  const debugEnabled = theme.debug?.enabled && theme.debug?.labels?.enabled;
+  const labelPosition = theme.debug?.labels?.position || 'top-left';
+
   return (
     <Page>
-      <Navbar />
-      <Main>
+      {debugEnabled && (
+        <DebugLabel enabled={debugEnabled} position={labelPosition}>
+          Page
+        </DebugLabel>
+      )}
+
+      <SkipLink href="#main-content">Skip to content</SkipLink>
+      <Header />
+
+      <Main id="main-content" role="main">
+        {debugEnabled && (
+          <DebugLabel enabled={debugEnabled} position={labelPosition}>
+            Main
+          </DebugLabel>
+        )}
+
         <Container>
+          {debugEnabled && (
+            <DebugLabel enabled={debugEnabled} position={labelPosition}>
+              Container
+            </DebugLabel>
+          )}
           <Outlet />
         </Container>
       </Main>
+
       <Footer />
     </Page>
   );
 }
-
-export { Container };

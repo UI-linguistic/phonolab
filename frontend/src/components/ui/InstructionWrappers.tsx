@@ -1,37 +1,59 @@
-import React from 'react'
-import { InstructionBox } from './InstructionBox'
-import { Text } from '@components/typography/PageTypography'
-import { Cell } from '@components/display'
+import React from 'react';
+import { InstructionBox } from './InstructionBox';
+import { Text } from '../typography/PageTypography';
+import styled from 'styled-components';
+
+// Responsive container for instruction groups
+const ResponsiveInstructionContainer = styled.div`
+  display: grid;
+  gap: ${({ theme }) => theme.spacing.medium};
+  width: 100%;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    gap: ${({ theme }) => theme.spacing.small};
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    gap: ${({ theme }) => theme.spacing.xsmall};
+  }
+`;
 
 export function Vowels101Instructions() {
     return (
-        <>
+        <ResponsiveInstructionContainer>
             <InstructionBox variant="transparent"> </InstructionBox>
-            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
-                Vowels are distinguished by the part of the tongue used to make the sound (
-                <Text variant="layoutInstruction" color="secondaryAccent" weight="bold">
-                    front to back
-                </Text>
-                )…
-            </InstructionBox >
-
-
-            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
-                And the placement of the tongue relative to the roof of the mouth (
-                <Text variant="layoutInstruction" color="primary" weight="bold">
-                    high to low
-                </Text>
-                ).
-            </InstructionBox >
-
-            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
-                <Text variant="layoutInstruction" weight="bold">Click </Text>
-                <Text variant="layoutInstruction" weight="normal">
-                    a vowel in the grid to hear it and learn how to place your tongue!
-                </Text>
+            <InstructionBox
+                variant="transparent"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                Vowels are distinguished by the part of the tongue used to make the sound ([secondary]front to back[/secondary])…
             </InstructionBox>
-        </>
-    )
+            <InstructionBox
+                variant="transparent"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                And the placement of the tongue relative to the roof of the mouth ([primary]high to low[/primary]).
+            </InstructionBox>
+            <InstructionBox
+                variant="transparent"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                [bold]Click[/bold] a vowel in the grid to hear it and learn how to place your tongue!
+            </InstructionBox>
+        </ResponsiveInstructionContainer>
+    );
 }
 
 /**
@@ -40,31 +62,38 @@ export function Vowels101Instructions() {
  */
 export function TonguePositionInstructions() {
     return (
-        <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
-            <div style={{ textAlign: 'left', width: '100%' }}>
-                <p>
-                    Vowels are distinguished by the part of the tongue used to make the sound (
-                    <Text variant="layoutInstruction" color="secondaryAccent" weight="bold">
-                        front to back
-                    </Text>
-                    )...
-                </p>
-
-                <p style={{ marginTop: '1rem' }}>
-                    And the placement of the tongue relative to the roof of the mouth (
-                    <Text variant="layoutInstruction" color="primary" weight="bold">
-                        high to low
-                    </Text>
-                    ).
-                </p>
-
-                <p style={{ marginTop: '1rem' }}>
-                    <Text variant="layoutInstruction" weight="bold">Click </Text>
-                    a vowel in the grid to hear it and learn how to place your tongue!
-                </p>
-            </div>
-        </InstructionBox>
-    )
+        <ResponsiveInstructionContainer>
+            <InstructionBox
+                variant="transparent"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                Vowels are distinguished by the part of the tongue used to make the sound ([secondary]front to back[/secondary])...
+            </InstructionBox>
+            <InstructionBox
+                variant="transparent"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                And the placement of the tongue relative to the roof of the mouth ([primary]high to low[/primary]).
+            </InstructionBox>
+            <InstructionBox
+                variant="transparent"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    align: 'left'
+                }}
+            >
+                [bold]Click[/bold] a vowel in the grid to hear it and learn how to place your tongue!
+            </InstructionBox>
+        </ResponsiveInstructionContainer>
+    );
 }
 
 /**
@@ -73,143 +102,288 @@ export function TonguePositionInstructions() {
  */
 export function LengthInstructions() {
     return (
-        <InstructionBox variant="default" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
-            <div style={{ textAlign: 'left', width: '100%' }}>
-                <p>
-                    <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
-                        Long
-                    </Text>
-                    {' '}vowels are called{' '}
-                    <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
-                        tense
-                    </Text>
-                    .
-                </p>
-
-                <p style={{ marginTop: '1rem' }}>
-                    <Text as="span" variant="layoutInstruction" color="primary" weight="bold">
-                        Short
-                    </Text>
-                    {' '}vowels are called{' '}
-                    <Text as="span" variant="layoutInstruction" color="primary" weight="bold">
-                        lax
-                    </Text>
-                    .
-                </p>
-            </div>
-        </InstructionBox>
-    )
-}
-
-export function VowelShuffleInstructions() {
-    return (
-        <>
-            <InstructionBox variant="default" textProps={{ variant: 'instruction', weight: 'bold', align: 'center' }}>
-                You will be shown the three vowel categories:
-                <Text as="span" variant="instruction" color="secondaryAccent" align="center" weight="bold"> tongue position</Text>,
-                <Text as="span" variant="instruction" color="secondaryAccent" align="center" weight="bold"> lip shape</Text>, and
-                <Text as="span" variant="instruction" color="secondaryAccent" align="center" weight="bold"> length</Text>.
+        <ResponsiveInstructionContainer>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                [secondary]Long[/secondary] vowels are held for a longer duration than [primary]short[/primary] vowels.
             </InstructionBox>
-
-            <InstructionBox variant="default" textProps={{ variant: 'instruction', weight: 'bold', align: 'center' }}>
-                However, the vowels are all out of order. Your job is to
-                <Text as="span" variant="instruction" weight="bold"> sort</Text> the blocks.
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                In English, vowel length is often indicated by spelling patterns, like the silent 'e' in 'bite' vs 'bit'.
             </InstructionBox>
-
-            <InstructionBox variant="default" textProps={{ variant: 'instruction', weight: 'bold', align: 'center' }}>
-                <Text as="span" variant="instruction" color="accent" weight="bold">Drag</Text> the vowel blocks to their correct positions.
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    align: 'left'
+                }}
+            >
+                [bold]Click[/bold] on the vowel pairs to hear the difference between long and short vowels!
             </InstructionBox>
-
-            <InstructionBox variant="default" textProps={{ variant: 'instruction', weight: 'bold', align: 'center' }}>
-                Press <Text as="span" variant="instruction" color="primary" weight="bold">Submit</Text> to check your work.
-            </InstructionBox>
-        </>
-    )
-}
-
-
-export function HomophonesInstructions() {
-    return (
-        <>
-            {/* no border, no bg for the label */}
-            <InstructionBox variant="transparent" textProps={{ variant: 'instruction' }}>
-                Homophones share <Text as="span" weight="bold">sound.</Text>
-            </InstructionBox>
-
-            {/* two example boxes with border+bg */}
-            <InstructionBox variant="default" textProps={{ variant: 'label' }}>
-                blue {/* or a <VowelCard word="blue"/> */}
-            </InstructionBox>
-            <InstructionBox variant="default" textProps={{ variant: 'label' }}>
-                blew
-            </InstructionBox>
-
-            {/* footer */}
-            <InstructionBox variant="transparent" textProps={{ variant: 'caption', color: 'textSubtle' }}>
-                Click to hear vowel sounds!
-            </InstructionBox>
-        </>
-    )
-}
-
-
-export function PhonicTrioInstructions() {
-    const base = { variant: 'instruction', weight: 'bold' } as const
-
-    return (
-        <>
-            <InstructionBox variant="default" textProps={base}>
-                You will be shown a target <Text as="span" color="primary" decoration="underline">vowel sound</Text> and <Text as="span" decoration="underline">English word</Text> that uses it.
-            </InstructionBox>
-
-            <InstructionBox variant="default" textProps={base}>
-                Your task is to choose the <Text as="span" color="secondaryAccent" decoration="underline">three</Text> words in other languages that use the same vowel <Text as="span" decoration="underline">by ear</Text>.
-            </InstructionBox>
-
-            <InstructionBox variant="default" textProps={base}>
-                You only have <Text as="span" color="secondaryAccent" decoration="underline">five seconds</Text> to make a selection, so pay careful attention!
-            </InstructionBox>
-
-            <InstructionBox variant="default" textProps={base}>
-                Turn up your audio and watch the numbers associated with each word closely!
-            </InstructionBox>
-        </>
-    )
+        </ResponsiveInstructionContainer>
+    );
 }
 
 /**
- * LipShapeInstructions - Bordered version for the lip shape section
+ * TensionInstructions - Bordered version for the tension section
  * Text is left-aligned with colored highlights
  */
-export function LipShapeInstructions() {
+export function TensionInstructions() {
     return (
-        <InstructionBox variant="default" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
-            <div style={{ textAlign: 'left', width: '100%' }}>
-                <p>
-                    Vowels can also be distinguished by{' '}
-                    <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
-                        lip shape
-                    </Text>
-                    .
-                </p>
-
-                <p style={{ marginTop: '1rem' }}>
-                    Your lips can be{' '}
-                    <Text as="span" variant="layoutInstruction" color="primary" weight="bold">
-                        rounded
-                    </Text>
-                    {' '}or{' '}
-                    <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
-                        unrounded
-                    </Text>
-                    {' '}when making vowel sounds.
-                </p>
-
-                <p style={{ marginTop: '1rem' }}>
-                    <Text as="span" variant="layoutInstruction" weight="bold">Click </Text>
-                    on the lip shape images to see examples and hear the sounds.
-                </p>
-            </div>
-        </InstructionBox>
-    )
+        <ResponsiveInstructionContainer>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                [secondary]Tense[/secondary] vowels are produced with more muscle tension in the tongue and mouth.
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                [primary]Lax[/primary] vowels are produced with less tension and often sound more relaxed.
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    align: 'left'
+                }}
+            >
+                [bold]Click[/bold] on the vowel pairs to feel the difference in tension when pronouncing them!
+            </InstructionBox>
+        </ResponsiveInstructionContainer>
+    );
 }
+
+/**
+ * DiphthongInstructions - Bordered version for the diphthong section
+ * Text is left-aligned with colored highlights
+ */
+export function DiphthongInstructions() {
+    return (
+        <ResponsiveInstructionContainer>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                [secondary]Diphthongs[/secondary] are vowel sounds that involve a movement from one vowel position to another.
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                They create a smooth transition between two vowel sounds within a single syllable.
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    align: 'left'
+                }}
+            >
+                [bold]Click[/bold] on each diphthong to hear the sound and see the tongue movement animation!
+            </InstructionBox>
+        </ResponsiveInstructionContainer>
+    );
+}
+
+/**
+ * PracticeInstructions - Bordered version for the practice section
+ * Text is left-aligned with colored highlights
+ */
+export function PracticeInstructions() {
+    return (
+        <ResponsiveInstructionContainer>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                Now it's time to [primary]practice[/primary] what you've learned!
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                Listen to the audio examples and try to identify the vowel sounds based on tongue position, length, and tension.
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    align: 'left'
+                }}
+            >
+                [bold]Click[/bold] the play button to hear each word, then select the correct vowel sound from the options.
+            </InstructionBox>
+        </ResponsiveInstructionContainer>
+    );
+}
+
+/**
+ * MinimalPairsInstructions - Bordered version for the minimal pairs section
+ * Text is left-aligned with colored highlights
+ */
+export function MinimalPairsInstructions() {
+    return (
+        <ResponsiveInstructionContainer>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                [secondary]Minimal pairs[/secondary] are words that differ by only one sound, making them perfect for training your ear.
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                Listen carefully to distinguish between similar-sounding vowels like in "ship" vs "sheep" or "bit" vs "beat".
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    align: 'left'
+                }}
+            >
+                [bold]Click[/bold] on each pair to hear the difference, then practice saying them yourself!
+            </InstructionBox>
+        </ResponsiveInstructionContainer>
+    );
+}
+
+/**
+ * SummaryInstructions - Clean version for the summary section
+ * Text is centered with colored highlights
+ */
+export function SummaryInstructions() {
+    return (
+        <ResponsiveInstructionContainer>
+            <InstructionBox
+                variant="noBorder"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'center'
+                }}
+            >
+                [primary]Congratulations![/primary] You've completed the vowel sounds tutorial.
+            </InstructionBox>
+            <InstructionBox
+                variant="noBorder"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'center'
+                }}
+            >
+                Remember to practice regularly to improve your pronunciation and listening skills.
+            </InstructionBox>
+            <InstructionBox
+                variant="noBorder"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    align: 'center'
+                }}
+            >
+                [bold]Continue[/bold] to the next module to learn about consonant sounds!
+            </InstructionBox>
+        </ResponsiveInstructionContainer>
+    );
+}
+
+/**
+ * QuizInstructions - Bordered version for the quiz section
+ * Text is left-aligned with colored highlights
+ */
+export function QuizInstructions() {
+    return (
+        <ResponsiveInstructionContainer>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                Let's test your knowledge with a quick [secondary]quiz[/secondary]!
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    weight: 'bold',
+                    align: 'left'
+                }}
+            >
+                Listen to each audio clip and identify the vowel sound based on what you've learned.
+            </InstructionBox>
+            <InstructionBox
+                variant="default"
+                textProps={{
+                    variant: 'layoutInstruction',
+                    align: 'left'
+                }}
+            >
+                [bold]Select[/bold] the correct answer from the options provided for each question.
+            </InstructionBox>
+        </ResponsiveInstructionContainer>
+    );
+}
+
+export default {
+    Vowels101Instructions,
+    TonguePositionInstructions,
+    LengthInstructions,
+    TensionInstructions,
+    DiphthongInstructions,
+    PracticeInstructions,
+    MinimalPairsInstructions,
+    SummaryInstructions,
+    QuizInstructions,
+};

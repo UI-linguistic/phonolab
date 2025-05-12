@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { Box, Center } from '@mantine/core';
 import { Text } from '@components/typography/PageTypography';
-import { Vowels101Instructions } from '@components/ui/InstructionWrappers';
+import { TonguePositionInstructions, Vowels101Instructions } from '@components/ui/InstructionWrappers';
 import { MediaCell } from '@components/display';
 import styled from 'styled-components';
 import TongueGrid from './TongueGrid';
@@ -205,7 +205,7 @@ export default function TongueSection() {
 
     // Memoize the sections to prevent unnecessary re-renders
     const instructionsSection = useMemo(() => (
-        <Vowels101Instructions />
+        <TonguePositionInstructions />
     ), []);
 
     const gridSection = useMemo(() => (

@@ -54,7 +54,11 @@ const mantineTheme: MantineThemeOverride = {
     // 4) Typography
     // ────────────────────────────────────────────────────────────
     fontFamily: scTheme.fonts.inter,
-    headings: { fontFamily: scTheme.fonts.poppins },
+    headings: {
+        fontFamily: scTheme.fonts.poppins,
+        // Set font weights for headings
+        fontWeight: scTheme.fontWeights.bold
+    },
 
     fontSizes: {
         xs: remToPx(scTheme.fontSizes.xs),
@@ -63,24 +67,22 @@ const mantineTheme: MantineThemeOverride = {
         lg: remToPx(scTheme.fontSizes.lg),
         xl: remToPx(scTheme.fontSizes.xl),
         xxl: remToPx(scTheme.fontSizes.xxl),
+        // Add xxxl size that exists in our theme
+        xxxl: remToPx(scTheme.fontSizes.xxxl),
     },
 
     lineHeights: {
-        xs: scTheme.lineHeights.xs.toString(),
-        sm: scTheme.lineHeights.sm.toString(),
-        md: scTheme.lineHeights.md.toString(),
-        lg: scTheme.lineHeights.lg.toString(),
-        xl: scTheme.lineHeights.xl.toString(),
-        xxl: scTheme.lineHeights.xxl.toString(),
+        xs: scTheme.lineHeights.xs,
+        sm: scTheme.lineHeights.sm,
+        md: scTheme.lineHeights.md,
+        lg: scTheme.lineHeights.lg,
+        xl: scTheme.lineHeights.xl,
+        xxl: scTheme.lineHeights.xxl,
     },
 
-    // fontWeights: {
-    //     light: scTheme.fontWeights.light.toString(),
-    //     normal: scTheme.fontWeights.normal.toString(),
-    //     medium: scTheme.fontWeights.medium.toString(),
-    //     bold: scTheme.fontWeights.bold.toString(),
-    //     extrabold: scTheme.fontWeights.extrabold.toString(),
-    // },
+    // Font weights are passed to Mantine through other properties (headings, etc.)
+    // and not directly as a fontWeights property.
+
     // ────────────────────────────────────────────────────────────
     // 5) Shadows, zIndex, transitions, opacity
     // ────────────────────────────────────────────────────────────
@@ -105,6 +107,14 @@ const mantineTheme: MantineThemeOverride = {
     heroGaps: scTheme.heroGaps as HeroGaps,
     // @ts-ignore
     layout: scTheme.layout,
+    // @ts-ignore
+    tongueGrid: scTheme.tongueGrid,
+    // @ts-ignore
+    quiz: scTheme.quiz,
+    // @ts-ignore
+    transitions: scTheme.transitions,
+    // @ts-ignore: passing our fontWeights through for custom components
+    fontWeightValues: scTheme.fontWeights,
 };
 
 export default mantineTheme;

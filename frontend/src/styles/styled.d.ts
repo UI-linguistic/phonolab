@@ -1,25 +1,40 @@
 import 'styled-components';
 
+// Define types for fluid typography values
+type FluidTypography = {
+  min: string;
+  fluid: string;
+  max: string;
+};
+
+// Define types for typography entries
+type TypographyEntry = [string, FluidTypography, string, string];
+
+// Define hero gaps type
+type HeroGaps = {
+  tight: string;
+  normal: string;
+  wide: string;
+};
+
 declare module 'styled-components' {
   export interface DefaultTheme {
+    // ────────────────────────────────────────────────────────────
+    // Colors
+    // ────────────────────────────────────────────────────────────
     colors: {
       backgroundAccent: string;
       primary: string;
       secondary: string;
       tertiary: string;
-
       cellHoverPrimary: string;
       cellHoverSecondary: string;
-
       cellActivePrimary: string;
       cellActiveSecondary: string;
-
       vowelHoverPrimary: string;
       vowelHoverSecondary: string;
-
       vowelActivePrimary: string;
       vowelActiveSecondary: string;
-
       accent: string;
       secondaryAccent: string;
       background: string;
@@ -31,53 +46,65 @@ declare module 'styled-components' {
       greyLight: string;
       grey: string;
       greyDark: string;
-
       // Quiz-specific colors
       quizSectionTitle: string;
       quizSectionSubtitle: string;
       quizNavigationHover: string;
-
       // Quiz answer feedback colors
       answerCorrect: string;
       answerIncorrect: string;
       answerIncorrectX: string;
-
       // Component-specific backgrounds
       graphemeBoxBackground: string;
+      // Tongue grid specific colors
+      tongueGridFront: string;
+      tongueGridHigh: string;
+      tongueGridArrow: string;
+      tongueGridBorder: string;
+      tongueGridCellActive: string;
+      tongueGridCellHover: string;
+      tongueGridVowelActive: string;
+      tongueGridVowelHover: string;
     };
 
+    // ────────────────────────────────────────────────────────────
+    // Typography
+    // ────────────────────────────────────────────────────────────
     typography: {
-      title: [string, { min: string; fluid: string; max: string }, number, string];
-      subtitle: [string, { min: string; fluid: string; max: string }, number, string];
-      body: [string, { min: string; fluid: string; max: string }, number, string];
-      label: [string, { min: string; fluid: string; max: string }, number, string];
-      instruction: [string, { min: string; fluid: string; max: string }, number, string];
-      caption: [string, { min: string; fluid: string; max: string }, number, string];
-      layoutTitle: [string, { min: string; fluid: string; max: string }, number, string];
-      layoutSubtitle: [string, { min: string; fluid: string; max: string }, number, string];
-      layoutInstruction: [string, { min: string; fluid: string; max: string }, number, string];
-      layoutQuizTitle: [string, { min: string; fluid: string; max: string }, number, string];
-      layoutQuizInstruction: [string, { min: string; fluid: string; max: string }, number, string];
-      gridPhoneme: [string, { min: string; fluid: string; max: string }, number, string];
-      heroTitle: [string, { min: string; fluid: string; max: string }, number, string];
-      heroSubtitle: [string, { min: string; fluid: string; max: string }, number, string];
-      heroInstruction: [string, { min: string; fluid: string; max: string }, number, string];
-      quizTitle: [string, { min: string; fluid: string; max: string }, number, string];
-      quizSubtitle: [string, { min: string; fluid: string; max: string }, number, string];
-      quizInstruction: [string, { min: string; fluid: string; max: string }, number, string];
+      title: TypographyEntry;
+      subtitle: TypographyEntry;
+      body: TypographyEntry;
+      label: TypographyEntry;
+      instruction: TypographyEntry;
+      caption: TypographyEntry;
+      layoutTitle: TypographyEntry;
+      layoutSubtitle: TypographyEntry;
+      layoutInstruction: TypographyEntry;
+      layoutQuizTitle: TypographyEntry;
+      layoutQuizInstruction: TypographyEntry;
+      gridPhoneme: TypographyEntry;
+      heroTitle: TypographyEntry;
+      heroSubtitle: TypographyEntry;
+      heroInstruction: TypographyEntry;
+      quizTitle: TypographyEntry;
+      quizSubtitle: TypographyEntry;
+      quizInstruction: TypographyEntry;
     };
 
+    // ────────────────────────────────────────────────────────────
+    // Font families & weights
+    // ────────────────────────────────────────────────────────────
     fonts: {
       inter: string;
       poppins: string;
     };
 
     fontWeights: {
-      light: number;
-      normal: number;
-      medium: number;
-      bold: number;
-      extrabold: number;
+      light: string;
+      normal: string;
+      medium: string;
+      bold: string;
+      extrabold: string;
     };
 
     fontSizes: {
@@ -89,34 +116,43 @@ declare module 'styled-components' {
       xxl: string;
       xxxl: string;
     };
+
     lineHeights: {
-      xs: number;
-      sm: number;
-      md: number;
-      lg: number;
-      xl: number;
-      xxl: number;
+      xs: string;
+      sm: string;
+      md: string;
+      lg: string;
+      xl: string;
+      xxl: string;
     };
 
+    // ────────────────────────────────────────────────────────────
+    // Spacing & Layout
+    // ────────────────────────────────────────────────────────────
     spacing: {
       xsmall: string;
       small: string;
       medium: string;
       large: string;
       xlarge: string;
-    };
-    heroGaps: {
-      tight: string;
-      normal: string;
-      wide: string;
+      responsive: {
+        small: string;
+        medium: string;
+        large: string;
+        xlarge: string;
+      }
     };
 
+    heroGaps: HeroGaps;
+
     borderRadius: string;
+
     borderWidths: {
       thin: string;
       default: string;
       thick: string;
     };
+
     border: {
       default: string;
       subtle: string;
@@ -127,24 +163,16 @@ declare module 'styled-components' {
       low: string;
       medium: string;
       high: string;
-    };
-    layers: {
-      base: number;
-      dropdown: number;
-      modal: number;
-      tooltip: number;
-    };
-
-    opacity: {
-      low: number;
-      medium: number;
-      high: number;
+      mobile: {
+        low: string;
+        medium: string;
+        high: string;
+      }
     };
 
-    transitions: {
-      default: string;
-    };
-
+    // ────────────────────────────────────────────────────────────
+    // Responsive breakpoints
+    // ────────────────────────────────────────────────────────────
     breakpoints: {
       mobile: string;
       tablet: string;
@@ -152,27 +180,198 @@ declare module 'styled-components' {
       widescreen: string;
     };
 
+    media: {
+      mobile: string;
+      tablet: string;
+      desktop: string;
+      widescreen: string;
+      hover: string;
+      reducedMotion: string;
+      darkMode: string;
+    };
+
+    // ────────────────────────────────────────────────────────────
+    // Layout
+    // ────────────────────────────────────────────────────────────
     layout: {
-      gutter: string;
-      headerHeight: string;
-      footerHeight: string;
-      maxContentWidth: string;
+      containerPadding: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+        widescreen: string;
+      };
+      maxWidth: {
+        small: string;
+        medium: string;
+        large: string;
+        xlarge: string;
+      };
+      grid: {
+        columns: {
+          mobile: number;
+          tablet: number;
+          desktop: number;
+          widescreen: number;
+        };
+        gap: {
+          mobile: string;
+          tablet: string;
+          desktop: string;
+          widescreen: string;
+        };
+      };
+      sectionSpacing: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+      };
+      componentSpacing: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+      };
+      footerHeight: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+        widescreen: string;
+      };
     };
 
-    mediaSizes: {
-      xsmall: string;
-      small: string;
+    // ────────────────────────────────────────────────────────────
+    // Transitions & Animations
+    // ────────────────────────────────────────────────────────────
+    transitions: {
+      short: string;
       medium: string;
-      large: string;
-      xlarge: string;
+      long: string;
+      reducedMotion: {
+        short: string;
+        medium: string;
+        long: string;
+      };
     };
 
-    // Progress bar configuration
-    progressBar: {
-      height: string;
-      borderRadius?: string;
+    // ────────────────────────────────────────────────────────────
+    // Z-index layers
+    // ────────────────────────────────────────────────────────────
+    zIndex: {
+      base: number;
+      content: number;
+      navigation: number;
+      overlay: number;
+      modal: number;
+      toast: number;
+      tooltip: number;
     };
 
-    debugOutline?: boolean;
+    // ────────────────────────────────────────────────────────────
+    // Touch targets
+    // ────────────────────────────────────────────────────────────
+    touchTargets: {
+      min: string;
+      icon: {
+        small: string;
+        medium: string;
+        large: string;
+      };
+      button: {
+        small: string;
+        medium: string;
+        large: string;
+      };
+    };
+
+    // ────────────────────────────────────────────────────────────
+    // Aspect ratios
+    // ────────────────────────────────────────────────────────────
+    aspectRatios: {
+      square: string;
+      portrait: string;
+      landscape: string;
+      widescreen: string;
+      ultrawide: string;
+    };
+
+    // ────────────────────────────────────────────────────────────
+    // Tongue grid settings
+    // ────────────────────────────────────────────────────────────
+    tongueGrid: {
+      cellSize: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+      };
+      gap: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+      };
+      borderRadius: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+      };
+    };
+
+    // ────────────────────────────────────────────────────────────
+    // Quiz-specific settings
+    // ────────────────────────────────────────────────────────────
+    quiz: {
+      optionSize: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+      };
+      feedbackIconSize: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+      };
+      navigationButtonSize: {
+        mobile: string;
+        tablet: string;
+        desktop: string;
+      };
+    };
+
+    // ────────────────────────────────────────────────────────────
+    // Debug settings
+    // ────────────────────────────────────────────────────────────
+    debug: {
+      enabled: boolean;
+      outlines: {
+        container: string;
+
+        component: string;
+
+        element: string;
+        grid: string;
+        cell: string;
+        focus: string;
+      },
+
+      grid: {
+
+        background: string;
+
+        alternateRows: string;
+      },
+
+      zIndex: number;
+
+      labels: {
+        enabled: true,
+        fontSize: string;
+        background: string;
+        color: string;
+        padding: string;
+        borderRadius: string;
+        position: string;
+      },
+    },
+
   }
 }
+
+export default styled;

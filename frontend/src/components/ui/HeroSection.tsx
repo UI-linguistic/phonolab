@@ -12,7 +12,7 @@
  *  - Optional `maxWidth` prop to cap overall width and center via margin: auto
  *  - Vertical padding via theme.spacing.large
  *  - Tablet breakpoint switches to single‑column with row‑gap
- *  - Debug outline always visible with dashed border
+ *  - Debug outline and labels when debug mode is enabled
  *
  * HeroTemplate Props:
  *  • title          string                                   — main heading text
@@ -59,6 +59,32 @@ import {
 } from '../ui/IllustrationWrappers';
 import { Size } from '../ui/Menu';
 
+// Debug label component for showing component names in debug mode
+const DebugLabel = styled.div<{ enabled: boolean; position: string }>`
+  display: ${({ enabled }) => (enabled ? 'block' : 'none')};
+  position: absolute;
+  ${({ position }) => {
+    switch (position) {
+      case 'top-right':
+        return 'top: 0; right: 0;';
+      case 'bottom-left':
+        return 'bottom: 0; left: 0;';
+      case 'bottom-right':
+        return 'bottom: 0; right: 0;';
+      case 'top-left':
+      default:
+        return 'top: 0; left: 0;';
+    }
+  }}
+  font-size: ${({ theme }) => theme.debug?.labels?.fontSize || '10px'};
+  background: ${({ theme }) => theme.debug?.labels?.background || 'rgba(0, 0, 0, 0.7)'};
+  color: ${({ theme }) => theme.debug?.labels?.color || 'white'};
+  padding: ${({ theme }) => theme.debug?.labels?.padding || '2px 4px'};
+  border-radius: ${({ theme }) => theme.debug?.labels?.borderRadius || '2px'};
+  z-index: ${({ theme }) => theme.debug?.zIndex || 9999};
+  pointer-events: none;
+`;
+
 type HeroSectionProps = {
   /** choose one of theme.heroGaps keys */
   $gapScale?: keyof import('../../styles/theme').HeroGaps;
@@ -70,7 +96,14 @@ type HeroSectionProps = {
 // Generic Hero Layout
 // ────────────────────────────────────────────────────────────
 export const HeroSection = styled.section<HeroSectionProps>`
-  outline: ${({ theme }) => theme.debugOutline ? '2px dashed rgba(207, 48, 42, 0.6)' : 'none'};
+  /* Debug outline */
+  outline: ${({ theme }) =>
+    theme.debug?.enabled
+      ? theme.debug.outlines.component
+      : 'none'
+  };
+  position: relative; /* For debug label positioning */
+  
   max-width: ${({ $maxWidth = '100%' }) => $maxWidth};
   margin: 0 auto;
   display: grid;
@@ -78,31 +111,64 @@ export const HeroSection = styled.section<HeroSectionProps>`
   grid-template-columns: minmax(auto, 1.1fr) minmax(auto, 1fr);
   column-gap: ${({ theme, $gapScale = 'normal' }) => theme.heroGaps[$gapScale]};
   padding: ${({ theme }) => theme.spacing.large} 0;
+  
+  /* Responsive adjustments */
   @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
     grid-template-columns: 1fr;
     row-gap: ${({ theme }) => theme.spacing.large};
   }
+  
+  /* Additional mobile adjustments */
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    padding: ${({ theme }) => theme.spacing.medium} 0;
+  }
 `;
-
 
 const TextColumn = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.medium};
-
-  /* Debug outlines for direct children */
-  ${({ theme }) => theme.debugOutline && `
-    > * {
-      outline: 2px dotted rgba(32, 127, 221, 0.93);
-      padding: 4px;
-    }
-  `}
+  position: relative; /* For debug label positioning */
+  
+  /* Debug outline */
+  outline: ${({ theme }) =>
+    theme.debug?.enabled
+      ? theme.debug.outlines.component
+      : 'none'
+  };
+  
+  /* Responsive adjustments */
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    gap: ${({ theme }) => theme.spacing.small};
+  }
 `;
 
 const MediaColumn = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative; /* For debug label positioning */
+  
+  /* Debug outline */
+  outline: ${({ theme }) =>
+    theme.debug?.enabled
+      ? theme.debug.outlines.component
+      : 'none'
+  };
+  
+  /* Responsive adjustments for illustrations */
+  @media (max-width: ${({ theme }) => theme.breakpoints.tablet}) {
+    margin-top: ${({ theme }) => theme.spacing.medium};
+  }
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.mobile}) {
+    /* Scale down illustrations on mobile */
+    svg {
+      max-width: 100%;
+      height: auto;
+      transform: scale(0.9);
+    }
+  }
 `;
 
 interface HeroProps extends Omit<HeroSectionProps, '$gapScale' | '$maxWidth'> {
@@ -134,15 +200,39 @@ export function HeroTemplate({
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // Debug settings
+  const debugEnabled = theme.debug?.enabled && theme.debug?.labels?.enabled;
+  const labelPosition = theme.debug?.labels?.position || 'top-left';
+
   return (
     <HeroSection $gapScale={gapScale} $maxWidth={maxWidth}>
+      {debugEnabled && (
+        <DebugLabel enabled={debugEnabled} position={labelPosition}>
+          HeroSection
+        </DebugLabel>
+      )}
+
       <TextColumn style={centeredTitle ? { textAlign: 'center' } : {}}>
-        <TitleContainer style={{ marginLeft: centeredTitle ? '0' : theme.spacing.small }}>
+        {debugEnabled && (
+          <DebugLabel enabled={debugEnabled} position={labelPosition}>
+            TextColumn
+          </DebugLabel>
+        )}
+
+        <TitleContainer style={{
+          marginLeft: centeredTitle ? '0' : theme.spacing.small,
+          /* Responsive title adjustments */
+          fontSize: `clamp(${theme.fontSizes.xl}, 5vw, ${theme.fontSizes.xxl})`,
+        }}>
           <PageTitle variant="heroTitle">{title}</PageTitle>
         </TitleContainer>
 
         {subtitle && (
-          <SubtitleContainer style={{ marginLeft: centeredTitle ? '0' : theme.spacing.medium }}>
+          <SubtitleContainer style={{
+            marginLeft: centeredTitle ? '0' : theme.spacing.medium,
+            /* Responsive subtitle adjustments */
+            fontSize: `clamp(${theme.fontSizes.md}, 3vw, ${theme.fontSizes.lg})`,
+          }}>
             <PageSubtitle variant="heroSubtitle" color="textSubtle">{subtitle}</PageSubtitle>
           </SubtitleContainer>
         )}
@@ -158,6 +248,11 @@ export function HeroTemplate({
       </TextColumn>
 
       <MediaColumn>
+        {debugEnabled && (
+          <DebugLabel enabled={debugEnabled} position={labelPosition}>
+            MediaColumn
+          </DebugLabel>
+        )}
         <IllustrationComponent />
       </MediaColumn>
     </HeroSection>
@@ -167,8 +262,7 @@ export function HeroTemplate({
 // ────────────────────────────────────────────────────────────
 // Variants / Presets
 // ────────────────────────────────────────────────────────────
-
-export function HomeHero(props: HeroSectionProps) {
+export function HomeHero(props: Omit<HeroProps, 'title' | 'subtitle' | 'menu' | 'illustration'>) {
   return (
     <HeroTemplate
       title="Start Your Vowel Journey"
@@ -187,7 +281,7 @@ export function HomeHero(props: HeroSectionProps) {
   );
 }
 
-export function LearnHero(props: HeroSectionProps) {
+export function LearnHero(props: Omit<HeroProps, 'title' | 'subtitle' | 'menu' | 'illustration'>) {
   return (
     <HeroTemplate
       title="Choose Your Learning Path"
@@ -211,7 +305,7 @@ export function LearnHero(props: HeroSectionProps) {
   );
 }
 
-export function QuizHero(props: HeroSectionProps) {
+export function QuizHero(props: Omit<HeroProps, 'title' | 'subtitle' | 'menu' | 'illustration'>) {
   return (
     <HeroTemplate
       title="Test Your Knowledge"
@@ -230,7 +324,12 @@ export function QuizHero(props: HeroSectionProps) {
   );
 }
 
-export function QuizFeedbackHero({ feedbackType }: { feedbackType: 'good' | 'bad' }) {
+export function QuizFeedbackHero({
+  feedbackType,
+  ...props
+}: {
+  feedbackType: 'good' | 'bad'
+} & Omit<HeroProps, 'title' | 'subtitle' | 'menu' | 'illustration'>) {
   return (
     <HeroTemplate
       title="Quiz Complete"
@@ -248,6 +347,7 @@ export function QuizFeedbackHero({ feedbackType }: { feedbackType: 'good' | 'bad
       centeredTitle
       gapScale="normal"
       maxWidth="1200px"
+      {...props}
     />
   );
 }
