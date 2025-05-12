@@ -34,6 +34,32 @@ export function Vowels101Instructions() {
     )
 }
 
+export function VowelShuffleInstructions() {
+    return (
+        <>
+            <InstructionBox variant="default" textProps={{ variant: 'instruction', weight: 'bold', align: 'center' }}>
+                You will be shown the three vowel categories:
+                <Text as="span" variant="instruction" color="secondaryAccent" align="center" weight="bold"> tongue position</Text>,
+                <Text as="span" variant="instruction" color="secondaryAccent" align="center" weight="bold"> lip shape</Text>, and
+                <Text as="span" variant="instruction" color="secondaryAccent" align="center" weight="bold"> length</Text>.
+            </InstructionBox>
+
+            <InstructionBox variant="default" textProps={{ variant: 'instruction', weight: 'bold', align: 'center' }}>
+                However, the vowels are all out of order. Your job is to
+                <Text as="span" variant="instruction" weight="bold"> sort</Text> the blocks.
+            </InstructionBox>
+
+            <InstructionBox variant="default" textProps={{ variant: 'instruction', weight: 'bold', align: 'center' }}>
+                <Text as="span" variant="instruction" color="accent" weight="bold">Drag</Text> the vowel blocks to their correct positions.
+            </InstructionBox>
+
+            <InstructionBox variant="default" textProps={{ variant: 'instruction', weight: 'bold', align: 'center' }}>
+                Press <Text as="span" variant="instruction" color="primary" weight="bold">Submit</Text> to check your work.
+            </InstructionBox>
+        </>
+    )
+}
+
 
 export function HomophonesInstructions() {
     return (

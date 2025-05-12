@@ -219,7 +219,6 @@ export function QuizHero(props: HeroSectionProps) {
       menu={QuizMenuList}
       menuSize="md"
       paths={[
-        '/quiz',
         '/quiz/vowel-shuffle',
         '/quiz/spell-tell',
         '/quiz/pair-play',

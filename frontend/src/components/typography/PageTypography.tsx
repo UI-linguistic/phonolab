@@ -151,6 +151,17 @@ export const LayoutTitle = styled(Text).attrs<TextProps>({
 `;
 LayoutTitle.displayName = 'LayoutTitle';
 
+
+export const LayoutQuizTitle = styled(Text).attrs<TextProps>({
+  variant: 'layoutQuizTitle',
+  as: 'h1',
+})`
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+LayoutQuizTitle.displayName = 'LayoutQuizTitle';
+
 /**
  * LayoutSubtitle: Specialized subtitle component that always uses the 'layoutSubtitle' variant.
  * This component is not customizable to ensure consistent layout styling.

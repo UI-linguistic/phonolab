@@ -43,8 +43,8 @@ const HorizontalTitle = styled.div`
 `;
 
 const HorizontalTitleText = styled.div`
-  font-size: 1.25rem;
-  color: #8b2252;
+  font-size: ${({ theme }) => theme.typography.layoutSubtitle};
+  color: ${({ theme }) => theme.colors.textSubtle};
   font-weight: bold;
   text-align: center;
   background: transparent;
@@ -143,7 +143,7 @@ const VerticalLabelsColumn = styled.div`
 `;
 
 const VerticalLabel = styled.div`
-  color: #20b2aa;
+  color: ${({ theme }) => theme.colors.primary};
   font-weight: bold;
   font-size: 1.5rem;
   display: flex;
@@ -399,9 +399,9 @@ const TongueGrid: React.FC<TongueGridProps> = ({ onVowelClick }) => {
 
     return (
         <TonguePositionWrapper>
-            <HorizontalTitle>
+            {/* <HorizontalTitle>
                 <HorizontalTitleText>Vowels are organized by tongue position</HorizontalTitleText>
-            </HorizontalTitle>
+            </HorizontalTitle> */}
             <SlotCenteredWrapper>
                 <MainContainer>
                     {/* Layer 1 - Row 1 (Header Section with 2 columns) */}

@@ -43,10 +43,15 @@ declare module 'styled-components' {
       layoutTitle: [string, { min: string; fluid: string; max: string }, number, string];
       layoutSubtitle: [string, { min: string; fluid: string; max: string }, number, string];
       layoutInstruction: [string, { min: string; fluid: string; max: string }, number, string];
+      layoutQuizTitle: [string, { min: string; fluid: string; max: string }, number, string];
+      layoutQuizInstruction: [string, { min: string; fluid: string; max: string }, number, string];
       gridPhoneme: [string, { min: string; fluid: string; max: string }, number, string];
       heroTitle: [string, { min: string; fluid: string; max: string }, number, string];
       heroSubtitle: [string, { min: string; fluid: string; max: string }, number, string];
       heroInstruction: [string, { min: string; fluid: string; max: string }, number, string];
+      quizTitle: [string, { min: string; fluid: string; max: string }, number, string];
+      quizSubtitle: [string, { min: string; fluid: string; max: string }, number, string];
+      quizInstruction: [string, { min: string; fluid: string; max: string }, number, string];
     };
 
     fonts: {
@@ -69,6 +74,7 @@ declare module 'styled-components' {
       lg: string;
       xl: string;
       xxl: string;
+      xxxl: string;
     };
     lineHeights: {
       xs: number;

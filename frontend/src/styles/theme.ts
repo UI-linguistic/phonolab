@@ -56,12 +56,19 @@ const theme: DefaultTheme = {
     layoutTitle: ['h1', { min: tokens.fontsize['500'].$value, fluid: '3vw', max: tokens.fontsize['700'].$value }, tokens.lineheight['500'].$value, 'bold'],
     layoutSubtitle: ['p', { min: tokens.fontsize['100'].$value, fluid: '1.5vw', max: tokens.fontsize['300'].$value }, tokens.lineheight['300'].$value, 'normal'],
     layoutInstruction: ['p', { min: tokens.fontsize['300'].$value, fluid: '1.8vw', max: tokens.fontsize['400'].$value }, tokens.lineheight['400'].$value, 'normal'],
+    layoutQuizTitle: ['h1', { min: tokens.fontsize['500'].$value, fluid: '3vw', max: tokens.fontsize['700'].$value }, tokens.lineheight['500'].$value, 'bold'],
+    layoutQuizInstruction: ['p', { min: tokens.fontsize['300'].$value, fluid: '1.8vw', max: tokens.fontsize['400'].$value }, tokens.lineheight['400'].$value, 'normal'],
     gridPhoneme: ['span', { min: tokens.fontsize['300'].$value, fluid: '2vw', max: tokens.fontsize['400'].$value }, tokens.lineheight['200'].$value, 'bold'],
 
     // Hero title "Start Your Vowel Journey"
     heroTitle: ['h1', { min: '2rem', fluid: '4vw + 1rem', max: '2.8rem' }, tokens.typography.heroTitle.$value.lineHeight, 'extrabold'],
     heroSubtitle: ['h2', { min: '1.4rem', fluid: '2vw + 0.8rem', max: '1.8rem' }, tokens.typography.heroSubtitle.$value.lineHeight, 'medium'],
     heroInstruction: ['p', { min: tokens.typography.heroInstruction.$value.fontSize, fluid: '2vw + 0.8rem', max: tokens.typography.heroInstruction.$value.fontSize }, tokens.typography.heroInstruction.$value.lineHeight, 'normal'],
+
+    // Quiz-specific typography (larger than regular)
+    quizTitle: ['h1', { min: '2.4rem', fluid: '4vw + 1.2rem', max: '3.2rem' }, tokens.typography.quizTitle.$value.lineHeight, 'extrabold'],
+    quizSubtitle: ['h2', { min: '1.6rem', fluid: '2.5vw + 1rem', max: '2.2rem' }, tokens.typography.quizSubtitle.$value.lineHeight, 'bold'],
+    quizInstruction: ['p', { min: tokens.typography.quizInstruction.$value.fontSize, fluid: '2vw + 0.8rem', max: '1.4rem' }, tokens.typography.quizInstruction.$value.lineHeight, 'medium'],
   },
   // ────────────────────────────────────────────────────────────
   // Font families & weights
@@ -86,6 +93,7 @@ const theme: DefaultTheme = {
     lg: tokens.fontsize['400'].$value,
     xl: tokens.fontsize['500'].$value,
     xxl: tokens.fontsize['600'].$value,
+    xxxl: tokens.fontsize['800'].$value,  // Add larger size for quiz titles
   },
 
   lineHeights: {
