@@ -8,6 +8,8 @@ To get the app running:
 
 Run the following
 
+change directory (cd) into the frontend and then:
+
 1. "npm install"
 2. "npm start"
 
