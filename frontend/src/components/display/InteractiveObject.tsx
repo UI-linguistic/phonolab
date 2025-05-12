@@ -58,13 +58,37 @@ export function InteractiveObject({
         setActive(next);
         onToggle?.(id, next);
 
-        // try each URL until one plays
+        // Try each URL until one plays successfully
+        let played = false;
         for (const url of audioUrls) {
+            if (!url) continue;
             try {
-                new Audio(url).play();
+                console.log(`Attempting to play audio: ${url}`);
+                const audioEl = new Audio(url);
+
+                // Add error handlers to detect issues
+                audioEl.onerror = (e) => {
+                    console.error(`Error playing audio for ${url}:`, e);
+                };
+
+                // Try to play and catch any errors
+                audioEl.play()
+                    .then(() => {
+                        console.log(`Successfully playing: ${url}`);
+                        played = true;
+                    })
+                    .catch(e => {
+                        console.error(`Failed to play ${url}:`, e.message);
+                        // Continue to next URL only if we haven't played anything yet
+                        if (!played && audioUrls.indexOf(url) < audioUrls.length - 1) {
+                            console.log(`Trying next fallback audio URL...`);
+                        }
+                    });
+
                 break;
-            } catch {
-                // swallow and try next
+            } catch (e) {
+                console.error(`Exception trying to create Audio for ${url}:`, e);
+                // continue to next URL
             }
         }
     };
@@ -74,7 +98,7 @@ export function InteractiveObject({
             ref={ref}
             onClick={handleClick}
             style={{
-                padding: theme.spacing.xs,
+                padding: `${theme.spacing.xs}px ${theme.spacing.xs}px`,
                 backgroundColor: active
                     ? theme.colors.secondary[1]
                     : hovered
@@ -87,6 +111,10 @@ export function InteractiveObject({
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                width: 'fit-content',
+                minWidth: '2rem',
+                minHeight: '2rem',
+                margin: '0.25rem',
             }}
         >
             <Text {...textProps}>{label}</Text>

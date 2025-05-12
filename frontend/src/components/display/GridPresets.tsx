@@ -54,9 +54,46 @@ import { Vowel, VowelGridCell, RawLesson, RawVowel } from '@api/types';
 function extractSections(importer: () => Promise<any>) {
     return async () => {
         const mod = await importer();
+        console.log("Extract Sections - raw import:", mod);
+
         if (mod.default && mod.default.data && Array.isArray(mod.default.data.sections)) {
-            return { default: mod.default.data.sections };
+            const sections = mod.default.data.sections;
+            console.log("Extract Sections - using data.sections:", sections);
+            return { default: sections };
         }
+
+        // Check if we need to restructure the grid data
+        if (mod.default && mod.default.content && mod.default.content.tongue_position) {
+            console.log("Found tongue_position data, restructuring...");
+            const gridData = mod.default.content.tongue_position.grid;
+
+            if (Array.isArray(gridData)) {
+                // This should be a 3×3 grid structure [row][col][vowels]
+                const cells = [];
+                for (let row = 0; row < gridData.length; row++) {
+                    for (let col = 0; col < gridData[row].length; col++) {
+                        const vowels = gridData[row][col].map((v: any) => ({
+                            id: v.id,
+                            ipa: v.ipa,
+                            audio_url: v.audio_url[0],
+                            fallback_audio_url: v.audio_url[1],
+                            tongue_image_url: v.mouth_image_url,
+                        }));
+
+                        cells.push({
+                            id: `${row}-${col}`,
+                            row,
+                            col,
+                            vowels
+                        });
+                    }
+                }
+                console.log("Restructured cells:", cells);
+                return { default: cells };
+            }
+        }
+
+        console.log("Extract Sections - using raw default:", mod.default);
         return mod;
     };
 }
@@ -146,10 +183,28 @@ export function Vowels101TonguePositionLearnGrid({
     ...gridProps
 }: Vowels101TongueGridProps) {
     const cfg = API_CONFIG['learn/vowels/tongue-position'];
+
+    // Debug the data structure
+    const debugData = async () => {
+        try {
+            const mod = await cfg.fallbackImporter!();
+            console.log("Fallback data structure:", mod);
+        } catch (e) {
+            console.error("Failed to load fallback data:", e);
+        }
+    };
+
+    // Call this for debugging
+    debugData();
+
     const mapper: (cell: VowelGridCell) => GridItem = (cell) => {
         if (!cell || !Array.isArray(cell.vowels)) {
             return { id: Math.random().toString(), content: <div /> };
         }
+
+        // Include row/col information for debugging
+        console.log(`Cell at row ${cell.row}, col ${cell.col} has ${cell.vowels.length} vowels`);
+
         return {
             id: String(cell.id),
             content: (
@@ -160,8 +215,8 @@ export function Vowels101TonguePositionLearnGrid({
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.5rem',
-
+                        gap: '0.25rem',
+                        padding: '0.25rem',
                     }}
                 >
                     {cell.vowels.map((v) => (
@@ -189,7 +244,7 @@ export function Vowels101TonguePositionLearnGrid({
             mapNodeToGridItem={mapper}
             mode="static"
             cols={3}
-            spacing="sm"
+            spacing="xs"
             {...gridProps}
         />
     );

@@ -1,62 +1,52 @@
 import React from 'react';
-import { Group, Box, Progress, useMantineTheme, MantineTheme } from '@mantine/core';
+import { Group, Text, Progress, Box, useMantineTheme } from '@mantine/core';
 
 interface QuizProgressBarProps {
     /** progress percent 0–100 */
     value: number;
     /** e.g. "1/3" */
     label?: string;
-    /** pick one of your defined spacing sizes (xs, sm, md, lg, xl) */
-    sizeKey?: keyof MantineTheme['spacing'];
 }
 
 export function QuizProgressBar({
     value,
     label,
-    sizeKey = 'sm',
 }: QuizProgressBarProps) {
     const theme = useMantineTheme();
 
-    // colorShade 6 is a nice middle tone in your 10‑shade arrays
-    const borderColor = theme.colors.primary[6];
-    const barColor = theme.colors.primary[6];
-    const bgColor = theme.colors.background[0];
-
     return (
-        <Group align="center" gap="md" style={{ width: '100%' }}>
-            <Box style={{ flex: 1, minWidth: 120 }}>
+        <Group align="center" gap="md" style={{ width: '100%', padding: '10px 0' }}>
+            <Box style={{ flex: 1, position: 'relative' }}>
                 <Progress
                     value={value}
-                    size={theme.spacing[sizeKey]}   // use your spacing token as the thickness
-                    radius={theme.radius.sm}        // consistent corner radius
-                    color="primary"
-                    styles={(t: MantineTheme) => ({
+                    color={theme.colors.primary[6]}
+                    size="lg"
+                    radius="xl"
+                    striped
+                    animated={value < 100}
+                    styles={{
                         root: {
-                            backgroundColor: bgColor,
-                            border: `2px solid ${borderColor}`,
-                            borderRadius: t.radius.sm,
-                            overflow: 'hidden',
+                            backgroundColor: theme.colors.gray[1],
+                            border: `1px solid ${theme.colors.gray[3]}`,
+                            boxShadow: theme.shadows.xs,
                         },
-                        bar: {
-                            backgroundColor: barColor,
-                            height: '100%',
-                        },
-                    })}
+                        section: {
+                            transition: 'width 300ms ease'
+                        }
+                    }}
                 />
             </Box>
             {label && (
                 <Box
-                    style={(t: MantineTheme) => ({
-                        display: 'inline-block',
-                        textAlign: 'center' as const,
-                        minWidth: 40,
-                        padding: `${t.spacing.xs} ${t.spacing.sm}`,
-                        fontFamily: t.fontFamily,
-                        fontSize: t.fontSizes.md,
-                        border: `2px solid ${borderColor}`,
-                        borderRadius: t.radius.xs,
-                        backgroundColor: bgColor,
-                    })}
+                    style={{
+                        backgroundColor: theme.colors.primary[6],
+                        color: theme.white,
+                        padding: '4px 12px',
+                        borderRadius: theme.radius.sm,
+                        fontWeight: 500,
+                        minWidth: '60px',
+                        textAlign: 'center',
+                    }}
                 >
                     {label}
                 </Box>

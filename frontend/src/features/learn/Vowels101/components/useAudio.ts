@@ -1,20 +1,66 @@
 // Vowels101/components/useAudio.ts (no style changes)
-import { useRef } from 'react';
+import { useState, useCallback } from 'react';
 
-export function useAudio() {
-    const audioRef = useRef<HTMLAudioElement>(new Audio());
+export const useAudio = () => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const play = (src: string) => {
-        // [0] is local path of files
-        // [1] is s3 amazon link
-        const [local, remote] = src.split(',');
-        const audioSrc = remote || local;
-        if (audioRef.current.src !== audioSrc) {
-            audioRef.current.pause();
-            audioRef.current = new Audio(audioSrc);
+    // Define local fallback paths
+    const LOCAL_AUDIO_PATH = '/sounds/vowels/';
+
+    const play = useCallback(async (url?: string) => {
+        if (!url) return;
+
+        setError(null);
+        setIsPlaying(true);
+
+        try {
+            console.log(`Attempting to play audio: ${url}`);
+            const audio = new Audio(url);
+
+            audio.onerror = (e) => {
+                console.error(`Error playing audio from ${url}:`, e);
+                setError(`Failed to play audio: ${url}`);
+
+                // Try local fallback if external URL fails
+                if (!url.startsWith('/sounds/')) {
+                    // Extract vowel name from the URL
+                    const vowelMatch = url.match(/\/([^\/]+)\.mp3$/);
+                    if (vowelMatch && vowelMatch[1]) {
+                        const vowelName = vowelMatch[1];
+                        const fallbackUrl = `${LOCAL_AUDIO_PATH}${vowelName}.mp3`;
+                        console.log(`Trying local fallback: ${fallbackUrl}`);
+
+                        const fallbackAudio = new Audio(fallbackUrl);
+                        fallbackAudio.onerror = () => {
+                            console.error(`Fallback audio also failed: ${fallbackUrl}`);
+                            setError(`Failed to play audio: ${url} (fallback also failed)`);
+                        };
+
+                        fallbackAudio.onended = () => setIsPlaying(false);
+                        fallbackAudio.play()
+                            .then(() => console.log(`Playing fallback: ${fallbackUrl}`))
+                            .catch(e => console.error(`Fallback play error: ${e.message}`));
+                    }
+                }
+            };
+
+            audio.onended = () => setIsPlaying(false);
+
+            await audio.play();
+            console.log(`Playing: ${url}`);
+        } catch (err) {
+            console.error('Audio play error:', err);
+            setError(`Error playing audio: ${err instanceof Error ? err.message : 'Unknown error'}`);
+            setIsPlaying(false);
         }
-        audioRef.current.play();
-    };
+    }, []);
 
-    return { play };
-}
+    return {
+        play,
+        isPlaying,
+        error
+    };
+};
+
+export default useAudio;

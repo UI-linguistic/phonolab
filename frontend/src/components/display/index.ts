@@ -8,3 +8,4 @@ export { SortableItem } from './SortableItem';
 export { Cell } from './Cell';
 export { GridLayout, RowLayout, ColumnLayout } from './Layouts';
 export { MediaCell } from './Cell';
+export { CellContainer, type CellContainerLayout, type CellContainerProps, CellItem } from './CellContainer';

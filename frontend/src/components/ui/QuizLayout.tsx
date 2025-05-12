@@ -142,7 +142,7 @@ const QuizLayout: React.FC<QuizLayoutProps> = ({
             <HeaderRow>
                 <div>{showBackButton ? 'Back' : null}</div>
                 <div><SmallTitle>{title}</SmallTitle></div>
-                <div>{progressBar ?? <QuizProgressBar value={0} label="0/3" />}</div>
+                <div>{progressBar ?? <QuizProgressBar value={0} label="3/3" />}</div>
                 <div>{nextButton ?? 'Next'}</div>
             </HeaderRow>
 

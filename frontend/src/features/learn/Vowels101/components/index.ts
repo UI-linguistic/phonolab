@@ -3,3 +3,6 @@
 // ============================================
 
 export { useAudio } from './useAudio';
+
+// Export all components from the Vowels101 feature
+export { default as TongueGrid } from './TongueGrid';

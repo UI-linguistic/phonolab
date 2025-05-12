@@ -1,6 +1,7 @@
 // src/config/api.ts
 
 import { fallbackTongueGrid } from '@components/display/DataDrivenGrid';
+import { PhonicTrioQuiz } from './types';
 
 /*────────────────────────────────────────────────────────────
   Centralized API endpoints & JSON fallback importers
@@ -11,7 +12,7 @@ export interface APIEndpointConfig {
     url: string;
     /** Optional dynamic import for local JSON fallback */
     fallbackImporter?: () => Promise<{
-        default: { status: string; message: string; data: { sections: any[] } } | any[]
+        default: any[] | { status: string; message: string; data: { sections: any[] } } | PhonicTrioQuiz
     }>;
 }
 
@@ -47,7 +48,7 @@ export const API_CONFIG: Record<string, APIEndpointConfig> = {
     'learn/vowels/tongue-position': {
         url: `${API_BASE_URL}/api/learn/vowels/tongue-position`,
         fallbackImporter: () =>
-            fallbackTongueGrid(() => import('./fallback/vowels-101_preview.json')),
+            fallbackTongueGrid(() => import('./fallback/vowels-101.json')),
     },
     'learn/vowels/lip-shape': {
         url: `${API_BASE_URL}/api/learn/vowels/lip-shape`,

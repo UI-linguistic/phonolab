@@ -13,6 +13,7 @@
  * Slot direction control (`slotDirections` prop):
  *  • Accepts an array like ['row', 'column', 'row'] to control flex direction
  *    of each content slot (child). Defaults to 'column' per slot.
+ *  • New 'freeform' option allows custom positioning with flexbox
  *
  * Key behaviors:
  *  • Renders a title row with optional back and next buttons
@@ -31,7 +32,8 @@
  *  • onTabSelect?:      (i: number) => void        — called when a tab is clicked
  *  • variant?:          'single' | 'twoColumns' |
  *                       'threeColumns' | 'multiRows' — layout style for content slots
- *  • slotDirections?:   ('row' | 'column')[]       — flex direction for each child slot
+ *  • slotDirections?:   ('row' | 'column' | 'grid' | 'freeform')[]  — flex direction for each child slot
+ *  • slotStyles?:       Record<string | number, React.CSSProperties> — custom styles for slots when using freeform
  *  • children:          ReactNode[]                — each becomes a content slot
  *
  * Usage example:
@@ -50,6 +52,10 @@ import styled, { DefaultTheme } from 'styled-components';
 import { LayoutTitle, LayoutSubtitle } from '../typography/PageTypography';
 import { MenuList } from './Menu';
 
+interface CustomCSSProperties extends React.CSSProperties {
+    [key: string]: any;
+}
+
 interface LearnLayoutProps {
     title: string;
     titleAlign?: 'left' | 'center' | 'right';
@@ -63,7 +69,8 @@ interface LearnLayoutProps {
     activeTabIndex?: number;
     onTabSelect?: (index: number) => void;
     variant?: 'single' | 'twoColumns' | 'threeColumns' | 'multiRows';
-    slotDirections?: ('row' | 'column')[];
+    slotDirections?: ('row' | 'column' | 'grid' | 'freeform')[];
+    slotStyles?: Record<string | number, CustomCSSProperties>;
     children: React.ReactNode;
 }
 
@@ -124,7 +131,7 @@ const TopRowWrapper = styled.div`
     overflow: hidden;
   }
 
-  /* child 1: left edge margin */
+  /* child 1: left edge margin */
   & > div:nth-child(1) {
     justify-self: start;
     margin-left: ${({ theme }) => theme.spacing.small};
@@ -138,7 +145,7 @@ const TopRowWrapper = styled.div`
     display: inline-block;
   }
 
-  /* child 3: right edge margin + hug right */
+  /* child 3: right edge margin + hug right */
   & > div:nth-child(3) {
     justify-self: end;
     margin-right: ${({ theme }) => theme.spacing.small};
@@ -150,17 +157,19 @@ const SubtitleWrapper = styled.div`
 `;
 
 const SectionTabsWrapper = styled.div`
+  margin-top: 1.5rem;
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
 const ContentWrapper = styled.div<{ $variant?: LearnLayoutProps['variant'] }>`
+  margin-top: 1.5rem;
   display: grid;
   ${({ $variant }) => {
         switch ($variant) {
             case 'twoColumns':
                 return 'grid-template-columns: 1fr 1fr; gap: 2rem;';
             case 'threeColumns':
-                return 'grid-template-columns: repeat(3, 1fr); gap: 2rem;';
+                return 'grid-template-columns: minmax(200px, 0.8fr) minmax(400px, 1.5fr) minmax(250px, 1fr); gap: 2.8rem;';
             case 'multiRows':
                 return 'grid-template-rows: repeat(3, auto); gap: 2rem;';
             default:
@@ -170,14 +179,40 @@ const ContentWrapper = styled.div<{ $variant?: LearnLayoutProps['variant'] }>`
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
-const SlotWrapper = styled.div<{ direction: 'row' | 'column' }>`
-  display: flex;
-  flex-direction: ${({ direction }) => direction};
+interface SlotWrapperProps {
+    direction: 'row' | 'column' | 'grid' | 'freeform';
+    $variant?: string;
+    style?: React.CSSProperties;
+}
+
+const SlotWrapper = styled.div<SlotWrapperProps>`
+  ${({ direction, style }) => {
+        if (direction === 'freeform') {
+            return `
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        align-content: flex-start;
+        justify-content: flex-start;
+      `;
+        } else {
+            return `
+        display: ${direction === 'grid' ? 'grid' : 'flex'};
+        flex-direction: ${direction === 'grid' ? undefined : direction};
+        grid-template-columns: ${direction === 'grid' ? 'repeat(3, 1fr)' : undefined};
+        gap: ${direction === 'grid' ? '0.5rem' : '1rem'};
+      `;
+        }
+    }}
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
-  padding: ${({ theme }) => theme.spacing.small};
+  padding: ${({ theme, $variant }) => $variant === 'vowels101' ? `${theme.spacing.small} ${theme.spacing.xsmall}` : theme.spacing.small};
+  border-radius: ${({ theme }) => theme.borderRadius};
 `;
 
-
+// Wrapper for individual items inside a freeform SlotWrapper
+const FreeformItemWrapper = styled.div<{ $customStyle?: React.CSSProperties }>`
+  ${({ $customStyle }) => $customStyle ? Object.entries($customStyle).map(([key, value]) => `${key}: ${value};`).join('\n') : ''}
+`;
 
 const LearnLayout: React.FC<LearnLayoutProps> = ({
     title,
@@ -192,6 +227,7 @@ const LearnLayout: React.FC<LearnLayoutProps> = ({
     onTabSelect,
     variant = 'single',
     slotDirections = [],
+    slotStyles = {},
     children,
     rowGap,
 }) => {
@@ -236,11 +272,43 @@ const LearnLayout: React.FC<LearnLayoutProps> = ({
             )}
 
             <ContentWrapper $variant={variant}>
-                {contentArray.map((child, idx) => (
-                    <SlotWrapper key={idx} direction={slotDirections[idx] || 'column'}>
-                        {child}
-                    </SlotWrapper>
-                ))}
+                {contentArray.map((child, idx) => {
+                    const direction = slotDirections[idx] || 'column';
+
+                    // If this is a freeform layout and we have children as an array
+                    if (direction === 'freeform' && React.isValidElement(child) && child.props.children) {
+                        const freeformChildren = React.Children.toArray(child.props.children);
+
+                        return (
+                            <SlotWrapper
+                                key={idx}
+                                direction="freeform"
+                                $variant={variant === 'threeColumns' && title.includes('Vowels are organized') ? 'vowels101' : undefined}
+                            >
+                                {freeformChildren.map((freeformChild, freeformIdx) => (
+                                    <FreeformItemWrapper
+                                        key={freeformIdx}
+                                        $customStyle={slotStyles && slotStyles[`${idx}-${freeformIdx}`]}
+                                    >
+                                        {freeformChild}
+                                    </FreeformItemWrapper>
+                                ))}
+                            </SlotWrapper>
+                        );
+                    }
+
+                    // Regular slot wrapper
+                    return (
+                        <SlotWrapper
+                            key={idx}
+                            direction={direction}
+                            $variant={variant === 'threeColumns' && title.includes('Vowels are organized') ? 'vowels101' : undefined}
+                            style={slotStyles && slotStyles[idx]}
+                        >
+                            {child}
+                        </SlotWrapper>
+                    );
+                })}
             </ContentWrapper>
         </LayoutWrapper>
     );
@@ -249,6 +317,43 @@ const LearnLayout: React.FC<LearnLayoutProps> = ({
 // Preset wrappers for Learn modules
 
 export function Vowels101Layout(props: Omit<LearnLayoutProps, 'variant' | 'sectionTabs'>) {
+    // Default styles for the Vowels 101 layout that match the image
+    const defaultSlotStyles: Record<string | number, CustomCSSProperties> = {
+        // Left column custom styles
+        0: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            minWidth: '360px',
+            maxWidth: '390px',
+            flexShrink: 0,
+            padding: '1rem 0.5rem'
+        },
+        // Middle column (vowel grid) custom styles  
+        1: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexGrow: 1,
+            width: '100%',
+            padding: '0 1rem'
+        },
+        // Right column (tongue diagram) custom styles
+        2: {
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            flexShrink: 1,
+            minWidth: '300px',
+            height: '100%',
+            padding: '1rem 0.5rem'
+        }
+    };
+
     return (
         <LearnLayout
             {...props}
@@ -256,6 +361,8 @@ export function Vowels101Layout(props: Omit<LearnLayoutProps, 'variant' | 'secti
             titleAlign="center"
             sectionTabs={["Tongue Position", "Lip Shape", "Length"]}
             variant="threeColumns"
+            slotDirections={['column', 'column', 'column']}
+            slotStyles={props.slotStyles ? { ...defaultSlotStyles, ...props.slotStyles } : defaultSlotStyles}
         />
     );
 }

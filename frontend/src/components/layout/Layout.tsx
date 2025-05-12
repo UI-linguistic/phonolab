@@ -82,7 +82,7 @@ const Main = styled.main`
   /* push content below navbar plus extra gutter */
   padding-top: calc(
     ${({ theme }) => theme.layout.headerHeight} + 
-    ${({ theme }) => theme.spacing.medium}
+    ${({ theme }) => theme.spacing.large}
   );
 `;
 

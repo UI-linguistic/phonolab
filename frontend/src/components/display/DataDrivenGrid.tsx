@@ -161,9 +161,14 @@ export async function fallbackTongueGrid(
 ): Promise<{ default: VowelGridCell[] }> {
   const mod = await importer();
   const raw: any[][][] = mod.default.content.tongue_position.grid;
+  console.log('Raw tongue grid data:', raw);
 
-  const cells = raw.flatMap((rowArr, row) =>
-    rowArr.map((cellArr, col) => {
+  // Ensure 3x3 structure - format should be [row][col][vowels]
+  // The flatMap here is flattening our 2D array into 1D, which might be causing the issue
+  const cells = [];
+  for (let row = 0; row < raw.length; row++) {
+    for (let col = 0; col < raw[row].length; col++) {
+      const cellArr = raw[row][col];
       const vowels: Vowel[] = cellArr.map((rv: any) => ({
         id: Number(rv.id),
         ipa: rv.ipa,
@@ -172,9 +177,16 @@ export async function fallbackTongueGrid(
         lip_image_url: '',
         tongue_image_url: rv.mouth_image_url,
       }));
-      return { id: row * rowArr.length + col, row, col, vowels };
-    })
-  );
 
+      cells.push({
+        id: row * raw[row].length + col,
+        row,
+        col,
+        vowels
+      });
+    }
+  }
+
+  console.log('Processed cells:', cells);
   return { default: cells };
 }

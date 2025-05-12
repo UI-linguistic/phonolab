@@ -14,11 +14,11 @@ declare module 'styled-components' {
       cellActivePrimary: string;
       cellActiveSecondary: string;
 
-      frameHoverPrimary: string;
-      frameHoverSecondary: string;
+      vowelHoverPrimary: string;
+      vowelHoverSecondary: string;
 
-      frameActivePrimary: string;
-      frameActiveSecondary: string;
+      vowelActivePrimary: string;
+      vowelActiveSecondary: string;
 
       accent: string;
       secondaryAccent: string;

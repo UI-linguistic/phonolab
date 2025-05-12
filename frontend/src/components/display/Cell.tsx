@@ -8,21 +8,28 @@
  * • Can be active or inactive
  * • Works in both learn and quiz modes
  * • Handles hover states
+ * • Can contain any content, including other cells in a CellContainer
  * 
  * Props You Can Use:
- * • children: Content to show inside
+ * • children: Content to show inside (can be text, components, or even CellContainer)
  * • active: Whether cell is active
- * • draggable: Whether cell can be dragged
- * • gridHover: Whether grid is being hovered
+ * • onClick: Function to call when cell is clicked
+ * • audioSrc: Audio file to play when cell is clicked
+ * • sx: Custom CSS styles
+ * • className: Custom CSS class
+ * • textProps: Props to pass to Text component if children are text
  * 
  * Usage Example:
  * ```tsx
- * <Cell
- *   active={true}
- *   draggable={false}
- *   gridHover={false}
- * >
- *   <VowelCard />
+ * // Simple cell with text
+ * <Cell>Simple text</Cell>
+ * 
+ * // Cell with nested cells in a row layout
+ * <Cell>
+ *   <CellContainer layout="row" spacing="sm">
+ *     <Cell>Nested Cell 1</Cell>
+ *     <Cell>Nested Cell 2</Cell>
+ *   </CellContainer>
  * </Cell>
  * ```
  */

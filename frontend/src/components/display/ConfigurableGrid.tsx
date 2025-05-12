@@ -150,12 +150,19 @@ export function ConfigurableGrid({
 }: ConfigurableGridProps) {
   const [internalItems, setInternalItems] = useState(items);
   const sensors = useSensors(useSensor(PointerSensor));
+  const theme = useMantineTheme();
+
+  // Convert string spacing to pixel values for tighter spacing
+  const spacingValue = spacing === 'xs' ? '0.5rem' :
+    spacing === 'sm' ? '0.75rem' :
+      spacing === 'md' ? '1rem' : spacing;
 
   const gridProps = {
     cols: cols,
-    spacing,
+    spacing: spacingValue,
   };
 
+  console.log(`Rendering grid with ${items.length} items, ${cols} columns`);
 
   /* handle drag end */
   const handleDragEnd = (event: { active: any; over: any }) => {
@@ -203,14 +210,14 @@ export function ConfigurableGrid({
     13. Static Mode
   ─────────────────────────────────────────────────────────*/
   return (
-    <SimpleGrid {...gridProps}>
+    <SimpleGrid cols={cols} spacing={spacingValue}>
       {renderItems.map((item, idx) => (
         <div
           key={item.id}
           onClick={() => handleClick(item, idx)}
           style={{
             cursor: 'pointer',
-            aspectRatio: '50 / 3',
+            width: '100%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

@@ -20,14 +20,14 @@ const theme: DefaultTheme = {
     cellHoverPrimary: `rgba(${parseInt(tokens.color.brandSecondary['500'].$value.slice(1, 3), 16)}, ${parseInt(tokens.color.brandSecondary['500'].$value.slice(3, 5), 16)}, ${parseInt(tokens.color.brandSecondary['500'].$value.slice(5, 7), 16)}, 0.2)`,
     cellHoverSecondary: `rgba(${parseInt(tokens.color.brandAccent['500'].$value.slice(1, 3), 16)}, ${parseInt(tokens.color.brandAccent['500'].$value.slice(3, 5), 16)}, ${parseInt(tokens.color.brandAccent['500'].$value.slice(5, 7), 16)}, 0.2)`,
 
-    cellActivePrimary: tokens.color.brandPrimary['300'].$value,
-    cellActiveSecondary: tokens.color.brandSecondary['300'].$value,
+    cellActivePrimary: tokens.color.brandSecondary['300'].$value,
+    cellActiveSecondary: tokens.color.brandPrimary['300'].$value,
 
-    frameHoverPrimary: 'rgba(255, 235, 59, 0.4)',
-    frameHoverSecondary: 'rgba(255, 235, 59, 0.2)',
+    vowelHoverPrimary: '#FFEB3B',
+    vowelHoverSecondary: 'rgba(247, 229, 70, 0.76)',
 
-    frameActivePrimary: '#FFEB3B',
-    frameActiveSecondary: '#FFF176',
+    vowelActivePrimary: '#FFEB3B',
+    vowelActiveSecondary: 'rgba(247, 229, 70, 0.76)',
 
     accent: `rgba(${parseInt(tokens.color.brandSecondary['500'].$value.slice(1, 3), 16)}, ${parseInt(tokens.color.brandSecondary['500'].$value.slice(3, 5), 16)}, ${parseInt(tokens.color.brandSecondary['500'].$value.slice(5, 7), 16)}, 0.5)`,
     secondaryAccent: tokens.color.brandDark['500'].$value,
@@ -53,9 +53,9 @@ const theme: DefaultTheme = {
     label: ['span', { min: tokens.fontsize['200'].$value, fluid: '1.4vw + 0.2rem', max: tokens.fontsize['200'].$value }, tokens.lineheight['300'].$value, 'medium'],
     instruction: ['p', { min: tokens.fontsize['200'].$value, fluid: '1.4vw + 0.2rem', max: tokens.fontsize['300'].$value }, tokens.lineheight['400'].$value, 'normal'],
     caption: ['p', { min: tokens.fontsize['100'].$value, fluid: '1.2vw + 0.1rem', max: tokens.fontsize['200'].$value }, tokens.lineheight['200'].$value, 'light'],
-    layoutTitle: ['h1', { min: tokens.fontsize['200'].$value, fluid: '2.5vw', max: tokens.fontsize['500'].$value }, tokens.lineheight['300'].$value, 'bold'],
+    layoutTitle: ['h1', { min: tokens.fontsize['500'].$value, fluid: '3vw', max: tokens.fontsize['700'].$value }, tokens.lineheight['500'].$value, 'bold'],
     layoutSubtitle: ['p', { min: tokens.fontsize['100'].$value, fluid: '1.5vw', max: tokens.fontsize['300'].$value }, tokens.lineheight['300'].$value, 'normal'],
-    layoutInstruction: ['p', { min: tokens.fontsize['100'].$value, fluid: '1.5vw', max: tokens.fontsize['200'].$value }, tokens.lineheight['300'].$value, 'normal'],
+    layoutInstruction: ['p', { min: tokens.fontsize['300'].$value, fluid: '1.8vw', max: tokens.fontsize['400'].$value }, tokens.lineheight['400'].$value, 'normal'],
     gridPhoneme: ['span', { min: tokens.fontsize['300'].$value, fluid: '2vw', max: tokens.fontsize['400'].$value }, tokens.lineheight['200'].$value, 'bold'],
 
     // Hero title "Start Your Vowel Journey"
@@ -164,7 +164,7 @@ const theme: DefaultTheme = {
     gutter: tokens.spacing['400'].$value,
     headerHeight: '64px',
     footerHeight: '64px',
-    maxContentWidth: '95ch',
+    maxContentWidth: '105ch',
   },
 
   mediaSizes: {

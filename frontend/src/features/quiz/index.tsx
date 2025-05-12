@@ -10,19 +10,9 @@ export const QuizRoutes = [
     // “Test Your Knowledge” menu
     <Route key="quiz-menu" path="quiz" element={<QuizMenu />} />,
 
-    // 1) Intro / instructions
-    <Route
-        key="quiz‑shuffle‑intro"
-        path="quiz/vowel-shuffle"
-        element={<VowelShufflePage />}
-    />,
+    // 1)Vowel Shuffle -> has a start button, button leads to start of quiz
 
-    // 2) Actual quiz pages, under /quiz/vowel‑shuffle/start
-    <Route
-        key="quiz‑shuffle‑start"
-        path="quiz/vowel-shuffle/start"
-        element={<VowelShufflePage />}
-    />,
+
 
     // all the “coming soon” placeholders:
     <Route key="quiz-spelltell" path="quiz/spell-tell" element={<SpellTellPage />} />,

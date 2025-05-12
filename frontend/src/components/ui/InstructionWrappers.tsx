@@ -13,7 +13,7 @@ export function Vowels101Instructions() {
                     front to back
                 </Text>
                 )…
-            </InstructionBox>
+            </InstructionBox >
 
 
             <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold' }}>
@@ -22,9 +22,9 @@ export function Vowels101Instructions() {
                     high to low
                 </Text>
                 ).
-            </InstructionBox>
+            </InstructionBox >
 
-            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'normal' }}>
+            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold' }}>
                 <Text variant="layoutInstruction" weight="bold">Click </Text>
                 <Text variant="layoutInstruction" weight="normal">
                     in the grid to hear it and learn how to place your tongue!
