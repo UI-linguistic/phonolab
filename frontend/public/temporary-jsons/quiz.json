@@ -273,9 +273,9 @@
       "target": "/aɪ/",
       "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/13-a%C9%AA-diphthong_vowel.mp3",
       "samples": [
-        { "text": "my",   "IPA": "/maɪ/",  "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/quiz/11_%C9%99_hindi_%E0%A4%95%E0%A4%AE%E0%A4%B2.mp3" },
-        { "text": "time", "IPA": "/taɪm/","audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/32_aɪ_ref_time.mp3" },
-        { "text": "five", "IPA": "/faɪv/","audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/33_aɪ_ref_five.mp3" }
+        { "text": "my",   "IPA": "/maɪ/",  "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/31_a%C9%AA_ref_my.mp3" },
+        { "text": "time", "IPA": "/taɪm/","audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/32_a%C9%AA_ref_time.mp3" },
+        { "text": "five", "IPA": "/faɪv/","audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/33_a%C9%AA_ref_five.mp3 " }
       ],
       "options_pool": {
         "correct_answers": [
