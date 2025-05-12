@@ -377,7 +377,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
       </S.NavigationHeader>
       
       <S.Content>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <S.CardsContainer>
           <S.TargetSoundCard $isPlaying={isTargetPlaying} onClick={handleTargetSoundPlay}>
             <S.PhoneticText>{question.target}</S.PhoneticText>
             <S.AudioButton>
@@ -392,47 +392,53 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
               <img src="https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/high-volume.svg" alt="Audio Icon" style={{ width: '3rem', height: '3rem', filter: 'invert(100%)' }} />
             </S.AudioButton>
           </S.TargetSound>
-        </div>
+        </S.CardsContainer>
 
-        <S.TimerContainer>
-          {!hasStarted && isAudioLoaded && (
-            <S.StartButton onClick={playIntroSequence}>
-              Start Question
-            </S.StartButton>
+        <S.CenterColumn>
+          <S.CenterRow>
+            <div>
+              {!hasStarted && isAudioLoaded && (
+                <S.StartButton onClick={playIntroSequence}>
+                  Start Question
+                </S.StartButton>
+              )}
+              {hasStarted && !isPlayingIntro && <S.Timer>{timeLeft}</S.Timer>}
+            </div>
+            <div>
+              {isAudioLoaded && (
+                <S.WordCardsGrid>
+                  {quizOptions.map((_, index) => renderCard(index))}
+                </S.WordCardsGrid>
+              )}
+            </div>
+          </S.CenterRow>
+        </S.CenterColumn>
+
+        <S.ResultsColumn>
+          {isTimeUp && (
+            <S.ScoreSummary>
+              <S.ScoreTitle>
+                Score: {getScore()}/3
+              </S.ScoreTitle>
+              {selectedCards.map((cardId, index) => {
+                const isCorrect = question.options_pool.correct_answers.some(
+                  correct => correct.word === quizOptions[cardId].word
+                );
+                return (
+                  <S.SelectedCard key={index} $isCorrect={isCorrect}>
+                    <S.CardInfo>
+                      <S.CardWord>{quizOptions[cardId].word}</S.CardWord>
+                      <S.CardLanguage>{quizOptions[cardId].IPA}</S.CardLanguage>
+                    </S.CardInfo>
+                    <S.ResultIcon $isCorrect={isCorrect}>
+                      {isCorrect ? '✓' : '✗'}
+                    </S.ResultIcon>
+                  </S.SelectedCard>
+                );
+              })}
+            </S.ScoreSummary>
           )}
-
-          {hasStarted && !isPlayingIntro && <S.Timer>{timeLeft}</S.Timer>}
-        </S.TimerContainer>
-
-        {isAudioLoaded && (
-          <S.WordCardsGrid>
-            {quizOptions.map((_, index) => renderCard(index))}
-          </S.WordCardsGrid>
-        )}
-
-        {isTimeUp && (
-          <S.ScoreSummary>
-            <S.ScoreTitle>
-              Score: {getScore()}/3
-            </S.ScoreTitle>
-            {selectedCards.map((cardId, index) => {
-              const isCorrect = question.options_pool.correct_answers.some(
-                correct => correct.word === quizOptions[cardId].word
-              );
-              return (
-                <S.SelectedCard key={index} $isCorrect={isCorrect}>
-                  <S.CardInfo>
-                    <S.CardWord>{quizOptions[cardId].word}</S.CardWord>
-                    <S.CardLanguage>{quizOptions[cardId].IPA}</S.CardLanguage>
-                  </S.CardInfo>
-                  <S.ResultIcon $isCorrect={isCorrect}>
-                    {isCorrect ? '✓' : '✗'}
-                  </S.ResultIcon>
-                </S.SelectedCard>
-              );
-            })}
-          </S.ScoreSummary>
-        )}
+        </S.ResultsColumn>
       </S.Content>
     </S.Container>
   );

@@ -64,13 +64,39 @@ export const Timer = styled.div`
 export const Content = styled.div`
   flex: 1;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: ${({ theme }) => theme.spacing.large};
   gap: ${({ theme }) => theme.spacing.xlarge};
+`;
+
+export const CenterColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
+export const CenterRow = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+`;
+
+export const ResultsColumn = styled.div`
+  min-width: 220px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin-left: 2rem;
 `;
 
 export const PhoneticText = styled.div`
@@ -198,40 +224,64 @@ export const TargetSound = styled.div<{ $isPlaying?: boolean }>`
   }
 `;
 
+export const CardsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+export const MainContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
 export const WordCardsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: ${({ theme }) => theme.spacing.large};
-  flex: 0 1 500px;
-  max-width: 500px;
+  width: 500px;
+  margin: 0 auto;
 `;
 
-export const WordCard = styled.button<{ $isSelected?: boolean; $isPlaying?: boolean }>`
+export const Card = styled.div<{
+  isSelected: boolean;
+  isCorrect: boolean;
+  isWrong: boolean;
+  isTimeUp: boolean;
+  isPlaying?: boolean;
+}>`
   aspect-ratio: 1;
-  background-color: ${({ theme, $isSelected, $isPlaying }) => 
-    $isPlaying ? theme.colors.primary :
-    $isSelected ? theme.colors.primary : theme.colors.background};
-  color: ${({ theme, $isSelected, $isPlaying }) => 
-    $isPlaying || $isSelected ? 'white' : theme.colors.text};
-  border: 2px solid ${({ theme, $isSelected, $isPlaying }) => 
-    $isPlaying ? theme.colors.primary :
-    $isSelected ? theme.colors.primary : theme.colors.primary};
-  border-radius: ${({ theme }) => theme.borderRadius};
-  font-size: 1.5rem;
+  width: 100%;
+  background: ${props => 
+    props.isTimeUp && props.isCorrect ? '#2ecc71' :
+    props.isTimeUp && props.isWrong ? '#e74c3c' :
+    props.isSelected ? '#107E7D' :
+    '#63535B'};
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  transform: ${({ $isPlaying }) => $isPlaying ? 'scale(1.05)' : 'none'};
-  box-shadow: ${({ $isPlaying }) => $isPlaying ? '0 4px 12px rgba(0, 0, 0, 0.2)' : 'none'};
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: ${props => props.isPlaying ? 'scale(1.05)' : 'none'};
+  box-shadow: ${props => props.isPlaying ? '0 4px 12px rgba(0, 0, 0, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
+  color: ${props => 
+    props.isTimeUp || props.isSelected ? 'white' : 'white'};
+  border: 3px solid black;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: ${props => 
+      props.isTimeUp && props.isCorrect ? '#27ae60' :
+      props.isTimeUp && props.isWrong ? '#c0392b' :
+      props.isSelected ? '#107E7D' :
+      '#534549'};
   }
 
   &:active {
@@ -569,49 +619,6 @@ export const HomeButton = styled.button`
   }
 `;
 
-export const Card = styled.div<{
-  isSelected: boolean;
-  isCorrect: boolean;
-  isWrong: boolean;
-  isTimeUp: boolean;
-  isPlaying?: boolean;
-}>`
-  aspect-ratio: 1;
-  background: ${props => 
-    props.isTimeUp && props.isCorrect ? '#2ecc71' :
-    props.isTimeUp && props.isWrong ? '#e74c3c' :
-    props.isSelected ? '#107E7D' :
-    '#63535B'};
-  border-radius: 8px;
-  padding: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transform: ${props => props.isPlaying ? 'scale(1.05)' : 'none'};
-  box-shadow: ${props => props.isPlaying ? '0 4px 12px rgba(0, 0, 0, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
-  color: ${props => 
-    props.isTimeUp || props.isSelected ? 'white' : 'white'};
-  border: 3px solid black;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    background: ${props => 
-      props.isTimeUp && props.isCorrect ? '#27ae60' :
-      props.isTimeUp && props.isWrong ? '#c0392b' :
-      props.isSelected ? '#107E7D' :
-      '#534549'};
-  }
-
-  &:active {
-    transform: translateY(1px);
-  }
-`;
-
 export const CardNumber = styled.div`
   font-size: 3.2rem;
   font-weight: bold;
@@ -625,4 +632,16 @@ export const Title = styled.h1`
   color: #000;
   margin: 1rem 0 2rem 0;
   text-align: center;
+`;
+
+export const TimerWrapper = styled.div`
+  grid-area: timer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const GridWrapper = styled.div`
+  grid-area: grid;
+  width: 100%;
 `;
