@@ -124,18 +124,19 @@ const Tabs = styled.div`
 const TabButton = styled.button<{ active?: boolean }>`
   background: ${({ active }) => (active ? ORANGE : BG_COLOR)};
   color: ${({ active }) => (active ? '#fff' : '#23243a')};
-  border: 2px solid ${({ active }) => (active ? '#232323' : OUTLINE)};
+  border: 2px solid #232323;
   border-radius: 16px;
   font-size: 1.25rem;
   font-weight: bold;
   padding: 1.1rem 2.5rem;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
   min-width: 200px;
   text-align: center;
   &:hover {
-    background: ${({ active }) => (active ? '#d94e0f' : '#ffe5d3')};
+    background: ${ORANGE};
+    color: #fff;
     box-shadow: 0 4px 16px rgba(0,0,0,0.13);
     transform: translateY(-2px);
   }

@@ -3,121 +3,106 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  height: calc(100vh - 64px);
-  padding: ${({ theme }) => theme.spacing.large};
-  display: flex;
-  flex-direction: column;
-`;
-
-const BackButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 3rem;
-  cursor: pointer;
-  color: ${({ theme }) => theme.colors.text};
-  opacity: 0.6;
-  transition: ${({ theme }) => theme.transitions.default};
-  align-self: flex-start;
-  padding: 0;
-  margin-bottom: ${({ theme }) => theme.spacing.large};
-
-  &:hover {
-    opacity: 1;
-    color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
-const Content = styled.div`
-  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #EFD9CE;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  max-width: 800px;
-  margin: 0 auto;
-  gap: ${({ theme }) => theme.spacing.xlarge};
+  font-family: 'Inter', sans-serif;
+`;
+
+const BackArrow = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 2rem;
+  position: absolute;
+  left: 2rem;
+  top: 2rem;
+  color: #333;
+  opacity: 0.6;
+  font-family: 'Inter', sans-serif;
+  
+  &:hover {
+    opacity: 1;
+  }
 `;
 
 const Title = styled.h1`
-  font-size: 2.5rem;
-  color: ${({ theme }) => theme.colors.text};
-  margin-bottom: ${({ theme }) => theme.spacing.xlarge};
+  font-size: 28px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  color: #000;
+  margin: 1rem 0 2rem 0;
   text-align: center;
 `;
 
 const InstructionsGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem 2.5rem;
-  width: 100%;
+  gap: 2rem;
   max-width: 900px;
-  margin: 0 auto;
-  align-items: stretch;
+  width: 100%;
 `;
 
 const InstructionBox = styled.div`
-  border: 3px solid #bfae9e;
-  border-radius: 16px;
-  background: #f7ede6;
-  padding: 2.2rem 1.7rem;
-  font-size: 1.35rem;
-  color: #222;
-  min-height: 170px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  font-family: 'Segoe UI', 'Arial', sans-serif;
+  border: 5px solid #000;
+  background: #EFD9CE;
+  font-size: 18px;
   font-weight: 500;
-  box-shadow: 0 4px 18px 0 rgba(180, 150, 120, 0.08);
-  transition: box-shadow 0.2s, transform 0.2s;
-  line-height: 1.35;
-  letter-spacing: 0.01em;
-  &:hover {
-    box-shadow: 0 8px 32px 0 rgba(180, 150, 120, 0.18);
-    transform: translateY(-2px) scale(1.02);
-  }
+  line-height: 1.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  font-family: 'Inter', sans-serif;
+`;
+
+const TextContainer = styled.div`
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
+`;
+
+const RegularText = styled.span`
+  color: #000;
+  font-weight: 800;
 `;
 
 const HighlightOrange = styled.span`
-  color: #f26c23;
-  font-weight: 700;
-  font-size: 1.1em;
+  color: #FF6B35;
+  text-decoration: underline;
+  font-weight: 800;
 `;
+
 const HighlightTeal = styled.span`
-  color: #2a9d9b;
-  font-weight: 700;
-  font-size: 1.1em;
+  color: #2A9D8F;
+  text-decoration: underline;
+  font-weight: 800;
 `;
+
 const Underline = styled.span`
   text-decoration: underline;
   font-weight: 700;
-  font-size: 1.1em;
 `;
 
 const StartButton = styled.button`
-  background-color: #f26c23;
+  background-color: #FF6B35;
   color: white;
-  padding: 1rem 3rem;
-  border-radius: 8px;
-  font-size: 1.5rem;
-  font-weight: 600;
-  border: none;
-  margin: 2.5rem auto 0 auto;
-  display: block;
-  transition: background 0.2s, transform 0.2s;
-  min-width: 200px;
+  border: 2px solid #000;
+  padding: 0.8rem 2.5rem;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
+  margin-top: 2rem;
+  
   &:hover {
-    background: #d95b17;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(242, 108, 35, 0.15);
-  }
-  &:active {
-    transform: translateY(0);
+    background-color: #e85d2b;
   }
 `;
 
@@ -126,33 +111,61 @@ const QuizInstructionsPage: React.FC = () => {
 
   return (
     <Container>
-      <BackButton onClick={() => navigate('/')}>←</BackButton>
-      <Content>
-        <Title>Phonic Trio - Instructions</Title>
-        <InstructionsGrid>
-          <InstructionBox>
-            You will be shown a target <HighlightOrange>vowel <Underline>sound</Underline></HighlightOrange><br />
-            and <Underline>English word</Underline> that uses it.
-          </InstructionBox>
-          <InstructionBox>
-            Your task is to choose the <HighlightTeal>three</HighlightTeal> words in other languages<br />
-            that use the same vowel <Underline>by ear</Underline>
-          </InstructionBox>
-          <InstructionBox>
-            You only have <HighlightTeal>five seconds</HighlightTeal> to make a selection,<br />
-            so pay close attention!
-          </InstructionBox>
-          <InstructionBox>
-            <Underline>Turn up your audio</Underline> and pay close attention to the <HighlightOrange>numbers</HighlightOrange><br />
-            associated with each word!
-          </InstructionBox>
-        </InstructionsGrid>
-        <StartButton onClick={() => navigate('/quiz/1')}>
-          Start
-        </StartButton>
-      </Content>
+      <BackArrow onClick={() => navigate('/')}>←</BackArrow>
+      <Title>Phonic Trio</Title>
+      <InstructionsGrid>
+        <InstructionBox>
+          <TextContainer>
+            <RegularText>You will be shown</RegularText>
+            <RegularText>a target</RegularText>
+            <HighlightOrange>vowel</HighlightOrange>
+            <HighlightOrange>sound</HighlightOrange>
+            <RegularText>and</RegularText>
+            <Underline>English</Underline>
+            <Underline>word</Underline>
+            <RegularText>that uses it.</RegularText>
+          </TextContainer>
+        </InstructionBox>
+        <InstructionBox>
+          <TextContainer>
+            <RegularText>Your task is to</RegularText>
+            <RegularText>choose the</RegularText>
+            <HighlightTeal>three</HighlightTeal>
+            <RegularText>words in other languages</RegularText>
+            <RegularText>that use the same vowel</RegularText>
+            <Underline>by</Underline>
+            <Underline>ear</Underline>
+            <RegularText>.</RegularText>
+          </TextContainer>
+        </InstructionBox>
+        <InstructionBox>
+          <TextContainer>
+            <RegularText>You only</RegularText>
+            <RegularText>have</RegularText>
+            <HighlightTeal>five</HighlightTeal>
+            <HighlightTeal>seconds</HighlightTeal>
+            <RegularText>to make a selection, so pay</RegularText>
+            <RegularText>careful attention!</RegularText>
+          </TextContainer>
+        </InstructionBox>
+        <InstructionBox>
+          <TextContainer>
+            <Underline>Turn up</Underline>
+            <Underline>your audio</Underline>
+            <RegularText>and</RegularText>
+            <RegularText>watch</RegularText>
+            <RegularText>the</RegularText>
+            <HighlightOrange>numbers</HighlightOrange>
+            <RegularText>associated with each</RegularText>
+            <RegularText>word closely!</RegularText>
+          </TextContainer>
+        </InstructionBox>
+      </InstructionsGrid>
+      <StartButton onClick={() => navigate('/quiz/1')}>
+        Start
+      </StartButton>
     </Container>
   );
 };
 
-export default QuizInstructionsPage; 
+export default QuizInstructionsPage;

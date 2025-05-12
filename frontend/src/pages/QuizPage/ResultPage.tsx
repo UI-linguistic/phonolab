@@ -9,6 +9,16 @@ interface QuestionScore {
   target: string;
 }
 
+const getScoreImage = (percentage: number): string => {
+  if (percentage <= 50) {
+    return 'https://phonetics-media.s3.us-east-1.amazonaws.com/img/phonic-trio/pt-poor-0-50.png';
+  } else if (percentage <= 75) {
+    return 'https://phonetics-media.s3.us-east-1.amazonaws.com/img/phonic-trio/pt-avg-51-75.png';
+  } else {
+    return 'https://phonetics-media.s3.us-east-1.amazonaws.com/img/phonic-trio/pt-good-76-100.png';
+  }
+};
+
 const ResultPage: React.FC = () => {
   const navigate = useNavigate();
   const [scores, setScores] = useState<QuestionScore[]>([]);
@@ -36,12 +46,17 @@ const ResultPage: React.FC = () => {
       <S.Content>
         <S.ResultSummary>
           <S.ScoreTitle>Final Score</S.ScoreTitle>
-          <S.FinalScore>
-            {totalScore}/{maxPossibleScore}
-          </S.FinalScore>
-          <S.PercentageScore>
-            {percentage.toFixed(1)}%
-          </S.PercentageScore>
+          <S.ScoreSection>
+            <S.ScoreInfo>
+              <S.FinalScore>
+                {totalScore}/{maxPossibleScore}
+              </S.FinalScore>
+              <S.PercentageScore>
+                {percentage.toFixed(1)}%
+              </S.PercentageScore>
+            </S.ScoreInfo>
+            <S.ScoreImage src={getScoreImage(percentage)} alt="Score result image" />
+          </S.ScoreSection>
         </S.ResultSummary>
 
         <S.QuestionResults>

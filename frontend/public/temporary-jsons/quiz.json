@@ -6,7 +6,7 @@
   "quiz": [
     {
       "id": 1,
-      "target": "/iː/",
+      "target": "/i/",
       "target_audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/vowels/01-i_close_front_unrounded_vowel.mp3",
       "samples": [
         { "text": "see",  "IPA": "/siː/", "audio": "https://phonetics-media.s3.us-east-1.amazonaws.com/audio/words/01_i_ref_see.mp3" },

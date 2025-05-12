@@ -31,6 +31,14 @@ export const BackButton = styled.button`
   }
 `;
 
+export const TimerContainer = styled.div`
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: ${({ theme }) => theme.spacing.large} 0;
+`;
+
 export const Timer = styled.div`
   position: relative;
   width: 80px;
@@ -43,7 +51,6 @@ export const Timer = styled.div`
   font-size: 2rem;
   font-weight: bold;
   color: ${({ theme }) => theme.colors.text};
-  margin: ${({ theme }) => theme.spacing.large} 0;
   background-color: ${({ theme }) => theme.colors.background};
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
@@ -57,29 +64,13 @@ export const Timer = styled.div`
 export const Content = styled.div`
   flex: 1;
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: ${({ theme }) => theme.spacing.xlarge};
-  padding: ${({ theme }) => theme.spacing.xlarge};
-`;
-
-export const TargetSound = styled.div<{ $isPlaying?: boolean }>`
-  background-color: ${({ theme, $isPlaying }) => 
-    $isPlaying ? theme.colors.primary : theme.colors.background};
-  color: ${({ theme, $isPlaying }) => 
-    $isPlaying ? 'white' : theme.colors.text};
-  padding: ${({ theme }) => theme.spacing.large};
-  border-radius: ${({ theme }) => theme.borderRadius};
-  display: flex;
   flex-direction: column;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.medium};
-  box-shadow: ${({ $isPlaying }) => $isPlaying ? '0 4px 12px rgba(0, 0, 0, 0.2)' : '0 4px 12px rgba(0, 0, 0, 0.1)'};
-  min-width: 300px;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-  transform: ${({ $isPlaying }) => $isPlaying ? 'scale(1.05)' : 'none'};
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: ${({ theme }) => theme.spacing.large};
+  gap: ${({ theme }) => theme.spacing.xlarge};
 `;
 
 export const PhoneticText = styled.div`
@@ -110,6 +101,100 @@ export const AudioButton = styled.button`
 
   &:active {
     transform: scale(0.95);
+  }
+`;
+
+export const TargetSoundCard = styled.div<{ $isPlaying?: boolean }>`
+  height: 240px;
+  width: 235px;
+  background-color: ${({ $isPlaying }) => 
+    $isPlaying ? '#d55a1d' : '#F26522'};
+  color: white;
+  padding: ${({ theme }) => theme.spacing.large};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.medium};
+  box-shadow: ${({ $isPlaying }) => $isPlaying ? '0 4px 12px rgba(242, 101, 34, 0.4)' : '0 4px 12px rgba(242, 101, 34, 0.2)'};
+  transition: all 0.3s ease;
+  transform: ${({ $isPlaying }) => $isPlaying ? 'scale(1.05)' : 'none'};
+  cursor: pointer;
+  border: 3px solid black;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(242, 101, 34, 0.3);
+    background-color: #d55a1d;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  ${PhoneticText} {
+    font-size: 4rem;
+    color: white;
+    margin-bottom: 0;
+  }
+
+  ${AudioButton} {
+    color: white;
+    font-size: 2.5rem;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+`;
+
+export const TargetSound = styled.div<{ $isPlaying?: boolean }>`
+  height: 240px;
+  width: 235px;
+  background-color: #5E5E5E;
+  color: white;
+  padding: ${({ theme }) => theme.spacing.large};
+  border-radius: ${({ theme }) => theme.borderRadius};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.small};
+  box-shadow: ${({ $isPlaying }) => $isPlaying ? '0 4px 12px rgba(94, 94, 94, 0.4)' : '0 4px 12px rgba(94, 94, 94, 0.2)'};
+  transition: all 0.3s ease;
+  transform: ${({ $isPlaying }) => $isPlaying ? 'scale(1.05)' : 'none'};
+  cursor: pointer;
+  border: 3px solid black;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(94, 94, 94, 0.3);
+    background-color: #4e4e4e;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  ${PhoneticText} {
+    font-size: 3.5rem;
+    color: white;
+    margin-bottom: 0;
+  }
+
+  ${ExampleWord} {
+    font-size: 2.5rem;
+    color: white;
+  }
+
+  ${AudioButton} {
+    color: white;
+    font-size: 2.5rem;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
   }
 `;
 
@@ -317,13 +402,15 @@ export const CardInfo = styled.div`
 `;
 
 export const CardWord = styled.div`
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   font-weight: 500;
+  color: white;
 `;
 
 export const CardLanguage = styled.div`
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   opacity: 0.7;
+  color: white;
 `;
 
 export const ResultIcon = styled.div<{ $isCorrect: boolean }>`
@@ -340,7 +427,6 @@ export const StartButton = styled.button`
   font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin: 20px 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 
   &:hover {
@@ -364,6 +450,26 @@ export const ResultSummary = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
+export const ScoreSection = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1rem 0;
+`;
+
+export const ScoreInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+export const ScoreImage = styled.img`
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+`;
+
 export const FinalScore = styled.div`
   font-size: 3rem;
   font-weight: bold;
@@ -377,26 +483,35 @@ export const PercentageScore = styled.div`
 `;
 
 export const QuestionResults = styled.div`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin-bottom: 2rem;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
 `;
 
 export const QuestionResult = styled.div`
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
+  flex-direction: column;
+  padding: 1.5rem;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
 `;
 
 export const QuestionInfo = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  margin-bottom: 0.5rem;
 `;
 
 export const QuestionNumber = styled.div`
@@ -410,9 +525,11 @@ export const QuestionTarget = styled.div`
 `;
 
 export const QuestionScore = styled.div`
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: bold;
   color: #2c3e50;
+  margin-top: auto;
+  text-align: center;
 `;
 
 export const ActionButtons = styled.div`
@@ -424,7 +541,7 @@ export const ActionButtons = styled.div`
 
 export const RestartButton = styled.button`
   padding: 0.8rem 1.5rem;
-  background: #3498db;
+  background: #107E7D;
   color: white;
   border: none;
   border-radius: 6px;
@@ -433,7 +550,7 @@ export const RestartButton = styled.button`
   transition: background 0.2s;
 
   &:hover {
-    background: #2980b9;
+    background: #107E7D;
   }
 `;
 
@@ -460,7 +577,11 @@ export const Card = styled.div<{
   isPlaying?: boolean;
 }>`
   aspect-ratio: 1;
-  background: white;
+  background: ${props => 
+    props.isTimeUp && props.isCorrect ? '#2ecc71' :
+    props.isTimeUp && props.isWrong ? '#e74c3c' :
+    props.isSelected ? '#107E7D' :
+    '#63535B'};
   border-radius: 8px;
   padding: 1rem;
   cursor: pointer;
@@ -472,25 +593,18 @@ export const Card = styled.div<{
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transform: ${props => props.isPlaying ? 'scale(1.05)' : 'none'};
   box-shadow: ${props => props.isPlaying ? '0 4px 12px rgba(0, 0, 0, 0.2)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
-
-  ${props => props.isSelected && `
-    background: #3498db;
-    color: white;
-  `}
-
-  ${props => props.isTimeUp && props.isCorrect && `
-    background: #2ecc71;
-    color: white;
-  `}
-
-  ${props => props.isTimeUp && props.isWrong && `
-    background: #e74c3c;
-    color: white;
-  `}
+  color: ${props => 
+    props.isTimeUp || props.isSelected ? 'white' : 'white'};
+  border: 3px solid black;
 
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: ${props => 
+      props.isTimeUp && props.isCorrect ? '#27ae60' :
+      props.isTimeUp && props.isWrong ? '#c0392b' :
+      props.isSelected ? '#107E7D' :
+      '#534549'};
   }
 
   &:active {
@@ -499,7 +613,16 @@ export const Card = styled.div<{
 `;
 
 export const CardNumber = styled.div`
-  font-size: 2.5rem;
+  font-size: 3.2rem;
   font-weight: bold;
-  color: #2c3e50;
-`; 
+  color: white;
+`;
+
+export const Title = styled.h1`
+  font-size: 28px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  color: #000;
+  margin: 1rem 0 2rem 0;
+  text-align: center;
+`;

@@ -69,46 +69,32 @@ const ButtonStack = styled.div`
   width: 100%;
 `;
 
-const OrangeButton = styled.button`
-  background: #F26522;
-  color: #fff;
+const BaseButton = styled.button`
+  background: ${BG_COLOR};
+  color: #23243a;
   border: 2px solid #232323;
   border-radius: 16px;
   font-size: 1.25rem;
   font-weight: bold;
   padding: 1.1rem 2.5rem;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
-  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-  margin-bottom: 0.5rem;
-  text-align: left;
-  width: 270px;
-  &:hover {
-    background: #d94e0f;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-    transform: translateY(-2px);
-  }
-`;
-
-const OutlineButton = styled.button`
-  background: ${BG_COLOR};
-  color: #23243a;
-  border: 2px solid #F26522;
-  border-radius: 16px;
-  font-size: 1.25rem;
-  font-weight: bold;
-  padding: 1.1rem 2.5rem;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
   text-align: left;
   width: 270px;
   &:hover {
-    background: #ffe5d3;
+    background: #F26522;
+    color: #fff;
     box-shadow: 0 4px 16px rgba(0,0,0,0.13);
     transform: translateY(-2px);
   }
 `;
+
+const OrangeButton = styled(BaseButton)`
+  margin-bottom: 0.5rem;
+`;
+
+const OutlineButton = styled(BaseButton)``;
 
 const Right = styled.div`
   flex: 1;

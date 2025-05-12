@@ -2,6 +2,7 @@ export interface QuizSample {
   id: string;
   text: string;
   audio: string;
+  IPA: string;
 }
 
 export interface QuizOption {
@@ -9,6 +10,7 @@ export interface QuizOption {
   word: string;
   language: string;
   audio: string;
+  IPA: string;
 }
 
 export interface QuizOptionsPool {
@@ -24,6 +26,7 @@ export interface QuizFeedback {
 export interface QuizQuestion {
   id: number;
   target: string;
+  target_audio: string;
   samples: QuizSample[];
   options_pool: QuizOptionsPool;
   feedback: QuizFeedback;

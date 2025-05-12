@@ -31,6 +31,9 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   const [currentPlayingIndex, setCurrentPlayingIndex] = useState(-1);
   const [isAudioLoaded, setIsAudioLoaded] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [isTargetPlaying, setIsTargetPlaying] = useState(false);
+  const [isSamplePlaying, setIsSamplePlaying] = useState(false);
+  const [targetSoundAudio, setTargetSoundAudio] = useState<HTMLAudioElement | null>(null);
 
   // Reset states when question changes
   useEffect(() => {
@@ -74,14 +77,31 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     console.log('QuizQuestion: Starting audio load for question:', question.id);
     const loadAudio = async () => {
       try {
-        // Load target audio
-        const audioUrl = question.samples[0].audio.replace('.mp33', '.mp3');
-        console.log('QuizQuestion: Loading target audio from:', audioUrl);
-        const targetAudioElement = new Audio(audioUrl);
+        // Load target sound audio
+        const targetSoundUrl = question.target_audio;
+        console.log('QuizQuestion: Loading target sound audio from:', targetSoundUrl);
+        const targetSoundElement = new Audio(targetSoundUrl);
+        
+        targetSoundElement.onerror = (e) => {
+          console.error('QuizQuestion: Error loading target sound audio:', e);
+        };
+
+        await new Promise((resolve, reject) => {
+          targetSoundElement.addEventListener('canplaythrough', resolve, { once: true });
+          targetSoundElement.addEventListener('error', reject, { once: true });
+          targetSoundElement.load();
+        });
+        
+        setTargetSoundAudio(targetSoundElement);
+
+        // Load sample audio
+        const sampleAudioUrl = question.samples[0].audio.replace('.mp33', '.mp3');
+        console.log('QuizQuestion: Loading sample audio from:', sampleAudioUrl);
+        const targetAudioElement = new Audio(sampleAudioUrl);
         
         // Add error handling for audio loading
         targetAudioElement.onerror = (e) => {
-          console.error('QuizQuestion: Error loading target audio:', e);
+          console.error('QuizQuestion: Error loading sample audio:', e);
           setIsAudioLoaded(true); // Still set loaded to true to allow UI to render
         };
 
@@ -91,7 +111,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
           targetAudioElement.load();
         });
         
-        console.log('QuizQuestion: Target audio loaded successfully');
+        console.log('QuizQuestion: Sample audio loaded successfully');
         setTargetAudio(targetAudioElement);
         
         // Prepare options
@@ -185,9 +205,10 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   }, [isPlayingIntro, isTimeUp, hasStarted, question.id]);
 
   const playIntroSequence = async () => {
-    if (!targetAudio || !isAudioLoaded) {
+    if (!targetAudio || !targetSoundAudio || !isAudioLoaded) {
       console.log('QuizQuestion: Cannot play intro sequence - audio not loaded', {
-        hasTargetAudio: !!targetAudio,
+        hasSampleAudio: !!targetAudio,
+        hasTargetAudio: !!targetSoundAudio,
         isAudioLoaded
       });
       return;
@@ -196,11 +217,21 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     try {
       console.log('QuizQuestion: Starting intro sequence for question:', question.id);
       setHasStarted(true);
-      // Play target sound
+
+      // Play target phoneme sound first
       setCurrentPlayingIndex(-1);
+      setIsTargetPlaying(true);
+      targetSoundAudio.currentTime = 0;
+      await targetSoundAudio.play();
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setIsTargetPlaying(false);
+
+      // Play sample word
+      setIsSamplePlaying(true);
       targetAudio.currentTime = 0;
       await targetAudio.play();
       await new Promise(resolve => setTimeout(resolve, 1500));
+      setIsSamplePlaying(false);
 
       // Play options
       for (let i = 0; i < quizOptions.length; i++) {
@@ -221,6 +252,8 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     } catch (error) {
       console.error('QuizQuestion: Error playing intro sequence for question:', question.id, error);
       setIsPlayingIntro(false);
+      setIsTargetPlaying(false);
+      setIsSamplePlaying(false);
     }
   };
 
@@ -242,11 +275,27 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
     });
   };
 
-  const handleTargetAudioPlay = () => {
-    console.log('QuizQuestion: Target audio play clicked for question:', question.id);
+  const handleTargetSoundPlay = () => {
+    if (targetSoundAudio) {
+      setIsTargetPlaying(true);
+      targetSoundAudio.currentTime = 0;
+      targetSoundAudio.play().then(() => {
+        targetSoundAudio.onended = () => {
+          setIsTargetPlaying(false);
+        };
+      });
+    }
+  };
+
+  const handleSamplePlay = () => {
     if (targetAudio) {
+      setIsSamplePlaying(true);
       targetAudio.currentTime = 0;
-      targetAudio.play();
+      targetAudio.play().then(() => {
+        targetAudio.onended = () => {
+          setIsSamplePlaying(false);
+        };
+      });
     }
   };
 
@@ -300,7 +349,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
         {isTimeUp ? (
           <>
             <S.CardWord>{quizOptions[index].word}</S.CardWord>
-            <S.CardLanguage>{quizOptions[index].language}</S.CardLanguage>
+            <S.CardLanguage>{quizOptions[index].IPA}</S.CardLanguage>
           </>
         ) : (
           <S.CardNumber>{index + 1}</S.CardNumber>
@@ -312,10 +361,11 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
   return (
     <S.Container>
       <S.NavigationHeader>
-        <S.BackButton onClick={() => navigate('/quiz')}>←</S.BackButton>
+        <S.BackButton onClick={() => navigate(-1)}>←</S.BackButton>
+        <S.Title>Phonic Trio</S.Title>
         <S.ProgressContainer>
           <S.ProgressBar>
-            <S.Progress $progress={progress} />
+            <S.Progress $progress={(questionNumber / totalQuestions) * 100} />
           </S.ProgressBar>
           <S.ProgressText>{questionNumber}/{totalQuestions}</S.ProgressText>
           {isTimeUp && (
@@ -327,21 +377,32 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
       </S.NavigationHeader>
       
       <S.Content>
-        <S.TargetSound $isPlaying={currentPlayingIndex === -1}>
-          <S.PhoneticText>{question.target}</S.PhoneticText>
-          <S.ExampleWord>{question.samples[0].text}</S.ExampleWord>
-          <S.AudioButton onClick={handleTargetAudioPlay}>
-            🔊
-          </S.AudioButton>
-        </S.TargetSound>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <S.TargetSoundCard $isPlaying={isTargetPlaying} onClick={handleTargetSoundPlay}>
+            <S.PhoneticText>{question.target}</S.PhoneticText>
+            <S.AudioButton>
+              <img src="https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/high-volume.svg" alt="Audio Icon" style={{ width: '3rem', height: '3rem', filter: 'invert(100%)' }} />
+            </S.AudioButton>
+          </S.TargetSoundCard>
 
-        {!hasStarted && isAudioLoaded && (
-          <S.StartButton onClick={playIntroSequence}>
-            Start Question
-          </S.StartButton>
-        )}
+          <S.TargetSound $isPlaying={isSamplePlaying} onClick={handleSamplePlay}>
+            <S.PhoneticText>{question.samples[0].text}</S.PhoneticText>
+            <S.ExampleWord>{question.samples[0].IPA}</S.ExampleWord>
+            <S.AudioButton>
+              <img src="https://phonetics-media.s3.us-east-1.amazonaws.com/img/svg/high-volume.svg" alt="Audio Icon" style={{ width: '3rem', height: '3rem', filter: 'invert(100%)' }} />
+            </S.AudioButton>
+          </S.TargetSound>
+        </div>
 
-        {hasStarted && !isPlayingIntro && <S.Timer>{timeLeft}</S.Timer>}
+        <S.TimerContainer>
+          {!hasStarted && isAudioLoaded && (
+            <S.StartButton onClick={playIntroSequence}>
+              Start Question
+            </S.StartButton>
+          )}
+
+          {hasStarted && !isPlayingIntro && <S.Timer>{timeLeft}</S.Timer>}
+        </S.TimerContainer>
 
         {isAudioLoaded && (
           <S.WordCardsGrid>
@@ -362,7 +423,7 @@ const QuizQuestion: React.FC<QuizQuestionProps> = ({
                 <S.SelectedCard key={index} $isCorrect={isCorrect}>
                   <S.CardInfo>
                     <S.CardWord>{quizOptions[cardId].word}</S.CardWord>
-                    <S.CardLanguage>{quizOptions[cardId].language}</S.CardLanguage>
+                    <S.CardLanguage>{quizOptions[cardId].IPA}</S.CardLanguage>
                   </S.CardInfo>
                   <S.ResultIcon $isCorrect={isCorrect}>
                     {isCorrect ? '✓' : '✗'}
