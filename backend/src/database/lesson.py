@@ -19,12 +19,22 @@ def db_get_lesson_type_by_id(lesson_type_id: int) -> LessonType | None:
     return LessonType.query.get(lesson_type_id)
 
 
-def db_get_lesson_by_slug(slug: str):
+def db_get_lesson_by_slug(slug: str) -> LessonType | None:
     """
-    Fetches the LessonType by its slug, which will contain the sections.
+    Fetches the LessonType by its slug, eagerly loading
+    sections → cells → vowels in a single query.
     """
-    return db.session.query(LessonType).filter(LessonType.slug == slug).first()
-
+    return (
+        db.session
+        .query(LessonType)
+        .options(
+            joinedload(LessonType.sections)
+            .joinedload(Vowels101Section.cells)
+            .joinedload(VowelGridCell.vowels)
+        )
+        .filter(LessonType.slug == slug)
+        .first()
+    )
 
 def db_get_section_by_id(section_id: int):
     """

@@ -1,0 +1,43 @@
+/* Cell.module.css */
+.cell {
+    /*affects graphenes cells */
+    padding: 0.5rem;
+
+    border: 1px solid var(--mantine-color-grey);
+    border-radius: 6px;
+    background-color: var(--mantine-color-white);
+    transition: background 150ms, border-color 150ms;
+    cursor: pointer;
+    user-select: none;
+    outline: 1px dashed rgba(19, 16, 212, 0.5);
+    min-width: 0;
+}
+
+.cellActive {
+    border-color: var(--mantine-color-primary);
+    background-color: var(--mantine-color-cellActivePrimary);
+}
+
+.cellHover {
+    background-color: var(--mantine-color-cellHoverPrimary);
+}
+
+.mediaCell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    gap: 0.8rem;
+    background: var(--mantine-color-backgroundAccent);
+    box-shadow: var(--mantine-shadow-sm);
+}
+
+/* These are the critical overrides: */
+.noBorder {
+    border: none !important;
+}
+
+.noBackground {
+    background-color: transparent !important;
+}
