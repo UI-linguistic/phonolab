@@ -54,6 +54,18 @@
  *    Usage:
  *      <StartButton onClick={handleStart} />
  *
+ * 6. TonguePositionButtonGroup
+ *    - A specialized Submit/Reset button pair for the Vowel Shuffle/Tongue Position quiz.
+ *    - Submit button uses teal/green color, Reset uses salmon/peach color.
+ *    - Custom styling to match the quiz design.
+ *    
+ *    Props:
+ *      • onSubmit: () => void    — callback for Submit
+ *      • onReset:  () => void    — callback for Reset
+ *    
+ *    Usage:
+ *      <TonguePositionButtonGroup onSubmit={handleSubmit} onReset={handleReset} />
+ *
  * Export:
  *   Default export is an object { SubmitResetGroup, QuizMenuList, LearnMenuList, HomeHeroMenuList }
  *   so you can import presets as:
@@ -227,5 +239,96 @@ export function StartButton(props: {
   );
 }
 
-const MenuPresets = { SubmitResetGroup, QuizMenuList, LearnMenuList, HomeHeroMenuList, StartButton };
+// ────────────────────────────────────────────────────────────
+// 6) TonguePositionButtonGroup 
+//    Custom styling for Vowel Shuffle quiz
+// ────────────────────────────────────────────────────────────
+
+const TonguePositionWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 3rem;
+  width: 100%;
+  max-width: 170px;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+`;
+
+const SubmitButton = styled.button`
+  font-size: 1.25rem;
+  font-weight: bold;
+  padding: 0.75rem 1.25rem;
+  min-width: 170px; 
+  width: 100%;
+  height: 50px;
+  background-color: #71B2AD; /* Teal color from the image */
+  color: white;
+  border: 2px solid black;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+`;
+
+const ResetButton = styled.button`
+  font-size: 1.25rem;
+  font-weight: bold;
+  padding: 0.75rem 1.25rem;
+  min-width: 170px;
+  width: 100%;
+  height: 50px;
+  background-color: #EF9277; /* Salmon color from the image */
+  color: white;
+  border: 2px solid black;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 0;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+`;
+
+export function TonguePositionButtonGroup(props: {
+  onSubmit: () => void;
+  onReset: () => void;
+}) {
+  const { onSubmit, onReset } = props;
+
+  return (
+    <TonguePositionWrapper>
+      <SubmitButton onClick={onSubmit}>Submit</SubmitButton>
+      <ResetButton onClick={onReset}>Reset</ResetButton>
+    </TonguePositionWrapper>
+  );
+}
+
+const MenuPresets = {
+  SubmitResetGroup,
+  QuizMenuList,
+  LearnMenuList,
+  HomeHeroMenuList,
+  StartButton,
+  TonguePositionButtonGroup
+};
 export default MenuPresets;

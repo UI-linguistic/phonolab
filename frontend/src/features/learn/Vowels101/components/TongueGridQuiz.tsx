@@ -16,23 +16,21 @@ import vowelsData from '@api/fallback/vowels-101.json';
 
 // Main outer container - Layer 1
 const MainContainer = styled.div`
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  max-width: 450px;
+  max-width: 450px; 
   margin: 0 auto;
-  outline: 3px solid #555555;
+  outline: none;
   padding: 1rem;
   box-sizing: border-box;
   background: transparent;
   
-  /* Center the component in its slot */
-  justify-self: center;
-  align-self: center;
-  
   /* Ensure it maintains a good size within the available space */
   min-height: 350px;
-  height: fit-content;
+  height: auto;
 `;
 
 // Wrapper with column title for the column-based layout
@@ -40,8 +38,11 @@ const TonguePositionWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width: 100%;
-  margin: 0 auto;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   background: transparent;
 `;
 
@@ -208,7 +209,6 @@ const VowelGrid = styled.div`
   background: transparent;
   padding: 3px;
   box-sizing: border-box;
-  /* outline: 2px solid #ff0088; */
 `;
 
 interface GridCellProps {
@@ -284,6 +284,8 @@ const SlotCenteredWrapper = styled.div`
   align-items: center;
   width: 100%;
   height: 100%;
+  margin: 0;
+  padding: 0;
   background: transparent;
 `;
 
