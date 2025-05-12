@@ -41,6 +41,19 @@ const theme: DefaultTheme = {
     greyLight: tokens.color.neutral.background.$value,
     grey: tokens.color.neutral.border.$value,
     greyDark: tokens.color.brandTertiary['600'].$value,
+
+    // Quiz-specific colors
+    quizSectionTitle: '#000000', // Black for quiz section titles
+    quizSectionSubtitle: '#63535B', // Dark mauve/purple for quiz section subtitles
+    quizNavigationHover: '#5E5E5E', // Medium gray for back/next arrow hover states
+
+    // Quiz answer feedback colors
+    answerCorrect: '#308A88', // Teal for correct answers
+    answerIncorrect: '#FF644E', // Coral/red for wrong answers
+    answerIncorrectX: '#EE220C', // Bright red for wrong answer X component
+
+    // Component-specific backgrounds
+    graphemeBoxBackground: '#48423E', // Dark brown/gray for grapheme box backgrounds
   },
 
   // ────────────────────────────────────────────────────────────
@@ -181,6 +194,12 @@ const theme: DefaultTheme = {
     medium: tokens.mediaSizes['medium'].$value,
     large: tokens.mediaSizes['large'].$value,
     xlarge: tokens.mediaSizes['xlarge'].$value,
+  },
+
+  // Progress bar configuration
+  progressBar: {
+    height: '12px',
+    borderRadius: tokens.borderradius['900'].$value, // pill shape (9999px)
   },
 
   debugOutline: false,

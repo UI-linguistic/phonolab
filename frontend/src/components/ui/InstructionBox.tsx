@@ -86,7 +86,7 @@ export function InstructionBox({
     const defaultTextProps: Partial<TextProps> = {
         style: {
             fontSize: '1.5rem',
-            textAlign: 'center',
+            textAlign: textProps?.align || 'center',
             width: '100%',
             fontWeight: 500
         },
@@ -108,8 +108,8 @@ export function InstructionBox({
                         padding: '1.75rem 2rem',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        textAlign: 'center',
+                        justifyContent: textProps?.align === 'left' ? 'flex-start' : 'center',
+                        textAlign: textProps?.align || 'center',
                         fontSize: '1.5rem',
                         width: '100%',
                         height: '100%',

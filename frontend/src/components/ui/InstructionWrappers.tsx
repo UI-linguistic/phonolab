@@ -7,30 +7,97 @@ export function Vowels101Instructions() {
     return (
         <>
             <InstructionBox variant="transparent"> </InstructionBox>
-            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold' }}>
+            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
                 Vowels are distinguished by the part of the tongue used to make the sound (
-                <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
+                <Text variant="layoutInstruction" color="secondaryAccent" weight="bold">
                     front to back
                 </Text>
                 )…
             </InstructionBox >
 
 
-            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold' }}>
+            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
                 And the placement of the tongue relative to the roof of the mouth (
-                <Text as="span" variant="layoutInstruction" color="primary" weight="bold">
+                <Text variant="layoutInstruction" color="primary" weight="bold">
                     high to low
                 </Text>
                 ).
             </InstructionBox >
 
-            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold' }}>
+            <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
                 <Text variant="layoutInstruction" weight="bold">Click </Text>
                 <Text variant="layoutInstruction" weight="normal">
-                    in the grid to hear it and learn how to place your tongue!
+                    a vowel in the grid to hear it and learn how to place your tongue!
                 </Text>
             </InstructionBox>
         </>
+    )
+}
+
+/**
+ * TonguePositionInstructions - No border version for the tongue position section
+ * Text is left-aligned with colored highlights
+ */
+export function TonguePositionInstructions() {
+    return (
+        <InstructionBox variant="transparent" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
+            <div style={{ textAlign: 'left', width: '100%' }}>
+                <p>
+                    Vowels are distinguished by the part of the tongue used to make the sound (
+                    <Text variant="layoutInstruction" color="secondaryAccent" weight="bold">
+                        front to back
+                    </Text>
+                    )...
+                </p>
+
+                <p style={{ marginTop: '1rem' }}>
+                    And the placement of the tongue relative to the roof of the mouth (
+                    <Text variant="layoutInstruction" color="primary" weight="bold">
+                        high to low
+                    </Text>
+                    ).
+                </p>
+
+                <p style={{ marginTop: '1rem' }}>
+                    <Text variant="layoutInstruction" weight="bold">Click </Text>
+                    a vowel in the grid to hear it and learn how to place your tongue!
+                </p>
+            </div>
+        </InstructionBox>
+    )
+}
+
+/**
+ * LengthInstructions - Bordered version for the length section
+ * Text is left-aligned with colored highlights
+ */
+export function LengthInstructions() {
+    return (
+        <InstructionBox variant="default" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
+            <div style={{ textAlign: 'left', width: '100%' }}>
+                <p>
+                    <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
+                        Long
+                    </Text>
+                    {' '}vowels are called{' '}
+                    <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
+                        tense
+                    </Text>
+                    .
+                </p>
+
+                <p style={{ marginTop: '1rem' }}>
+                    <Text as="span" variant="layoutInstruction" color="primary" weight="bold">
+                        Short
+                    </Text>
+                    {' '}vowels are called{' '}
+                    <Text as="span" variant="layoutInstruction" color="primary" weight="bold">
+                        lax
+                    </Text>
+                    .
+                </p>
+            </div>
+        </InstructionBox>
     )
 }
 
@@ -107,5 +174,42 @@ export function PhonicTrioInstructions() {
                 Turn up your audio and watch the numbers associated with each word closely!
             </InstructionBox>
         </>
+    )
+}
+
+/**
+ * LipShapeInstructions - Bordered version for the lip shape section
+ * Text is left-aligned with colored highlights
+ */
+export function LipShapeInstructions() {
+    return (
+        <InstructionBox variant="default" textProps={{ variant: 'layoutInstruction', weight: 'bold', align: 'left' }}>
+            <div style={{ textAlign: 'left', width: '100%' }}>
+                <p>
+                    Vowels can also be distinguished by{' '}
+                    <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
+                        lip shape
+                    </Text>
+                    .
+                </p>
+
+                <p style={{ marginTop: '1rem' }}>
+                    Your lips can be{' '}
+                    <Text as="span" variant="layoutInstruction" color="primary" weight="bold">
+                        rounded
+                    </Text>
+                    {' '}or{' '}
+                    <Text as="span" variant="layoutInstruction" color="secondaryAccent" weight="bold">
+                        unrounded
+                    </Text>
+                    {' '}when making vowel sounds.
+                </p>
+
+                <p style={{ marginTop: '1rem' }}>
+                    <Text as="span" variant="layoutInstruction" weight="bold">Click </Text>
+                    on the lip shape images to see examples and hear the sounds.
+                </p>
+            </div>
+        </InstructionBox>
     )
 }

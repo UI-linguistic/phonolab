@@ -1,5 +1,5 @@
 import React from 'react';
-import { Group, Text, Progress, Box, useMantineTheme } from '@mantine/core';
+import styled from 'styled-components';
 
 interface QuizProgressBarProps {
     /** progress percent 0–100 */
@@ -8,62 +8,76 @@ interface QuizProgressBarProps {
     label?: string;
     /** Whether to show label on the right side */
     labelOnRight?: boolean;
+    /** Optional height override (uses theme.progressBar.height by default) */
+    height?: string;
 }
+
+// Main container for the progress bar and its label
+const ProgressContainer = styled.div`
+    display: flex;
+    align-items: center;
+    width: 100%;
+    position: relative;
+`;
+
+// The track/background of the progress bar
+const ProgressTrack = styled.div`
+    flex: 1 1 auto;
+    position: relative;
+    background-color: transparent;
+    border-radius: ${({ theme }) => theme.progressBar.borderRadius || theme.borderRadius};
+    border: ${({ theme }) => theme.borderWidths.thin} solid ${({ theme }) => theme.colors.black};
+    height: ${({ theme }) => theme.progressBar.height};
+    overflow: hidden;
+`;
+
+// The filled portion of the progress bar
+const ProgressFill = styled.div<{ $value: number }>`
+    width: ${props => `${props.$value}%`};
+    height: 100%;
+    background-color: ${({ theme }) => theme.colors.black};
+    border-radius: ${({ theme }) => theme.progressBar.borderRadius || theme.borderRadius} 0 0 ${({ theme }) => theme.progressBar.borderRadius || theme.borderRadius};
+`;
+
+// The label component
+const ProgressLabel = styled.div`
+    background-color: transparent;
+    color: ${({ theme }) => theme.colors.black};
+    margin-left: ${({ theme }) => theme.spacing.medium};
+    font-weight: ${({ theme }) => theme.fontWeights.bold};
+    min-width: 40px;
+    text-align: center;
+    font-size: ${({ theme }) => theme.fontSizes.lg};
+    white-space: nowrap;
+    padding: 2px 8px;
+    border: ${({ theme }) => theme.borderWidths.thin} solid ${({ theme }) => theme.colors.black};
+`;
 
 export function QuizProgressBar({
     value,
     label,
     labelOnRight = true, // Default to placing label on right
+    height,
 }: QuizProgressBarProps) {
-    const theme = useMantineTheme();
-
     // Ensure value is valid and always visible (minimum 33.33% for "1/3")
     const displayValue = value > 0 ? value : 33.33;
 
-    // Create a wrapper component that places the label on the right
-    // with the progress bar taking up the available space
     return (
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            width: '100%',
-            position: 'relative'
-        }}>
-            {/* Progress bar container */}
-            <div style={{
-                flex: '1 1 auto',
-                position: 'relative',
-                backgroundColor: 'transparent',
-                borderRadius: '999px',
-                border: '1px solid #333',
-                height: '16px',
-                overflow: 'hidden'
-            }}>
-                {/* Filled portion */}
-                <div style={{
-                    width: `${displayValue}%`,
-                    height: '100%',
-                    backgroundColor: 'black',
-                    borderRadius: '999px 0 0 999px',
-                }} />
-            </div>
+        <ProgressContainer>
+            <ProgressTrack style={height ? { height } : undefined}>
+                <ProgressFill $value={displayValue} />
+            </ProgressTrack>
 
-            {/* Label positioned to the right with some margin */}
-            {label && (
-                <div style={{
-                    backgroundColor: 'transparent',
-                    color: 'black',
-                    marginLeft: '14px',
-                    fontWeight: 600,
-                    minWidth: '40px',
-                    textAlign: 'center',
-                    fontSize: '18px',
-                    whiteSpace: 'nowrap',
-                    border: `2.1px solid ${theme.black}`,
-                }}>
-                    {label}
-                </div>
+            {label && labelOnRight && (
+                <ProgressLabel>{label}</ProgressLabel>
             )}
-        </div>
+        </ProgressContainer>
     );
 }
+
+// Add default theme values to the exported component
+QuizProgressBar.defaultTheme = {
+    progressBar: {
+        height: '8px',
+    },
+};

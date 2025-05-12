@@ -22,8 +22,7 @@ import React from 'react';
 import styled, { DefaultTheme, keyframes } from 'styled-components';
 import { PageTitle } from '../typography/PageTypography';
 import { QuizProgressBar } from './Pbar';
-import { MenuList } from './Menu';
-import MenuPresets, { SubmitResetGroup, TonguePositionButtonGroup } from './MenuPresets';
+import { TonguePositionButtonGroup } from './MenuPresets';
 
 interface QuizLayoutProps {
     title: string;
@@ -83,6 +82,9 @@ const Wrapper = styled.div<{ rowGap?: string }>`
   background-color: transparent;
   border-radius: ${({ theme }) => theme.borderRadius};
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
+  max-width: ${({ theme }) => theme.layout.maxContentWidth};
+  margin: 0 auto;
+  width: 100%;
 `;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -103,7 +105,7 @@ const HeaderRow = styled.div<{
   
   /* 2. CRITICAL: This defines the width of each column in the header */
   /* You can adjust this through headerConfig.gridTemplateColumns */
-  grid-template-columns: ${props => props.$gridTemplateColumns || '100px 1fr 400px 100px'};
+  grid-template-columns: ${props => props.$gridTemplateColumns || '100px minmax(150px, 1fr) 400px 100px'};
   
   /* 3. Vertical alignment of elements */
   align-items: center;
@@ -119,21 +121,22 @@ const HeaderRow = styled.div<{
   
   /* 7. CRITICAL: This centers the header row on the page */
   width: 100%;
-  max-width: 1100px;
   margin: 0 auto 1rem;
   padding: 0.5rem 0;
+  box-sizing: border-box;
 
-  /* Custom column gap settings using CSS Grid */
-  & > *:nth-child(1) {
-    margin-right: ${props => props.$backTitleGap || '0'};
+  /* Apply consistent spacing to all child elements */
+  & > * {
+    box-sizing: border-box;
+    margin: 0; /* Reset margins for all direct children */
   }
-  
-  & > *:nth-child(2) {
-    margin-right: ${props => props.$titleProgressGap || '0'};
-  }
-  
+
+  /* Use grid-column-gap instead of margins for spacing between columns */
+  /* This ensures consistent spacing that works well with the grid layout */
+  & > *:nth-child(1),
+  & > *:nth-child(2),
   & > *:nth-child(3) {
-    margin-right: ${props => props.$progressNextGap || '0'};
+    margin-right: 0; /* Remove inline margins */
   }
 `;
 
@@ -146,12 +149,26 @@ const BackButtonSlot = styled.nav`
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
-const TitleSlot = styled.header`
-  justify-content: inherit;
-  padding: ${({ theme }) => theme.spacing.small};
+// Consolidate TitleSlot and TitleContainer
+const TitleSlot = styled.header<{ $alignment?: 'left' | 'center' | 'right', $width?: string }>`
   display: flex;
   align-items: center;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
+  width: ${props => props.$width || '100%'};
+  min-width: 0; /* Allow container to shrink if needed */
+  padding: ${({ theme }) => theme.spacing.small};
+  text-align: ${props => props.$alignment || 'center'};
+  justify-content: ${props => {
+        switch (props.$alignment) {
+            case 'left': return 'flex-start';
+            case 'right': return 'flex-end';
+            default: return 'center';
+        }
+    }};
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
+  outline: ${({ theme }) => theme.debugOutline ? `2px dashed orange` : 'none'};
+  
+  /* Remove any right margin to prevent unwanted spacing */
+  margin-right: 0;
 `;
 
 const ProgressBarSlot = styled.section<{ $alignment?: 'flex-start' | 'center' | 'flex-end' }>`
@@ -170,78 +187,66 @@ const ActionButtonSlot = styled.nav`
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
-const LargeQuizTitle = styled(PageTitle) <{ align?: 'left' | 'center' | 'right' }>`
-  font-size: ${({ theme }) => theme.fontSizes.xxl};
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
+const LargeQuizTitle = styled(PageTitle)`
+  font-size: ${({ theme }) => theme.fontSizes.xxxl};
+  font-weight: ${({ theme }) => theme.fontWeights.extrabold};
   margin: 0;
-  padding: 0.5rem 0;
-  text-align: ${props => props.align || 'left'};
+  padding: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: ${({ theme }) => theme.colors.quizSectionTitle};
+  width: 100%; /* Fill available width */
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
+  
+  /* Ensure text doesn't overflow its container */
+  max-width: 100%;
 `;
 
 const SectionLabel = styled.div`
   font-weight: bold;
-  font-size: ${({ theme }) => theme.fontSizes.xl};
+  font-size: ${({ theme }) => theme.typography.quizSubtitle[1].max};
   text-align: center;
-  margin: 1rem auto 1.5rem;
+  margin: 1.5rem auto 2rem;
   padding: ${({ theme }) => theme.spacing.medium};
   width: 100%;
-  max-width: 800px;
+  color: ${({ theme }) => theme.colors.quizSectionSubtitle};
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// PROGRESS BAR CONTAINER
+// PROGRESS BAR CONTAINER - Consolidated wrapper and container into one component
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// This container is placed in the third column of the HeaderRow grid
-// It uses multiple techniques to ensure perfect centering:
 const ProgressBarContainer = styled.div<{
     $width?: string;
     $centerProgressBar?: boolean;
     $alignment?: 'flex-start' | 'center' | 'flex-end';
 }>`
   /* 1. Width of the progress bar itself - configurable via headerConfig */
-  width: ${props => props.$width || '400px'};
+  width: ${props => props.$width || '100%'}; /* Default to 100% to fill the column */
+  min-width: 200px; /* Ensure a minimum width for the progress bar */
+  max-width: 100%; /* Don't exceed the available space */
   
   /* 2. Height of the container */
-  height: 16px;
+  height: ${({ theme }) => theme.progressBar.height};
   
-  /* 3. Centers the progress bar horizontally within its own container */
-  margin: ${props => props.$alignment === 'flex-start' ? '0' :
-        props.$alignment === 'flex-end' ? '0 0 0 auto' : '0 auto'};
-  
-  /* 4. Styling properties */
-  transform-origin: center;
+  /* 3. Position and alignment */
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: ${props => props.$alignment || 'center'};
+  margin: ${props => props.$alignment === 'flex-start' ? '0' :
+        props.$alignment === 'flex-end' ? '0 0 0 auto' : '0 auto'};
   padding: 0;
   
   /* Visual debugging outline */
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
   
-  /* 5. CRITICAL FOR CENTERING: This 3-property combo ensures perfect centering */
-  /* These properties shift the progress bar to the exact center, even if the */
-  /* containing column is wider than the progress bar itself */
-  /* This can now be toggled on/off with the centerProgressBar config */
+  /* 4. CRITICAL FOR CENTERING: This 3-property combo ensures perfect centering */
+  /* Only applied when centerProgressBar is true */
   position: ${props => props.$centerProgressBar !== false ? 'relative' : 'static'};
   left: ${props => props.$centerProgressBar !== false ? '50%' : 'auto'};
   transform: ${props => props.$centerProgressBar !== false ? 'translateX(-50%)' : 'none'};
-`;
-
-// This is a wrapper that will be used in the QuizLayout component
-// to ensure outline visibility while maintaining positioning
-const ProgressBarWrapper = styled.div<{ $alignment?: 'flex-start' | 'center' | 'flex-end' }>`
-  position: relative;
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed red` : 'none'};
-  height: 16px;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: ${props => props.$alignment || 'center'};
 `;
 
 const ContentContainer = styled.div`
@@ -258,7 +263,6 @@ const ContentGrid = styled.div<{ variant: QuizLayoutProps['variant'] }>`
   width: 100%;
   height: 100%;
   margin: 0 auto;
-  max-width: 850px;
   ${({ variant }) => {
         switch (variant) {
             case 'twoColumns':
@@ -344,7 +348,7 @@ const BackButton = styled.button`
   transition: all 0.2s ease;
   
   &:hover {
-    background-color: ${({ theme }) => theme.colors.secondary + '22'};
+    background-color: ${({ theme }) => theme.colors.quizNavigationHover + '22'};
     transform: translateY(-2px);
   }
   
@@ -364,6 +368,7 @@ const NextButton = styled.button`
   transition: all 0.2s ease;
   
   &:hover {
+    background-color: ${({ theme }) => theme.colors.quizNavigationHover};
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   }
@@ -372,22 +377,6 @@ const NextButton = styled.button`
     transform: translateY(0);
     box-shadow: none;
   }
-`;
-
-
-// Customizable title container
-const TitleContainer = styled.div<{ $alignment?: 'left' | 'center' | 'right', $width?: string }>`
-  display: flex;
-  justify-content: ${props => {
-        switch (props.$alignment) {
-            case 'left': return 'flex-start';
-            case 'right': return 'flex-end';
-            default: return 'center';
-        }
-    }};
-  width: ${props => props.$width || '100%'};
-  text-align: ${props => props.$alignment || 'center'};
-  outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
 `;
 
 const QuizLayout: React.FC<QuizLayoutProps> = ({
@@ -414,7 +403,7 @@ const QuizLayout: React.FC<QuizLayoutProps> = ({
     const childrenArray = React.Children.toArray(children);
 
     // Determine grid template based on headerConfig or default
-    const gridTemplateColumns = headerConfig.gridTemplateColumns || '100px 1fr 400px 100px';
+    const gridTemplateColumns = headerConfig.gridTemplateColumns || '100px minmax(200px, 1fr) 400px 100px';
 
     // Determine title alignment
     const titleAlignment = headerConfig.titleAlignment || titleAlign;
@@ -440,22 +429,20 @@ const QuizLayout: React.FC<QuizLayoutProps> = ({
                     {showBackButton ? <BackButton>Back</BackButton> : null}
                 </BackButtonSlot>
 
-                <TitleSlot>
-                    <TitleContainer $alignment={titleAlignment} $width={headerConfig.titleWidth}>
-                        <LargeQuizTitle align={titleAlignment}>{title}</LargeQuizTitle>
-                    </TitleContainer>
+                <TitleSlot $alignment={titleAlignment} $width={headerConfig.titleWidth}>
+                    <LargeQuizTitle>
+                        {title}
+                    </LargeQuizTitle>
                 </TitleSlot>
 
                 <ProgressBarSlot $alignment={progressAlignment}>
-                    <ProgressBarWrapper $alignment={progressAlignment}>
-                        <ProgressBarContainer
-                            $width={headerConfig.progressBarWidth}
-                            $centerProgressBar={centerProgressBar}
-                            $alignment={progressAlignment}
-                        >
-                            {progressBar ?? <QuizProgressBar value={0} label="3/3" />}
-                        </ProgressBarContainer>
-                    </ProgressBarWrapper>
+                    <ProgressBarContainer
+                        $width={headerConfig.progressBarWidth}
+                        $centerProgressBar={centerProgressBar}
+                        $alignment={progressAlignment}
+                    >
+                        {progressBar ?? <QuizProgressBar value={0} label="3/3" />}
+                    </ProgressBarContainer>
                 </ProgressBarSlot>
 
                 <ActionButtonSlot>
@@ -530,18 +517,21 @@ export function VowelShuffleLayout(props: Omit<QuizLayoutProps, 'variant' | 'slo
     const headerConfig = {
         // Title config
         titleAlignment: 'left' as const,
-        titleWidth: '180px',  // Reduced width for title to create more room
+        titleWidth: '280px',  // Increased width for title (was 180px)
 
-        // Progress bar config - reduced width to accommodate label on right
-        progressBarWidth: '350px',
-        progressAlignment: 'flex-start' as const,  // Left-align progress bar in its slot
+        // Progress bar config
+        progressBarWidth: '350px', // Slightly reduced from 400px to accommodate larger title
+        progressAlignment: 'flex-start' as const,
 
-        // Grid layout adjusted to provide adequate space for progress bar + label
-        gridTemplateColumns: '100px 180px 1fr 100px',
+        // Grid layout adjusted to provide more space for title
+        // Back button | Title | Progress Bar | Next button
+        gridTemplateColumns: '100px 280px minmax(200px, 1fr) 100px',
 
-        // Gap controls
-        columnGap: '0.75rem',        // Increased to give better spacing
-        titleProgressGap: '0.65rem',  // Small gap between title and progress bar
+        // Gap controls - use consistent values for all gaps
+        columnGap: '0.75rem',
+        titleProgressGap: '0.75rem', // Match columnGap for consistency
+        backTitleGap: '0.75rem',    // Match columnGap for consistency
+        progressNextGap: '0.75rem',  // Match columnGap for consistency
 
         // No transform centering since we're using flex-start alignment
         centerProgressBar: false
@@ -551,6 +541,7 @@ export function VowelShuffleLayout(props: Omit<QuizLayoutProps, 'variant' | 'slo
         <QuizLayout
             {...props}
             titleAlign="left"
+
             variant="threeColumns"
             slotDirections={['column', 'column']}
             rowGap="normal"
@@ -613,7 +604,8 @@ const IntroWrapper = styled.div<{ rowGap?: string }>`
   border-radius: ${({ theme }) => theme.borderRadius};
   outline: ${({ theme }) => theme.debugOutline ? `2px dashed ${theme.colors.secondary}` : 'none'};
   margin: 0 auto;
-  max-width: 90%;
+  max-width: ${({ theme }) => theme.layout.maxContentWidth};
+  width: 100%;
   
   /* Increase text size for all children */
   font-size: 1.25em;

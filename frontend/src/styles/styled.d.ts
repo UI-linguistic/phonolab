@@ -31,6 +31,19 @@ declare module 'styled-components' {
       greyLight: string;
       grey: string;
       greyDark: string;
+
+      // Quiz-specific colors
+      quizSectionTitle: string;
+      quizSectionSubtitle: string;
+      quizNavigationHover: string;
+
+      // Quiz answer feedback colors
+      answerCorrect: string;
+      answerIncorrect: string;
+      answerIncorrectX: string;
+
+      // Component-specific backgrounds
+      graphemeBoxBackground: string;
     };
 
     typography: {
@@ -153,6 +166,13 @@ declare module 'styled-components' {
       large: string;
       xlarge: string;
     };
+
+    // Progress bar configuration
+    progressBar: {
+      height: string;
+      borderRadius?: string;
+    };
+
     debugOutline?: boolean;
   }
 }
